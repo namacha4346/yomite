@@ -580,23 +580,23 @@ const STORYBOARDS = {
     chapters: [
       { label: "どんなゲーム?", frames: [
         { kind: "intro", creature: "#3D7EA6", cap: "あなたは野鳥の愛好家。森・草原・水辺に、さまざまな鳥を呼び寄せていきます。" },
-        { kind: "cards-row", n: 4, cap: "鳥にはそれぞれ特殊な力があり、置くほどに次の手番でできることが増えていきます。" },
+        { kind: "wrow", habitats: [0, 1, 2], cap: "鳥にはそれぞれ特殊な力があり、置くほどに次の手番でできることが増えていきます。" },
       ]},
       { label: "準備とゴール", frames: [
-        { kind: "cards-row", n: 5, cap: "準備：各自、鳥カードとボーナスカード、エサを受け取って始めます。" },
+        { kind: "wrow", habitats: [0, 1, 2, 1, 0], cap: "準備：各自、鳥カードとボーナスカード、エサを受け取って始めます。" },
         { kind: "spotlight", win: true, cap: "ゴール：4ラウンド後、鳥・卵・エサ・目標などの合計点がいちばん高い人の勝ちです。" },
       ]},
       { label: "手番ですること", frames: [
         { kind: "note", cap: "自分の番には、次の4つから1つだけ行います。" },
-        { kind: "pass", claim: "鳥を置く", cap: "1つめ・鳥を出す：エサや卵を払って、生息地に鳥を置きます。" },
-        { kind: "deck", flip: true, value: "エサ", color: "#C8902F", cap: "2つめ・エサを取る：森の列で、サイコロからエサを得ます。" },
-        { kind: "deck", flip: true, value: "卵", color: "#5C9A6B", cap: "3つめ・卵を産む：草原の列で、鳥の上に卵を置きます。" },
-        { kind: "deck", flip: true, creature: "#3D7EA6", cap: "4つめ・カードを引く：水辺の列で、鳥カードを引きます。" },
-        { kind: "cards-row", n: 4, cap: "エサ・卵・カードは、その列に並んだ鳥が多いほどたくさんもらえます。鳥の力もこのとき発動します。" },
+        { kind: "wplace", cap: "1つめ・鳥を出す：エサや卵を払って、生息地に鳥を置きます。" },
+        { kind: "wfeed", habitat: 0, cap: "2つめ・エサを取る：森の列で、サイコロからエサを得ます。" },
+        { kind: "wegg", habitat: 1, cap: "3つめ・卵を産む：草原の列で、鳥の上に卵を置きます。" },
+        { kind: "wdraw", habitat: 2, cap: "4つめ・カードを引く：水辺の列で、鳥カードを引きます。" },
+        { kind: "wscale", habitat: 0, n: 3, cap: "エサ・卵・カードは、その列に並んだ鳥が多いほどたくさんもらえます。鳥の力もこのとき発動します。" },
       ]},
       { label: "よくある勘違い", frames: [
         { kind: "note", cap: "行動は1手番に1つだけ。あれもこれもとはできません。" },
-        { kind: "note", cap: "鳥は左から順に置くとお得。右に置くほど追加コスト（卵やエサ）がかかります。" },
+        { kind: "wcost", habitat: 0, cap: "鳥は左から順に置くとお得。右に置くほど追加コスト（卵やエサ）がかかります。" },
         { kind: "note", cap: "鳥の力は色で発動のタイミングが違います（出したとき・行動時・他の人の番・ゲーム終了時）。" },
       ]},
     ],
@@ -665,6 +665,94 @@ function Arrow({ x1, y1, x2, y2, c = "#8a7c5f" }) {
     <g stroke={c} fill={c}>
       <line x1={x1} y1={y1} x2={x2} y2={y2} strokeWidth="3" strokeLinecap="round" />
       <path d="M0 0 l-9 -4 l2 4 l-2 4 z" transform={`translate(${x2} ${y2}) rotate(${ang})`} stroke="none" />
+    </g>
+  );
+}
+
+/* ---- ウイングスパン専用パーツ（生息地3列・鳥カード・エサ皿・卵） ---- */
+const HABITATS = [
+  { key: "forest", label: "森", color: "#3F6B4E" },
+  { key: "grass", label: "草原", color: "#C99A3B" },
+  { key: "wetland", label: "水辺", color: "#3D7EA6" },
+];
+function BirdGlyph({ x, y, s = 1, c = "#4a3f2c" }) {
+  return (
+    <g transform={`translate(${x} ${y}) scale(${s})`} fill={c}>
+      <path d="M-8,3 C-8,-4 -2,-8 4,-7 C7,-7 9,-5 9,-3 C9,-1 6,0 6,0 C9,1 9,4 6,5 C2,7 -4,7 -8,3 Z" />
+      <path d="M9,-4 L14,-2 L9,-1 Z" />
+      <circle cx="1" cy="-4.5" r="1" fill="#fff" />
+    </g>
+  );
+}
+function WCard({ x, y, w = 46, h = 60, habitat = HABITATS[0], rot = 0, hl, hlColor, eggs = 0 }) {
+  const bandH = 12;
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${rot})`}>
+      <rect x={-w / 2} y={-h / 2} width={w} height={h} rx="5"
+        fill="#fff" stroke={hl ? (hlColor || habitat.color) : "#d8c8a4"} strokeWidth={hl ? 2.6 : 1.4} />
+      <rect x={-w / 2 + 1.5} y={-h / 2 + 1.5} width={w - 3} height={bandH} rx="3" fill={habitat.color} />
+      <BirdGlyph x={0} y={4} s={0.95} c="#4a3f2c" />
+      {eggs > 0 && (
+        <g transform={`translate(0 ${h / 2 - 9})`}>
+          {Array.from({ length: eggs }).map((_, i) => (
+            <ellipse key={i} cx={(i - (eggs - 1) / 2) * 10} cy="0" rx="3.6" ry="4.6"
+              fill="#F3E9D2" stroke="#c9b585" strokeWidth="1" />
+          ))}
+        </g>
+      )}
+    </g>
+  );
+}
+function DiePips({ c }) {
+  return (
+    <g>
+      <rect x="-9" y="-9" width="18" height="18" rx="4" fill="#fff" stroke={c} strokeWidth="1.6" />
+      <circle cx="-3.5" cy="-3.5" r="1.6" fill={c} /><circle cx="3.5" cy="3.5" r="1.6" fill={c} />
+    </g>
+  );
+}
+function EggIcon({ c }) { return <ellipse rx="7" ry="9" fill="#F3E9D2" stroke={c} strokeWidth="1.6" />; }
+function CardBackIcon({ c }) { return <rect x="-8" y="-10" width="16" height="20" rx="3" fill={c} opacity=".85" />; }
+function WBoard({ x, y, w = 190, highlight }) {
+  const rowH = 30, gap = 6;
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      {HABITATS.map((h, i) => {
+        const ry = i * (rowH + gap);
+        const isHl = highlight === i;
+        return (
+          <g key={h.key} transform={`translate(0 ${ry})`}>
+            <rect x={-w / 2} y="0" width={w} height={rowH} rx="9"
+              fill={isHl ? "#fff" : "#EFE4CA"} stroke={isHl ? h.color : "#d8c8a4"} strokeWidth={isHl ? 2.6 : 1.4} />
+            <rect x={-w / 2} y="0" width="8" height={rowH} rx="4" fill={h.color} />
+            <text x={-w / 2 + 18} y={rowH / 2 + 5} fontSize="12.5" fontWeight="700"
+              fontFamily="'Zen Maru Gothic', sans-serif" fill="#4a3f2c">{h.label}</text>
+            <g transform={`translate(${w / 2 - 20} ${rowH / 2})`}>
+              {i === 0 && <DiePips c={h.color} />}
+              {i === 1 && <EggIcon c={h.color} />}
+              {i === 2 && <CardBackIcon c={h.color} />}
+            </g>
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+function HabitatTag({ x, y, hi }) {
+  const h = HABITATS[hi];
+  return (
+    <g transform={`translate(${x} ${y})`}>
+      <rect x="-30" y="-13" width="60" height="26" rx="13" fill={h.color} />
+      <text x="0" y="5" textAnchor="middle" fontSize="12" fontWeight="700" fill="#fff"
+        fontFamily="'Zen Maru Gothic', sans-serif">{h.label}</text>
+    </g>
+  );
+}
+function DieFace({ x, y, r = 0, c = "#4a3f2c" }) {
+  return (
+    <g transform={`translate(${x} ${y}) rotate(${r})`}>
+      <rect x="-13" y="-13" width="26" height="26" rx="5" fill="#fff" stroke="#cdbf9e" strokeWidth="1.6" />
+      <circle cx="-5" cy="-5" r="2.4" fill={c} /><circle cx="5" cy="5" r="2.4" fill={c} /><circle cx="0" cy="0" r="2.4" fill={c} />
     </g>
   );
 }
@@ -815,6 +903,124 @@ function KamiScene({ frame, color }) {
             </g>
           );
         })}
+      </g>
+    );
+  } else if (f.kind === "wrow") {
+    const list = f.habitats || [0, 1, 2];
+    const n = list.length;
+    const span = n >= 5 ? 46 : 78;
+    const startX = 160 - ((n - 1) * span) / 2;
+    content = (
+      <g className="kami-pop">
+        {list.map((hi, i) => (
+          <WCard key={i} x={startX + i * span} y={100} habitat={HABITATS[hi]} rot={(i - (n - 1) / 2) * 6} />
+        ))}
+      </g>
+    );
+  } else if (f.kind === "wplace") {
+    const row = f.row;
+    const boardY = 46, rowH = 30, gap = 6;
+    content = (
+      <g className="kami-pop">
+        <WBoard x={160} y={boardY} highlight={row} />
+        {row == null ? (
+          <>
+            {[0, 1, 2].map((hi, i) => (
+              <WCard key={hi} x={128 + i * 32} y={22} w={34} h={44} habitat={HABITATS[hi]} rot={(i - 1) * 10} />
+            ))}
+            <Arrow x1={160} y1={46} x2={160} y2={boardY - 4} c={color} />
+          </>
+        ) : (
+          <>
+            <WCard x={252} y={26} habitat={HABITATS[row]} hl hlColor={HABITATS[row].color} />
+            <Arrow x1={238} y1={44} x2={208} y2={boardY + row * (rowH + gap) + rowH / 2} c={HABITATS[row].color} />
+          </>
+        )}
+      </g>
+    );
+  } else if (f.kind === "wfeed") {
+    const hi = f.habitat ?? 0;
+    content = (
+      <g className="kami-pop">
+        <HabitatTag x={54} y={28} hi={hi} />
+        <path d="M118,72 L202,72 L190,122 Q160,134 132,122 Z" fill="#EFE4CA" stroke="#cdbf9e" strokeWidth="1.6" />
+        <DieFace x={144} y={92} r={-8} c={HABITATS[hi].color} />
+        <DieFace x={178} y={94} r={10} c={HABITATS[hi].color} />
+        <Arrow x1={202} y1={98} x2={248} y2={98} c={HABITATS[hi].color} />
+        <g transform="translate(270 98)">
+          <circle r="15" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.4" />
+          <circle r="5.5" fill={HABITATS[hi].color} />
+        </g>
+      </g>
+    );
+  } else if (f.kind === "wegg") {
+    const hi = f.habitat ?? 1;
+    content = (
+      <g className="kami-pop">
+        <HabitatTag x={54} y={28} hi={hi} />
+        <WCard x={160} y={126} habitat={HABITATS[hi]} eggs={1} />
+        <g transform="translate(160 58)"><ellipse rx="9" ry="12" fill="#F3E9D2" stroke="#c9b585" strokeWidth="1.6" /></g>
+        <Arrow x1={160} y1={74} x2={160} y2={94} c={HABITATS[hi].color} />
+      </g>
+    );
+  } else if (f.kind === "wdraw") {
+    const hi = f.habitat ?? 2;
+    content = (
+      <g className="kami-pop">
+        <HabitatTag x={54} y={28} hi={hi} />
+        {[0, 1, 2].map((i) => (
+          <rect key={i} x={68 - i * 2} y={92 - i * 2} width="40" height="56" rx="5"
+            fill="#cdb98e" stroke="#b89f72" strokeWidth="1.2" />
+        ))}
+        <Arrow x1={122} y1={120} x2={168} y2={120} c={HABITATS[hi].color} />
+        <WCard x={214} y={120} habitat={HABITATS[hi]} hl hlColor={HABITATS[hi].color} />
+      </g>
+    );
+  } else if (f.kind === "wscale") {
+    const hi = f.habitat ?? 0;
+    const n = f.n || 3;
+    const span = 60;
+    const startX = 160 - ((n - 1) * span) / 2;
+    content = (
+      <g className="kami-pop">
+        <HabitatTag x={54} y={28} hi={hi} />
+        {Array.from({ length: n }).map((_, i) => {
+          const px = startX + i * span;
+          return (
+            <g key={i}>
+              <WCard x={px} y={132} w={40} h={54} habitat={HABITATS[hi]} />
+              <g transform={`translate(${px} 62)`}>
+                <circle r="12.5" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.2" />
+                <circle r="4.6" fill={HABITATS[hi].color} />
+              </g>
+              <Arrow x1={px} y1={75} x2={px} y2={104} c={HABITATS[hi].color} />
+            </g>
+          );
+        })}
+      </g>
+    );
+  } else if (f.kind === "wcost") {
+    const hi = f.habitat ?? 0;
+    const costs = [0, 1, 1, 2];
+    content = (
+      <g className="kami-pop">
+        <HabitatTag x={54} y={28} hi={hi} />
+        {costs.map((c, i) => {
+          const px = 96 + i * 54;
+          return (
+            <g key={i}>
+              <WCard x={px} y={118} w={40} h={54} habitat={HABITATS[hi]} />
+              {c > 0 && (
+                <g transform={`translate(${px} 80)`}>
+                  {Array.from({ length: c }).map((_, j) => (
+                    <circle key={j} cx={(j - (c - 1) / 2) * 10} cy="0" r="4.2" fill={HABITATS[hi].color} />
+                  ))}
+                </g>
+              )}
+            </g>
+          );
+        })}
+        <Arrow x1={80} y1={154} x2={252} y2={154} c={HABITATS[hi].color} />
       </g>
     );
   }
