@@ -545,7 +545,7 @@ const STORYBOARDS = {
       { label: "手番ですること", frames: [
         { kind: "pass", claim: "これはネズミです", cap: "1枚を裏向きで差し出し、種類を宣言します。本当でも嘘でもOK。" },
         { kind: "judge", cap: "言われた人は「本当?」「嘘?」を当てます。" },
-        { kind: "cards-row", n: 4, bug: true, hl: 3, cap: "外した人の前にカードが置かれます。" },
+        { kind: "cards-row", n: 4, bug: true, hl: 3, hlPawn: true, cap: "外した人の前にカードが置かれます。" },
       ]},
       { label: "よくある勘違い", frames: [
         { kind: "note", cap: "宣言する種類は、本当でも嘘でもかまいません。" },
@@ -900,6 +900,7 @@ function KamiScene({ frame, color }) {
                   : f.bug ? <Bug x={0} y={0} c={PLAYER_COLORS[i % 4]} />
                   : (!f.faceDown ? <Creature x={0} y={0} c={PLAYER_COLORS[i % 4]} /> : null)}
               </SCard>
+              {f.hlPawn && isHl && <SPawn x={px} y={158} s={1.15} color={color} />}
             </g>
           );
         })}
