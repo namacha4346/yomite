@@ -832,8 +832,19 @@ function Kamishibai({ game, nar }) {
   const color = COVER_COLOR[game.cover] || "#3E8A93";
   const [idx, setIdx] = useState(0);
   const [speaking, setSpeaking] = useState(false);
+  const [chapsOverflow, setChapsOverflow] = useState(false);
   const timerRef = useRef(null);
   const audioRef = useRef(null);
+  const chapsRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const el = chapsRef.current;
+    if (!el) return;
+    const check = () => setChapsOverflow(el.scrollWidth > el.clientWidth + 1);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  });
 
   const cancelSpeak = () => {
     try { if (typeof window !== "undefined" && window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) {}
@@ -909,12 +920,15 @@ function Kamishibai({ game, nar }) {
 
   return (
     <div className="kami">
-      <div className="kami-chaps">
-        {sb.chapters.map((c, i) => (
-          <button key={i} className={"kchap" + (curCh === i ? " on" : "")}
-            style={curCh === i ? { borderColor: color, color: color } : undefined}
-            onClick={() => goSilent(starts[i])}>{c.label}</button>
-        ))}
+      <div className="kami-chaps-wrap">
+        <div className="kami-chaps" ref={chapsRef}>
+          {sb.chapters.map((c, i) => (
+            <button key={i} className={"kchap" + (curCh === i ? " on" : "")}
+              style={curCh === i ? { borderColor: color, color: color } : undefined}
+              onClick={() => goSilent(starts[i])}>{c.label}</button>
+          ))}
+        </div>
+        {chapsOverflow && <div className="kami-chaps-fade" aria-hidden="true" />}
       </div>
 
       <div className="kami-stage">
@@ -1207,7 +1221,7 @@ function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete,
           <Tags list={game.mechanics} />
         </div>
 
-        <div className="tabs">
+        <div className={"tabs" + (pro ? " wide" : "")}>
           <button className={"tab" + (mode === "kami" ? " on" : "")}
             onClick={() => switchMode("kami")}>紙芝居</button>
           <button className={"tab" + (mode === "tutorial" ? " on" : "")}
@@ -1856,10 +1870,12 @@ const CSS = `
 
 /* ---- タブ ---- */
 .tabs{display:flex;gap:6px;margin:16px 0 4px;background:#E9DDC1;padding:5px;border-radius:13px;}
-.tab{flex:1;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:14px;
+.tab{flex:1;min-width:0;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:14px;
   padding:9px 10px;border-radius:9px;cursor:pointer;border:none;background:transparent;color:#7c6f55;
-  transition:all .14s ease;}
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .14s ease;}
 .tab.on{background:var(--card);color:var(--ink);box-shadow:0 3px 8px -4px rgba(0,0,0,.4);}
+.tabs.wide{gap:4px;padding:4px;}
+.tabs.wide .tab{font-size:12.5px;padding:9px 4px;}
 
 .controls{display:flex;align-items:center;gap:10px;margin-top:16px;flex-wrap:wrap;}
 .btn{display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;
@@ -2076,7 +2092,10 @@ const CSS = `
 
 /* ---- 紙芝居 ---- */
 .kami{margin-top:18px;}
-.kami-chaps{display:flex;gap:7px;margin-bottom:13px;overflow-x:auto;padding-bottom:2px;}
+.kami-chaps-wrap{position:relative;margin-bottom:13px;}
+.kami-chaps{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;}
+.kami-chaps-fade{position:absolute;top:0;right:0;bottom:2px;width:32px;pointer-events:none;
+  background:linear-gradient(to right, rgba(243,233,210,0), var(--paper));}
 .kchap{flex:0 0 auto;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:12.5px;
   padding:7px 13px;border-radius:999px;cursor:pointer;background:var(--card);
   color:#7c6f55;border:1.5px solid #d3c4a0;transition:all .12s ease;}
