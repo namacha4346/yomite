@@ -546,7 +546,7 @@ const STORYBOARDS = {
     chapters: [
       { label: "どんなゲーム?", frames: [
         { kind: "intro", creature: "#5C9A6B", cap: "雪の森にすむ、もふもふの不思議な生き物「ナンジャモンジャ族」。12種類が、めくるたびに次々あらわれます。" },
-        { kind: "think", creature: "#5C9A6B", cap: "出てきた生き物には、その場でみんなが自由に名前をつけます。覚えやすくても、ふざけた名前でもOK。" },
+        { kind: "think", creature: "#5C9A6B", cap: "はじめて出た生き物には、めくった人がその場で名前をつけます。覚えやすくても、ふざけた名前でもOK。" },
         { kind: "burst", creature: "#5C9A6B", cap: "同じ子にまた出会ったら、いちばん早く名前を呼んだ人が札をもらえる。記憶と瞬発力の勝負です。" },
       ]},
       { label: "準備とゴール", frames: [
@@ -555,12 +555,12 @@ const STORYBOARDS = {
       ]},
       { label: "手番ですること", frames: [
         { kind: "deck", flip: true, creature: "#5C9A6B", cap: "手番の人が、山札から1枚めくります。" },
-        { kind: "think", creature: "#5C9A6B", cap: "はじめて出た生き物なら、みんなで相談して名前をつけます。「もりお！」" },
+        { kind: "think", creature: "#5C9A6B", cap: "はじめて出た生き物なら、めくった本人が名前をつけます。「もりお！」" },
         { kind: "burst", creature: "#5C9A6B", cap: "前に名前をつけた生き物が、もう一度あらわれた！" },
-        { kind: "take", cap: "いちばん早く名前を呼べた人が、めくった札をぜんぶもらいます。" },
+        { kind: "take", cap: "いちばん早く名前を呼べた人（手番の人でなくてもOK）が、めくった札をぜんぶもらいます。" },
       ]},
       { label: "よくある勘違い", frames: [
-        { kind: "note", cap: "名前は自由でOK。早押しは「正しい名前」を言えた人だけが札を取れます。" },
+        { kind: "note", cap: "名前をつけるのはめくった本人、自由につけてOK。早押しで呼べるのは手番の人に限らず、誰でもOKです。" },
         { kind: "note", cap: "間違えて言ってしまっても、基本ペナルティはありません。どんどん挑戦して大丈夫。" },
       ]},
     ],
@@ -574,16 +574,18 @@ const STORYBOARDS = {
       ]},
       { label: "準備とゴール", frames: [
         { kind: "cards-row", n: 4, faceDown: true, pawns: true, cap: "準備：カードをよく混ぜて、全員に配りきります。" },
-        { kind: "spotlight", lose: true, cap: "ゴール：同じ虫が自分の前に4枚そろうと負け。最後まで生き残った人の勝ちです。" },
+        { kind: "spotlight", lose: true, cap: "ゴール：同じ虫が自分の前に4枚そろうか、出すカードがなくなった人が負け。その瞬間ゲーム終了です。" },
       ]},
       { label: "手番ですること", frames: [
         { kind: "pass", claim: "これはネズミです", cap: "1枚を裏向きで差し出し、種類を宣言します。本当でも嘘でもOK。" },
-        { kind: "judge", cap: "言われた人は「本当?」「嘘?」を当てます。" },
-        { kind: "cards-row", n: 4, bug: true, hl: 3, hlPawn: true, cap: "外した人の前にカードが置かれます。" },
+        { kind: "judge", cap: "受け取った人は、その場で「本当?」「嘘?」を答えることができます。" },
+        { kind: "pass", claim: "これは○○です", cap: "または、こっそり中身を確認してから、まだ触っていない別の人に新しい宣言をつけて回すこともできます。" },
+        { kind: "note", cap: "ただし、同じカードを一度でも持った人には、二度と回せません。回せなければ、必ず本当か嘘かを答えます。" },
+        { kind: "cards-row", n: 4, bug: true, hl: 3, hlPawn: true, cap: "答えて外した人の前に、カードが表向きで置かれます。" },
       ]},
       { label: "よくある勘違い", frames: [
         { kind: "note", cap: "宣言する種類は、本当でも嘘でもかまいません。" },
-        { kind: "note", cap: "受け取って中を見たあと、わざと違う名前で次の人に回すのも作戦のうちです。" },
+        { kind: "note", cap: "中身を見たうえで、わざと違う名前をつけて次の人に回すのも作戦のうちです。ただし一度触った人には回せません。" },
       ]},
     ],
   },
@@ -600,13 +602,14 @@ const STORYBOARDS = {
       ]},
       { label: "手番ですること", frames: [
         { kind: "deck", flip: true, value: "+10", color: "#C8902F", cap: "場に点数カードを1枚めくります。" },
-        { kind: "cards-row", numbers: [7, 12, 3, 9], cap: "全員、手札から数字を1枚、いっせいに出します。" },
+        { kind: "cards-row", numbers: [7, 12, 3, 9], cap: "全員、手札から数字を1枚、いっせいに出します。出した数字はもう使えません。" },
         { kind: "cards-row", numbers: [7, 12, 3, 9], hl: 1, cap: "プラスの点数なら、いちばん大きい数字を出した人がもらいます。" },
         { kind: "cards-row", numbers: [8, 8, 5, 2], strike: [0, 1], cap: "同じ数字どうしは相打ちで無効。次に強い人へ。" },
       ]},
       { label: "よくある勘違い", frames: [
         { kind: "note", cap: "数字カードは一度出したら戻ってきません。15枚で15ラウンドです。" },
         { kind: "note", cap: "同じ数字どうしは打ち消し合うので、あえて低い数字で譲るのも手になります。" },
+        { kind: "note", cap: "全員が同じ数字を出して相打ちし、誰も残らなかった場合は、そのカードは誰も取らずに捨てます。" },
       ]},
     ],
   },
@@ -616,17 +619,26 @@ const STORYBOARDS = {
         { kind: "intro", creature: "#3D7EA6", cap: "あなたは野鳥の愛好家。森・草原・水辺に、さまざまな鳥を呼び寄せていきます。" },
         { kind: "wrow", habitats: [0, 1, 2], cap: "鳥にはそれぞれ特殊な力があり、置くほどに次の手番でできることが増えていきます。" },
       ]},
-      { label: "準備とゴール", frames: [
+      { label: "準備", frames: [
         { kind: "wrow", habitats: [0, 1, 2, 1, 0], cap: "準備：各自、鳥カードとボーナスカード、エサを受け取って始めます。" },
-        { kind: "spotlight", win: true, cap: "ゴール：4ラウンド後、鳥・卵・エサ・目標などの合計点がいちばん高い人の勝ちです。" },
       ]},
-      { label: "手番ですること", frames: [
+      { label: "ラウンドの流れ", frames: [
+        { kind: "wcubes", cap: "ゲームは4ラウンド。1人が行える手番の回数は、ラウンドが進むごとに1つずつ減ります（8→7→6→5）。" },
+        { kind: "note", cap: "各ラウンドの最初には専用の「ラウンド目標」が公開され、達成度に応じてボーナス点が入ります。" },
+      ]},
+      { label: "手番のアクション", frames: [
         { kind: "note", cap: "自分の番には、次の4つから1つだけ行います。" },
         { kind: "wplace", cap: "1つめ・鳥を出す：エサや卵を払って、生息地に鳥を置きます。" },
         { kind: "wfeed", habitat: 0, cap: "2つめ・エサを取る：森の列で、サイコロからエサを得ます。" },
         { kind: "wegg", habitat: 1, cap: "3つめ・卵を産む：草原の列で、鳥の上に卵を置きます。" },
         { kind: "wdraw", habitat: 2, cap: "4つめ・カードを引く：水辺の列で、鳥カードを引きます。" },
-        { kind: "wscale", habitat: 0, n: 3, cap: "エサ・卵・カードは、その列に並んだ鳥が多いほどたくさんもらえます。鳥の力もこのとき発動します。" },
+        { kind: "wscale", habitat: 0, n: 3, cap: "②③④は、その列に並んだ鳥が多いほどたくさんもらえます。鳥の力もこのとき発動します。" },
+      ]},
+      { label: "得点計算", frames: [
+        { kind: "note", cap: "得点は、出した鳥カード本体の点数がベースになります。" },
+        { kind: "wscale", habitat: 1, n: 2, cap: "そこに、鳥の力で貯め込んだエサ・差し込んだカード・置いた卵が、1つにつき1点ずつ加わります。" },
+        { kind: "note", cap: "エサや手札は、しまってあるだけでは得点になりません。鳥の力で盤面に落とし込んだ分だけが得点です。" },
+        { kind: "spotlight", win: true, cap: "4ラウンドの終わりに全部を合計して、いちばん高い人の勝ちです。" },
       ]},
       { label: "よくある勘違い", frames: [
         { kind: "note", cap: "行動は1手番に1つだけ。あれもこれもとはできません。" },
@@ -1056,6 +1068,28 @@ function KamiScene({ frame, color }) {
           );
         })}
         <Arrow x1={80} y1={154} x2={252} y2={154} c={HABITATS[hi].color} />
+      </g>
+    );
+  } else if (f.kind === "wcubes") {
+    const counts = [8, 7, 6, 5];
+    const bw = 38, gap = 22, unit = 8, baseY = 166;
+    const totalW = counts.length * bw + (counts.length - 1) * gap;
+    const startX = 160 - totalW / 2 + bw / 2;
+    content = (
+      <g className="kami-pop">
+        {counts.map((c, i) => {
+          const px = startX + i * (bw + gap);
+          const h = c * unit;
+          return (
+            <g key={i}>
+              <rect x={px - bw / 2} y={baseY - h} width={bw} height={h} rx="6" fill={color} opacity=".85" />
+              <text x={px} y={baseY - h - 9} textAnchor="middle" fontSize="15" fontWeight="700"
+                fontFamily="'Bricolage Grotesque', sans-serif" fill={color}>{c}</text>
+              <text x={px} y={baseY + 19} textAnchor="middle" fontSize="12.5" fontWeight="700"
+                fontFamily="'Zen Maru Gothic', sans-serif" fill="#4a3f2c">{i + 1}R</text>
+            </g>
+          );
+        })}
       </g>
     );
   }
