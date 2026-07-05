@@ -1066,9 +1066,11 @@ function KamiScene({ frame, color }) {
         <WBoard x={160} y={boardY} highlight={row} />
         {row == null ? (
           <>
-            {[0, 1, 2].map((hi, i) => (
-              <WCard key={hi} x={128 + i * 32} y={22} w={34} h={44} habitat={HABITATS[hi]} rot={(i - 1) * 10} />
-            ))}
+            <g className="kami-hover">
+              {[0, 1, 2].map((hi, i) => (
+                <WCard key={hi} x={128 + i * 32} y={22} w={34} h={44} habitat={HABITATS[hi]} rot={(i - 1) * 10} />
+              ))}
+            </g>
             <Arrow x1={160} y1={46} x2={160} y2={boardY - 4} c={color} />
           </>
         ) : (
@@ -1088,9 +1090,11 @@ function KamiScene({ frame, color }) {
         <DieFace x={144} y={92} r={-8} food="seed" />
         <DieFace x={178} y={94} r={10} food="fish" />
         <Arrow x1={202} y1={98} x2={248} y2={98} c={HABITATS[hi].color} />
-        <g transform="translate(270 98)">
-          <circle r="15" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.4" />
-          <FoodIcon type="seed" s={1.1} />
+        <g className="kami-move" style={{ "--dx": "-110px", "--dy": "0px" }}>
+          <g transform="translate(270 98)">
+            <circle r="15" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.4" />
+            <FoodIcon type="seed" s={1.1} />
+          </g>
         </g>
       </g>
     );
@@ -1100,8 +1104,9 @@ function KamiScene({ frame, color }) {
       <g className="kami-pop">
         <HabitatTag x={54} y={28} hi={hi} />
         <WCard x={160} y={126} habitat={HABITATS[hi]} eggs={1} />
-        <g transform="translate(160 58)"><ellipse rx="9" ry="12" fill="#F3E9D2" stroke="#c9b585" strokeWidth="1.6" /></g>
-        <Arrow x1={160} y1={74} x2={160} y2={94} c={HABITATS[hi].color} />
+        <g className="kami-move" style={{ "--dx": "0px", "--dy": "-38px" }}>
+          <g transform="translate(160 96)"><ellipse rx="9" ry="12" fill="#F3E9D2" stroke="#c9b585" strokeWidth="1.6" /></g>
+        </g>
       </g>
     );
   } else if (f.kind === "wdraw") {
@@ -1114,7 +1119,9 @@ function KamiScene({ frame, color }) {
             fill="#cdb98e" stroke="#b89f72" strokeWidth="1.2" />
         ))}
         <Arrow x1={122} y1={120} x2={168} y2={120} c={HABITATS[hi].color} />
-        <WCard x={214} y={120} habitat={HABITATS[hi]} hl hlColor={HABITATS[hi].color} />
+        <g className="kami-move" style={{ "--dx": "-146px", "--dy": "0px" }}>
+          <WCard x={214} y={120} habitat={HABITATS[hi]} hl hlColor={HABITATS[hi].color} />
+        </g>
       </g>
     );
   } else if (f.kind === "wscale") {
@@ -1178,7 +1185,8 @@ function KamiScene({ frame, color }) {
           const h = c * unit;
           return (
             <g key={i}>
-              <rect x={px - bw / 2} y={baseY - h} width={bw} height={h} rx="6" fill={color} opacity=".85" />
+              <rect className="kami-grow" style={{ animationDelay: `${0.12 + i * 0.09}s` }}
+                x={px - bw / 2} y={baseY - h} width={bw} height={h} rx="6" fill={color} opacity=".85" />
               <text x={px} y={baseY - h - 9} textAnchor="middle" fontSize="15" fontWeight="700"
                 fontFamily="'Bricolage Grotesque', sans-serif" fill={color}>{c}</text>
               <text x={px} y={baseY + 19} textAnchor="middle" fontSize="12.5" fontWeight="700"
@@ -2566,6 +2574,12 @@ const CSS = `
 .kspk i:nth-child(3){animation-delay:.3s;}
 .kami-pop{animation:kpop .42s cubic-bezier(.34,1.4,.6,1);transform-origin:center;}
 @keyframes kpop{from{opacity:0;transform:translateY(8px) scale(.95);}to{opacity:1;transform:none;}}
+.kami-move{animation:kslide .55s cubic-bezier(.34,1.56,.64,1) .12s both;}
+@keyframes kslide{from{opacity:0;transform:translate(var(--dx,0),var(--dy,0));}to{opacity:1;transform:translate(0,0);}}
+.kami-hover{animation:khover 1.7s ease-in-out .5s infinite;}
+@keyframes khover{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.kami-grow{transform-box:fill-box;transform-origin:bottom;animation:kgrow .5s cubic-bezier(.3,1.3,.5,1) .15s both;}
+@keyframes kgrow{from{transform:scaleY(0);}to{transform:scaleY(1);}}
 .kami-cap{font-family:'Zen Maru Gothic',sans-serif;font-size:15px;line-height:1.75;color:var(--ink);
   margin:15px 4px;min-height:3.4em;}
 .kami-dots-row{display:flex;justify-content:center;gap:7px;align-items:center;margin:0 0 14px;}
