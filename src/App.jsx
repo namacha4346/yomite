@@ -721,23 +721,117 @@ const HABITATS = [
   { key: "grass", label: "草原", color: "#C99A3B" },
   { key: "wetland", label: "水辺", color: "#3D7EA6" },
 ];
-function BirdGlyph({ x, y, s = 1, c = "#4a3f2c" }) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} fill={c}>
-      <path d="M-8,3 C-8,-4 -2,-8 4,-7 C7,-7 9,-5 9,-3 C9,-1 6,0 6,0 C9,1 9,4 6,5 C2,7 -4,7 -8,3 Z" />
-      <path d="M9,-4 L14,-2 L9,-1 Z" />
-      <circle cx="1" cy="-4.5" r="1" fill="#fff" />
-    </g>
-  );
+// ウイングスパンの実物5種のエサ（無脊椎動物・種・魚・果実・ねずみ）を見分けがつく形で描く
+const FOODS = [
+  { key: "invertebrate", c: "#7C9A4A" },
+  { key: "seed", c: "#D9A441" },
+  { key: "fish", c: "#4E7FA6" },
+  { key: "fruit", c: "#B0473F" },
+  { key: "rodent", c: "#9C8C7A" },
+];
+function FoodIcon({ type = "seed", x = 0, y = 0, s = 1 }) {
+  const c = (FOODS.find((f) => f.key === type) || FOODS[1]).c;
+  let shape;
+  if (type === "invertebrate") {
+    shape = (
+      <>
+        <path d="M-6,1.5 Q-6,-2.5 -3,-2.5 Q-1,-2.5 -1,0 Q-1,-2.5 1,-2.5 Q3,-2.5 3,0 Q3,-2.5 5,-2.5 Q7,-2.5 7,1.5 Q7,4.5 4,4.5 Q1,4.5 1,2 Q1,4.5 -2,4.5 Q-6,4.5 -6,1.5 Z" fill={c} />
+        <path d="M-6,0 L-9,-2 M-6,1 L-9,2" stroke={c} strokeWidth="1" />
+      </>
+    );
+  } else if (type === "seed") {
+    shape = (
+      <>
+        <line x1="0" y1="6" x2="0" y2="-3" stroke="#8a6a2a" strokeWidth="1.2" />
+        <ellipse cx="-2.6" cy="-1.5" rx="2" ry="3.3" fill={c} transform="rotate(-25 -2.6 -1.5)" />
+        <ellipse cx="2.6" cy="-1.5" rx="2" ry="3.3" fill={c} transform="rotate(25 2.6 -1.5)" />
+        <ellipse cx="0" cy="-4.5" rx="2" ry="3.3" fill={c} />
+      </>
+    );
+  } else if (type === "fish") {
+    shape = (
+      <>
+        <path d="M-7,0 Q-3,-5 5,-2.2 L5,2.2 Q-3,5 -7,0 Z" fill={c} />
+        <path d="M5,-2.2 L10,-4 L9,0 L10,4 L5,2.2 Z" fill={c} />
+        <circle cx="-4" cy="-0.6" r="0.9" fill="#fff" />
+      </>
+    );
+  } else if (type === "fruit") {
+    shape = (
+      <>
+        <path d="M0,-4 Q1.5,-7 4,-7" stroke="#5C8A4A" strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        <circle cx="-2.6" cy="0.5" r="3.6" fill={c} />
+        <circle cx="3" cy="1.8" r="3.1" fill={c} />
+      </>
+    );
+  } else {
+    shape = (
+      <>
+        <path d="M6,1.5 Q10,3.2 10.5,0.8" stroke={c} strokeWidth="1.3" fill="none" strokeLinecap="round" />
+        <ellipse cx="-1" cy="1.5" rx="6.4" ry="4.6" fill={c} />
+        <circle cx="-5.5" cy="-2" r="2.1" fill={c} />
+        <circle cx="-6.2" cy="-2.6" r="0.6" fill="#2a2017" />
+      </>
+    );
+  }
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>{shape}</g>;
 }
-function WCard({ x, y, w = 46, h = 60, habitat = HABITATS[0], rot = 0, hl, hlColor, eggs = 0 }) {
+
+// 生息地ごとに違うシルエットを割り当て、鳥カードの使い回し感を減らす
+function BirdGlyph({ x, y, s = 1, c = "#4a3f2c", variant = 0 }) {
+  let shape;
+  if (variant === 1) {
+    // ずんぐりした草原の鳥
+    shape = (
+      <>
+        <ellipse cx="0" cy="1" rx="8.5" ry="6.2" fill={c} />
+        <path d="M6.5,-2 L11.5,-3 L7.5,1 Z" fill={c} />
+        <circle cx="4.5" cy="-3" r="1" fill="#fff" />
+      </>
+    );
+  } else if (variant === 2) {
+    // 首の長い水辺の鳥
+    shape = (
+      <>
+        <ellipse cx="-2" cy="2" rx="7" ry="4.6" fill={c} />
+        <path d="M2,-1 Q7,-6 10,-8.5" stroke={c} strokeWidth="3.2" fill="none" strokeLinecap="round" />
+        <path d="M-3,6 L-4.5,11 M1,6 L2,11" stroke={c} strokeWidth="1.4" strokeLinecap="round" />
+        <circle cx="10" cy="-8.5" r="1" fill="#fff" />
+      </>
+    );
+  } else {
+    // とまり木の森の鳥
+    shape = (
+      <>
+        <path d="M-8,3 C-8,-4 -2,-8 4,-7 C7,-7 9,-5 9,-3 C9,-1 6,0 6,0 C9,1 9,4 6,5 C2,7 -4,7 -8,3 Z" fill={c} />
+        <path d="M9,-4 L14,-2 L9,-1 Z" fill={c} />
+        <circle cx="1" cy="-4.5" r="1" fill="#fff" />
+      </>
+    );
+  }
+  return <g transform={`translate(${x} ${y}) scale(${s})`}>{shape}</g>;
+}
+function WCard({ x, y, w = 46, h = 60, habitat = HABITATS[0], rot = 0, hl, hlColor, eggs = 0, cost, points }) {
   const bandH = 12;
+  const hi = HABITATS.indexOf(habitat);
   return (
     <g transform={`translate(${x} ${y}) rotate(${rot})`}>
       <rect x={-w / 2} y={-h / 2} width={w} height={h} rx="5"
         fill="#fff" stroke={hl ? (hlColor || habitat.color) : "#d8c8a4"} strokeWidth={hl ? 2.6 : 1.4} />
       <rect x={-w / 2 + 1.5} y={-h / 2 + 1.5} width={w - 3} height={bandH} rx="3" fill={habitat.color} />
-      <BirdGlyph x={0} y={4} s={0.95} c="#4a3f2c" />
+      <BirdGlyph x={0} y={2} s={0.95} c="#4a3f2c" variant={hi} />
+      {points != null && (
+        <g transform={`translate(${w / 2 - 9} ${-h / 2 + bandH + 9})`}>
+          <path d="M0,-6 L5.2,-3 L5.2,3 L0,6 L-5.2,3 L-5.2,-3 Z" fill="#F3E9D2" stroke="#c9b585" strokeWidth="1" />
+          <text y="3" textAnchor="middle" fontSize="8" fontWeight="700"
+            fontFamily="'Bricolage Grotesque', sans-serif" fill="#4a3f2c">{points}</text>
+        </g>
+      )}
+      {cost && cost.length > 0 && (
+        <g transform={`translate(${-w / 2 + 9} ${-h / 2 + bandH + 9})`}>
+          {cost.map((f, i) => <FoodIcon key={i} type={f} x={(i - (cost.length - 1) / 2) * 11} s={0.85} />)}
+        </g>
+      )}
       {eggs > 0 && (
         <g transform={`translate(0 ${h / 2 - 9})`}>
           {Array.from({ length: eggs }).map((_, i) => (
@@ -749,11 +843,11 @@ function WCard({ x, y, w = 46, h = 60, habitat = HABITATS[0], rot = 0, hl, hlCol
     </g>
   );
 }
-function DiePips({ c }) {
+function DiceCupIcon({ c }) {
   return (
     <g>
       <rect x="-9" y="-9" width="18" height="18" rx="4" fill="#fff" stroke={c} strokeWidth="1.6" />
-      <circle cx="-3.5" cy="-3.5" r="1.6" fill={c} /><circle cx="3.5" cy="3.5" r="1.6" fill={c} />
+      <FoodIcon type="seed" s={0.8} />
     </g>
   );
 }
@@ -774,7 +868,7 @@ function WBoard({ x, y, w = 190, highlight }) {
             <text x={-w / 2 + 18} y={rowH / 2 + 5} fontSize="12.5" fontWeight="700"
               fontFamily="'Zen Maru Gothic', sans-serif" fill="#4a3f2c">{h.label}</text>
             <g transform={`translate(${w / 2 - 20} ${rowH / 2})`}>
-              {i === 0 && <DiePips c={h.color} />}
+              {i === 0 && <DiceCupIcon c={h.color} />}
               {i === 1 && <EggIcon c={h.color} />}
               {i === 2 && <CardBackIcon c={h.color} />}
             </g>
@@ -794,11 +888,11 @@ function HabitatTag({ x, y, hi }) {
     </g>
   );
 }
-function DieFace({ x, y, r = 0, c = "#4a3f2c" }) {
+function DieFace({ x, y, r = 0, food = "seed" }) {
   return (
     <g transform={`translate(${x} ${y}) rotate(${r})`}>
       <rect x="-13" y="-13" width="26" height="26" rx="5" fill="#fff" stroke="#cdbf9e" strokeWidth="1.6" />
-      <circle cx="-5" cy="-5" r="2.4" fill={c} /><circle cx="5" cy="5" r="2.4" fill={c} /><circle cx="0" cy="0" r="2.4" fill={c} />
+      <FoodIcon type={food} s={1.3} />
     </g>
   );
 }
@@ -991,12 +1085,12 @@ function KamiScene({ frame, color }) {
       <g className="kami-pop">
         <HabitatTag x={54} y={28} hi={hi} />
         <path d="M118,72 L202,72 L190,122 Q160,134 132,122 Z" fill="#EFE4CA" stroke="#cdbf9e" strokeWidth="1.6" />
-        <DieFace x={144} y={92} r={-8} c={HABITATS[hi].color} />
-        <DieFace x={178} y={94} r={10} c={HABITATS[hi].color} />
+        <DieFace x={144} y={92} r={-8} food="seed" />
+        <DieFace x={178} y={94} r={10} food="fish" />
         <Arrow x1={202} y1={98} x2={248} y2={98} c={HABITATS[hi].color} />
         <g transform="translate(270 98)">
           <circle r="15" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.4" />
-          <circle r="5.5" fill={HABITATS[hi].color} />
+          <FoodIcon type="seed" s={1.1} />
         </g>
       </g>
     );
@@ -1038,7 +1132,9 @@ function KamiScene({ frame, color }) {
               <WCard x={px} y={132} w={40} h={54} habitat={HABITATS[hi]} />
               <g transform={`translate(${px} 62)`}>
                 <circle r="12.5" fill="#fff" stroke={HABITATS[hi].color} strokeWidth="2.2" />
-                <circle r="4.6" fill={HABITATS[hi].color} />
+                {hi === 0 && <FoodIcon type="seed" s={1.1} />}
+                {hi === 1 && <ellipse rx="5.5" ry="7" fill="#F3E9D2" stroke="#c9b585" strokeWidth="1" />}
+                {hi === 2 && <CardBackIcon c={HABITATS[hi].color} />}
               </g>
               <Arrow x1={px} y1={75} x2={px} y2={104} c={HABITATS[hi].color} />
             </g>
