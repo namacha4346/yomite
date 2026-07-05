@@ -84,6 +84,31 @@ const RATES = [
   { label: "ゆっくり", v: 0.8 }, { label: "ふつう", v: 0.98 }, { label: "はやい", v: 1.18 },
 ];
 const INST_ORDER = ["world", "goal", "setup", "flow", "pitfalls"];
+const SECTION_HINTS = {
+  world: "どんな世界? 何が面白い? 引き込む導入",
+  goal: "何を目指す? いつ終わって誰が勝つ?",
+  setup: "ゲーム開始前にやること",
+  flow: "自分の番に何をする?",
+  pitfalls: "間違えやすい点・補足",
+};
+const SECTION_PALETTE = [
+  "#8A5BA6", "#D8553F", "#5C9A6B", "#3D7EA6", "#E2A032",
+  "#C2554E", "#4F8A73", "#9C6B3E", "#6B7FB0",
+];
+const SECTION_SUGGESTIONS = ["使うコンポーネント", "ラウンドの流れ", "得点計算", "特殊ルール", "終了条件"];
+
+// 台本の項目は元々5つ固定だったが、ゲームの複雑さに応じて増減・並べ替えできるようにする。
+// game.sections が無い（未編集の）ゲームは、従来の game.inst から既定の5項目を組み立てる。
+function getSections(game) {
+  if (Array.isArray(game.sections) && game.sections.length) return game.sections;
+  return INST_ORDER.map((key, i) => ({
+    id: key, label: TOKENS[i].label, color: TOKENS[i].c,
+    body: (game.inst && game.inst[key]) || "",
+  }));
+}
+function newSectionId() {
+  return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
 
 const fmtPlayers = (p) => (p.min === p.max ? `${p.min}人` : `${p.min}〜${p.max}人`);
 const fmtTime = (t) => (t.min === t.max ? `${t.min}分` : `${t.min}〜${t.max}分`);
@@ -228,28 +253,27 @@ function useNarrator() {
     step();
   };
 
-  // audio は { world, goal, setup, flow, pitfalls } の音声ファイルURL（任意）。
-  // 無ければ Web Speech で読み上げる。
-  const playAll = (inst, audio) => {
+  // audio は section.id をキーにした音声ファイルURL（任意）。無ければ Web Speech で読み上げる。
+  const playAll = (sections, audio) => {
     const items = [];
-    INST_ORDER.forEach((key, i) => {
-      const url = audio && audio[key];
+    sections.forEach((sec, i) => {
+      const url = audio && audio[sec.id];
       if (url) {
         items.push({ s: i, type: "audio", url });
       } else {
-        items.push({ s: i, type: "tts", t: TOKENS[i].label + "。" });
-        chunk(inst[key]).forEach((t) => items.push({ s: i, type: "tts", t }));
+        items.push({ s: i, type: "tts", t: sec.label + "。" });
+        chunk(sec.body).forEach((t) => items.push({ s: i, type: "tts", t }));
       }
     });
     startQueue(items);
   };
-  const playSection = (inst, i, audio) => {
-    const key = INST_ORDER[i];
-    const url = audio && audio[key];
+  const playSection = (sections, i, audio) => {
+    const sec = sections[i];
+    const url = audio && audio[sec.id];
     const items = url
       ? [{ s: i, type: "audio", url }]
-      : [{ s: i, type: "tts", t: TOKENS[i].label + "。" },
-         ...chunk(inst[key]).map((t) => ({ s: i, type: "tts", t }))];
+      : [{ s: i, type: "tts", t: sec.label + "。" },
+         ...chunk(sec.body).map((t) => ({ s: i, type: "tts", t }))];
     startQueue(items);
   };
   const pause = () => {
@@ -311,8 +335,7 @@ function Cover({ theme, title, hero }) {
 }
 
 /* ---------- すごろく盤（詳細の主役） ---------- */
-function Track({ game, nar }) {
-  const inst = game.inst;
+function Track({ game, sections, nar }) {
   const themeColor = COVER_COLOR[game.cover];
   const nodeRefs = useRef([]);
   const [centers, setCenters] = useState([]);
@@ -339,7 +362,7 @@ function Track({ game, nar }) {
     if (n) n.scrollIntoView({ block: "center", behavior: reduceMotion ? "auto" : "smooth" });
   }, [active]);
 
-  const ready = centers.length === INST_ORDER.length;
+  const ready = centers.length === sections.length;
   const pieceY = ready ? (active == null ? centers[0] : centers[active]) : 0;
   const lineTop = ready ? centers[0] : 0;
   const lineH = ready ? centers[centers.length - 1] - centers[0] : 0;
@@ -351,28 +374,27 @@ function Track({ game, nar }) {
         <Pawn color={themeColor} />
       </div>
 
-      {INST_ORDER.map((key, i) => {
-        const tk = TOKENS[i];
+      {sections.map((sec, i) => {
         const on = active === i;
         const reached = active != null && i <= active;
-        const last = i === INST_ORDER.length - 1;
+        const last = i === sections.length - 1;
         return (
-          <div className={"station" + (on ? " on" : "")} key={key}>
+          <div className={"station" + (on ? " on" : "")} key={sec.id}>
             <div className="node" ref={(el) => (nodeRefs.current[i] = el)}
-              style={{ borderColor: tk.c, background: reached ? tk.c : "#FCF5E3", color: reached ? "#fff" : tk.c }}>
+              style={{ borderColor: sec.color, background: reached ? sec.color : "#FCF5E3", color: reached ? "#fff" : sec.color }}>
               {last ? <Flag /> : <span>{i + 1}</span>}
             </div>
             <div className="station-card"
-              style={on ? { borderColor: tk.c, boxShadow: `0 14px 30px -20px ${tk.c}` } : undefined}>
+              style={on ? { borderColor: sec.color, boxShadow: `0 14px 30px -20px ${sec.color}` } : undefined}>
               <div className="sc-head">
-                <h3 style={on ? { color: tk.c } : undefined}>{tk.label}</h3>
-                <button className="read" style={{ color: tk.c, borderColor: tk.c }}
-                  onClick={() => nar.playSection(inst, i, game.audio)} aria-label={tk.label + "を読む"}>
+                <h3 style={on ? { color: sec.color } : undefined}>{sec.label}</h3>
+                <button className="read" style={{ color: sec.color, borderColor: sec.color }}
+                  onClick={() => nar.playSection(sections, i, game.audio)} aria-label={sec.label + "を読む"}>
                   <Tri small /> 読む
                 </button>
               </div>
               <p className="sc-text">
-                {splitLines(inst[key]).map((ln, k) => <span key={k}>{ln}</span>)}
+                {splitLines(sec.body).map((ln, k) => <span key={k}>{ln}</span>)}
               </p>
             </div>
           </div>
@@ -384,7 +406,7 @@ function Track({ game, nar }) {
 
 /* ---------- ルールQ&A（AIがそのゲームのルールだけを根拠に答える） ---------- */
 function buildSystem(game) {
-  const i = game.inst;
+  const rules = getSections(game).map((s) => `■${s.label}: ${s.body}`).join("\n");
   return `あなたはボードゲーム「${game.title}」のルール案内役です。下の【ルール】に書かれている内容だけを根拠に、プレイヤーの質問へ日本語で答えてください。
 
 守ること:
@@ -396,11 +418,7 @@ function buildSystem(game) {
 - 「公式ルールブックを確認してください」という注意書きは不要（アプリ側で表示済み）。
 
 【ルール】
-■世界観: ${i.world}
-■ゴール（目的と勝敗）: ${i.goal}
-■準備: ${i.setup}
-■手番の流れ: ${i.flow}
-■よくある勘違い: ${i.pitfalls}`;
+${rules}`;
 }
 
 const QA_SUGGESTIONS = ["何人で遊べる?", "勝つ条件は?", "準備ですることは?", "よくある勘違いは?"];
@@ -1217,14 +1235,10 @@ ${kinds}
 }
 
 function kamiUser(game) {
-  const i = game.inst;
+  const body = getSections(game).map((s) => `${s.label}: ${s.body}`).join("\n");
   return `【台本】
 タイトル: ${game.title || "（無題）"}
-世界観: ${i.world}
-ゴール: ${i.goal}
-準備: ${i.setup}
-手番の流れ: ${i.flow}
-よくある勘違い: ${i.pitfalls}`;
+${body}`;
 }
 
 function sanitizeStoryboard(raw) {
@@ -1264,16 +1278,26 @@ const COVER_OPTS = [
   { v: "vermin", label: "暗がり" },
   { v: "vulture", label: "夕焼け" },
 ];
-const SECTION_FIELDS = [
-  { key: "world", label: "世界観", hint: "どんな世界? 何が面白い? 引き込む導入" },
-  { key: "goal", label: "ゴール", hint: "何を目指す? いつ終わって誰が勝つ?" },
-  { key: "setup", label: "準備", hint: "ゲーム開始前にやること" },
-  { key: "flow", label: "手番の流れ", hint: "自分の番に何をする?" },
-  { key: "pitfalls", label: "よくある勘違い", hint: "間違えやすい点・補足" },
-];
-
-function Editor({ game, onPatch, onDuplicate, onDelete, onReset, isDefault, onShowKami }) {
-  const setInst = (key, val) => onPatch({ inst: { ...game.inst, [key]: val } });
+function Editor({ game, onPatch, onDuplicate, onDelete, onReset, isDefault, onShowKami, onRequestPrint }) {
+  const sections = getSections(game);
+  const patchSections = (next) => onPatch({ sections: next });
+  const setSectionBody = (idx, val) => patchSections(sections.map((s, i) => (i === idx ? { ...s, body: val } : s)));
+  const renameSection = (idx, val) => patchSections(sections.map((s, i) => (i === idx ? { ...s, label: val } : s)));
+  const moveSection = (idx, dir) => {
+    const j = idx + dir;
+    if (j < 0 || j >= sections.length) return;
+    const next = sections.slice();
+    [next[idx], next[j]] = [next[j], next[idx]];
+    patchSections(next);
+  };
+  const removeSection = (idx) => {
+    if (sections.length <= 1) return;
+    patchSections(sections.filter((_, i) => i !== idx));
+  };
+  const addSection = (label) => {
+    const color = SECTION_PALETTE[sections.length % SECTION_PALETTE.length];
+    patchSections([...sections, { id: newSectionId(), label, color, body: "" }]);
+  };
   const num = (v, fb) => { const n = parseInt(v, 10); return Number.isNaN(n) ? fb : n; };
   const toggleMech = (m) => {
     const has = game.mechanics.includes(m);
@@ -1283,8 +1307,8 @@ function Editor({ game, onPatch, onDuplicate, onDelete, onReset, isDefault, onSh
   const [genLoading, setGenLoading] = useState(false);
   const [genErr, setGenErr] = useState("");
   const generateKami = async () => {
-    if (!(game.inst.flow || game.inst.world)) {
-      setGenErr("先に台本（とくに「手番の流れ」）を書いてください。");
+    if (!sections.some((s) => s.body && s.body.trim())) {
+      setGenErr("先に台本（とくに「手番の流れ」にあたる項目）を書いてください。");
       return;
     }
     setGenLoading(true);
@@ -1378,15 +1402,34 @@ function Editor({ game, onPatch, onDuplicate, onDelete, onReset, isDefault, onSh
         </div>
       </div>
 
-      <div className="ed-sep">台本（読み上げる5項目）</div>
-      {SECTION_FIELDS.map((f, i) => (
-        <div className="ed-field" key={f.key}>
-          <label><span className="ed-num" style={{ background: TOKENS[i].c }}>{i + 1}</span>{f.label}
-            <span className="ed-opt">{f.hint}</span></label>
-          <textarea rows={f.key === "flow" ? 5 : 3} value={game.inst[f.key]}
-            onChange={(e) => setInst(f.key, e.target.value)} placeholder={f.hint} />
+      <div className="ed-sep">台本（読み上げる項目）
+        <span className="ed-sep-note">ゲームの複雑さに合わせて、項目を追加・削除・並べ替えできます</span>
+      </div>
+      {sections.map((sec, i) => (
+        <div className="ed-field ed-section" key={sec.id}>
+          <div className="ed-sec-head">
+            <span className="ed-num" style={{ background: sec.color }}>{i + 1}</span>
+            <input className="ed-sec-label" value={sec.label}
+              onChange={(e) => renameSection(i, e.target.value)} placeholder="項目名" />
+            <div className="ed-sec-tools">
+              <button type="button" disabled={i === 0} onClick={() => moveSection(i, -1)} aria-label="上へ移動">▲</button>
+              <button type="button" disabled={i === sections.length - 1} onClick={() => moveSection(i, 1)} aria-label="下へ移動">▼</button>
+              <button type="button" disabled={sections.length <= 1} onClick={() => removeSection(i)} aria-label="この項目を削除">✕</button>
+            </div>
+          </div>
+          {SECTION_HINTS[sec.id] && <span className="ed-opt ed-sec-hint">{SECTION_HINTS[sec.id]}</span>}
+          <textarea rows={sec.id === "flow" ? 5 : 3} value={sec.body}
+            onChange={(e) => setSectionBody(i, e.target.value)} placeholder={SECTION_HINTS[sec.id] || "内容を入力"} />
         </div>
       ))}
+      <div className="ed-sec-add">
+        <div className="ed-sec-suggest">
+          {SECTION_SUGGESTIONS.filter((s) => !sections.some((sec) => sec.label === s)).map((s) => (
+            <button type="button" key={s} className="mchip" onClick={() => addSection(s)}>＋ {s}</button>
+          ))}
+        </div>
+        <button type="button" className="btn soft ed-sec-addbtn" onClick={() => addSection("新しい項目")}>＋ 項目を追加</button>
+      </div>
 
       <div className="ed-kami">
         <div className="ed-kami-head">
@@ -1401,22 +1444,24 @@ function Editor({ game, onPatch, onDuplicate, onDelete, onReset, isDefault, onSh
       </div>
 
       <div className="ed-actions">
-        <button className="btn primary" onClick={() => window.print()}>PDFに書き出す</button>
+        <button className="btn primary" onClick={() => onRequestPrint("script")}>台本をPDFに書き出す</button>
+        <button className="btn soft" onClick={() => onRequestPrint("summary")}>サマリーボードを印刷</button>
         <button className="btn soft" onClick={onDuplicate}>複製</button>
         {isDefault
           ? <button className="btn soft" onClick={onReset}>初期状態に戻す</button>
           : <button className="btn danger" onClick={onDelete}>削除</button>}
       </div>
-      <p className="ed-pdf-note">※ 出てくる画面で「PDFとして保存」を選ぶと、台本を1枚にまとめて書き出せます（パソコンのブラウザを推奨）。</p>
+      <p className="ed-pdf-note">※ 出てくる画面で「PDFとして保存」を選ぶと書き出せます（パソコンのブラウザを推奨）。台本は読み上げ用の全文、サマリーボードは対局中にテーブルへ置く早見用の1枚です。</p>
     </div>
   );
 }
 
 /* ---------- 詳細 ---------- */
-function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete, onReset, isDefault, role }) {
+function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete, onReset, isDefault, role, onRequestPrint }) {
   const pro = role === "pro";
   const [mode, setMode] = useState(pro ? (initialTab || "tutorial") : "kami");
   const switchMode = (m) => { if (m !== mode) { nar.stop(); setMode(m); } };
+  const sections = getSections(game);
 
   return (
     <>
@@ -1448,7 +1493,7 @@ function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete,
             {nar.supported ? (
               <div className="controls">
                 {!nar.playing ? (
-                  <button className="btn primary" onClick={() => nar.playAll(game.inst, game.audio)}>
+                  <button className="btn primary" onClick={() => nar.playAll(sections, game.audio)}>
                     <Tri /> 全部読む
                   </button>
                 ) : nar.paused ? (
@@ -1459,7 +1504,7 @@ function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete,
                 <button className="btn soft" onClick={nar.stop} disabled={!nar.playing}>
                   <span className="stop-ic" /> 停止
                 </button>
-                {nar.active != null && <span className="progress">{nar.active + 1} / 5</span>}
+                {nar.active != null && <span className="progress">{nar.active + 1} / {sections.length}</span>}
                 <div className="wave" data-on={nar.playing && !nar.paused}>
                   <span /><span /><span /><span /><span />
                 </div>
@@ -1492,14 +1537,14 @@ function Detail({ game, nar, onBack, initialTab, onPatch, onDuplicate, onDelete,
               </div>
             )}
 
-            <Track game={game} nar={nar} />
+            <Track game={game} sections={sections} nar={nar} />
           </>
         ) : mode === "qa" ? (
           <QAPanel game={game} />
         ) : (
           <Editor game={game} onPatch={onPatch} onDuplicate={onDuplicate}
             onDelete={onDelete} onReset={onReset} isDefault={isDefault}
-            onShowKami={() => switchMode("kami")} />
+            onShowKami={() => switchMode("kami")} onRequestPrint={onRequestPrint} />
         )}
       </div>
 
@@ -1675,6 +1720,7 @@ function Landing({ onPick }) {
 function PrintSheet({ game }) {
   if (!game) return null;
   const meta = `${fmtPlayers(game.players)} ・ ${fmtTime(game.time)} ・ ${fmtAge(game.minAge)}`;
+  const sections = getSections(game);
   return (
     <div className="print-sheet" aria-hidden="true">
       <div className="ps-head">
@@ -1685,17 +1731,45 @@ function PrintSheet({ game }) {
         {game.summary && <p className="ps-summary">{game.summary}</p>}
       </div>
       <ol className="ps-sections">
-        {SECTION_FIELDS.map((f, i) => (
-          <li key={f.key}>
-            <div className="ps-badge" style={{ background: TOKENS[i].c }}>{i + 1}</div>
+        {sections.map((sec, i) => (
+          <li key={sec.id}>
+            <div className="ps-badge" style={{ background: sec.color }}>{i + 1}</div>
             <div className="ps-body">
-              <h2>{TOKENS[i].label}</h2>
-              <p>{game.inst[f.key] || "（未記入）"}</p>
+              <h2>{sec.label}</h2>
+              <p>{sec.body || "（未記入）"}</p>
             </div>
           </li>
         ))}
       </ol>
       <div className="ps-foot">ヨミテで作成 ・ ルールは公式ルールブックでご確認ください</div>
+    </div>
+  );
+}
+
+/* ---------- サマリーボード（対局中にテーブルへ置く早見用の1枚） ---------- */
+function SummaryBoard({ game }) {
+  if (!game) return null;
+  const meta = `${fmtPlayers(game.players)} ・ ${fmtTime(game.time)} ・ ${fmtAge(game.minAge)}`;
+  const sections = getSections(game);
+  return (
+    <div className="sum-sheet" aria-hidden="true">
+      <div className="sum-head">
+        <div className="sum-eyebrow">サマリーボード</div>
+        <h1>{game.title || "（無題の台本）"}</h1>
+        <div className="sum-meta">{meta}</div>
+      </div>
+      <div className="sum-grid">
+        {sections.map((sec, i) => (
+          <div className="sum-card" key={sec.id}>
+            <div className="sum-card-head" style={{ borderColor: sec.color }}>
+              <span className="sum-dot" style={{ background: sec.color }} />
+              <h2>{sec.label}</h2>
+            </div>
+            <p>{sec.body || "（未記入）"}</p>
+          </div>
+        ))}
+      </div>
+      <div className="sum-foot">ヨミテで作成 ・ 対局中の早見用（詳しいルールは公式ルールブックで）</div>
     </div>
   );
 }
@@ -1867,8 +1941,18 @@ export default function App() {
   const [initTab, setInitTab] = useState("tutorial");
   const [role, setRole] = useState(null);
   const [importing, setImporting] = useState(false);
+  const [printMode, setPrintMode] = useState("script");
+  const [pendingPrint, setPendingPrint] = useState(false);
   const loadedRef = useRef(false);
   const saveTimer = useRef(null);
+
+  const requestPrint = (mode) => { setPrintMode(mode); setPendingPrint(true); };
+  useEffect(() => {
+    if (!pendingPrint) return;
+    setPendingPrint(false);
+    const id = requestAnimationFrame(() => window.print());
+    return () => cancelAnimationFrame(id);
+  }, [pendingPrint]);
 
   useEffect(() => {
     let alive = true;
@@ -1941,7 +2025,7 @@ export default function App() {
   return (
     <div className="yomite-root">
       <style>{CSS}</style>
-      <PrintSheet game={game} />
+      {printMode === "summary" ? <SummaryBoard game={game} /> : <PrintSheet game={game} />}
       <div className="wrap">
         {!role ? (
           <Landing onPick={setRole} />
@@ -1950,7 +2034,7 @@ export default function App() {
         ) : game ? (
           <Detail key={game.id} game={game} nar={nar} onBack={back} initialTab={initTab}
             onPatch={patch} onDuplicate={duplicate} onDelete={remove} onReset={reset}
-            isDefault={isDefault} role={role} />
+            isDefault={isDefault} role={role} onRequestPrint={requestPrint} />
         ) : (
           <List games={games} onOpen={open} onCreate={createNew} role={role}
             onChangeRole={changeRole} onImport={() => { setImporting(true); window.scrollTo(0, 0); }} />
@@ -2281,6 +2365,21 @@ const CSS = `
 .ed-mechs{display:flex;flex-wrap:wrap;gap:6px;}
 .ed-sep{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:13px;color:#8a7c5f;
   letter-spacing:.04em;margin:22px 0 14px;padding-top:14px;border-top:1.5px dashed #d3c4a0;}
+.ed-sep-note{display:block;font-family:'Zen Kaku Gothic New',sans-serif;font-weight:400;
+  letter-spacing:0;font-size:11.5px;color:#9c8c6f;margin-top:4px;}
+.ed-sec-head{display:flex;align-items:center;gap:8px;margin-bottom:2px;}
+.ed-sec-label{flex:1;min-width:0;font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:14px;
+  color:var(--ink);background:transparent;border:none;border-bottom:1.5px dashed #cdbf9e;padding:2px 2px 4px;}
+.ed-sec-label:focus{outline:none;border-bottom-color:var(--gold);}
+.ed-sec-hint{display:block;margin-bottom:7px;}
+.ed-sec-tools{display:flex;gap:4px;flex:0 0 auto;}
+.ed-sec-tools button{width:26px;height:26px;border-radius:8px;border:1.5px solid #d3c4a0;background:#fff;
+  color:#7c6f55;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.ed-sec-tools button:disabled{opacity:.35;cursor:not-allowed;}
+.ed-sec-tools button:hover:not(:disabled){background:var(--card);}
+.ed-sec-add{margin-top:4px;}
+.ed-sec-suggest{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.ed-sec-addbtn{width:100%;justify-content:center;}
 .ed-kami{margin:22px 0 0;padding-top:18px;border-top:1.5px dashed #d3c4a0;}
 .ed-kami-head{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
 .ed-kami-title{font-family:'Zen Maru Gothic',sans-serif;font-weight:700;font-size:14px;color:var(--ink);}
@@ -2346,6 +2445,7 @@ const CSS = `
 
 /* ---- 印刷(PDF書き出し)用 ---- */
 .print-sheet{display:none;}
+.sum-sheet{display:none;}
 @media print{
   @page{margin:14mm;}
   .yomite-root{background:#fff !important;}
@@ -2368,6 +2468,22 @@ const CSS = `
   .ps-body h2{font-family:'Zen Maru Gothic',sans-serif;font-size:15.5px;margin:2px 0 4px;color:#111;}
   .ps-body p{font-size:12.5px;line-height:1.78;margin:0;color:#2a2a2a;white-space:pre-wrap;}
   .ps-foot{margin-top:20px;padding-top:9px;border-top:1px solid #ccc;font-size:10px;color:#999;text-align:center;}
+
+  .sum-sheet{display:block !important;color:#1c1c1c;font-family:'Zen Kaku Gothic New',sans-serif;}
+  .sum-eyebrow{font-family:'Bricolage Grotesque',sans-serif;font-size:9px;
+    letter-spacing:.2em;text-transform:uppercase;color:#999;}
+  .sum-head{border-bottom:2px solid #1c1c1c;padding-bottom:8px;margin-bottom:12px;}
+  .sum-head h1{font-family:'Zen Maru Gothic',sans-serif;font-size:20px;margin:4px 0 5px;color:#111;}
+  .sum-meta{font-size:11px;color:#333;font-weight:700;}
+  .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 18px;}
+  .sum-card{page-break-inside:avoid;break-inside:avoid;}
+  .sum-card-head{display:flex;align-items:center;gap:6px;border-bottom:1.5px solid;padding-bottom:3px;margin-bottom:4px;}
+  .sum-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sum-card-head h2{font-family:'Zen Maru Gothic',sans-serif;font-size:12.5px;margin:0;color:#111;}
+  .sum-card p{font-size:10px;line-height:1.55;margin:0;color:#2a2a2a;white-space:pre-wrap;}
+  .sum-foot{margin-top:14px;padding-top:7px;border-top:1px solid #ccc;font-size:9px;color:#999;
+    text-align:center;grid-column:1 / -1;}
 }
 
 .disclaimer{margin:22px 4px 0;font-size:12px;color:rgba(242,232,209,.55);line-height:1.65;text-align:center;}
