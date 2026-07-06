@@ -130,14 +130,38 @@ const fmtPlayers = (p) => (p.min === p.max ? `${p.min}人` : `${p.min}〜${p.max
 const fmtTime = (t) => (t.min === t.max ? `${t.min}分` : `${t.min}〜${t.max}分`);
 const fmtAge = (a) => `${a}歳〜`;
 
+// 丸数字・二重丸プレースホルダーは読み上げエンジンが読み飛ばしたり不自然に読んだりしやすいため、
+// 読み上げに渡す直前だけ自然な言葉に置き換える（画面表示のテキストはそのまま①②…で見せる）。
+const CIRCLED_DIGITS = "①②③④⑤⑥⑦⑧⑨⑩";
+function ttsNormalize(text) {
+  let t = text || "";
+  // 「①を選ぶ」のように後ろで受ける形は読点なし、「①中身を…」のように項目を挙げる形は読点ありが自然
+  t = t.replace(/[①-⑩](?=を)/g, (ch) => {
+    const n = CIRCLED_DIGITS.indexOf(ch) + 1;
+    return n > 0 ? `${n}つ目` : ch;
+  });
+  t = t.replace(/[①-⑩]/g, (ch) => {
+    const n = CIRCLED_DIGITS.indexOf(ch) + 1;
+    return n > 0 ? `${n}つ目、` : ch;
+  });
+  t = t.replace(/([○◯])\1/g, "まるまる");
+  return t;
+}
 function chunk(text) {
-  const parts = text.split(/(?<=[。！？\n])/).map((s) => s.trim()).filter(Boolean);
+  const parts = ttsNormalize(text).split(/(?<=[。！？\n])/).map((s) => s.trim()).filter(Boolean);
   const out = [];
   for (const p of parts) {
     if (p.length > 60) out.push(...p.split(/(?<=、)/).map((s) => s.trim()).filter(Boolean));
     else out.push(p);
   }
   return out;
+}
+// チャンクの語尾に応じて次の一言までの「間」を変える（句点は長め、読点は短め）。人が読むときの呼吸に近づける。
+function pauseAfterMs(text) {
+  const last = (text || "").trim().slice(-1);
+  if (last === "。" || last === "！" || last === "？") return 320;
+  if (last === "、") return 130;
+  return 60;
 }
 
 // 表示用：文（。！？）や改行ごとに行を分ける（読み上げには影響しない）
@@ -147,14 +171,18 @@ function splitLines(text) {
 
 const FEMALE_HINTS = ["kyoko", "haruka", "ayumi", "nanami", "sayaka", "mizuki", "kanako", "tomoko", "sara", "o-ren", "female", "女性"];
 const MALE_HINTS = ["otoya", "ichiro", "hattori", "daniel", "male", "男性"];
+const QUALITY_HINTS = ["enhanced", "premium", "neural", "wavenet", "natural"];
 function chooseFemale(list) {
   if (!list.length) return null;
   const score = (v) => {
     const n = (v.name + " " + v.voiceURI).toLowerCase();
-    if (FEMALE_HINTS.some((k) => n.includes(k))) return 3;
-    if (MALE_HINTS.some((k) => n.includes(k))) return -2;
-    if (n.includes("google")) return 1;
-    return 0;
+    let s = 0;
+    if (FEMALE_HINTS.some((k) => n.includes(k))) s += 3;
+    if (MALE_HINTS.some((k) => n.includes(k))) s -= 2;
+    if (QUALITY_HINTS.some((k) => n.includes(k))) s += 2;
+    if (n.includes("google")) s += 1;
+    if (n.includes("compact")) s -= 1;
+    return s;
   };
   return [...list].sort((a, b) => score(b) - score(a))[0];
 }
@@ -251,7 +279,12 @@ function useNarrator() {
     u.lang = "ja-JP";
     if (voiceRef.current) u.voice = voiceRef.current;
     u.rate = rateRef.current;
-    u.onend = advance;
+    // 文末なら長め、読点なら短めの「間」を置いてから次へ進む（人が話す呼吸に近づける）
+    u.onend = () => {
+      if (stoppedRef.current) return;
+      const ms = pauseAfterMs(item.t) / (rateRef.current || 1);
+      setTimeout(advance, ms);
+    };
     u.onerror = advance;
     synth.speak(u);
   }, [synth]);
@@ -1251,7 +1284,7 @@ function Kamishibai({ game, nar }) {
     const synth = typeof window !== "undefined" ? window.speechSynthesis : null;
     if (!nar.supported || !synth) return;
     setSpeaking(true);
-    const u = new SpeechSynthesisUtterance(text);
+    const u = new SpeechSynthesisUtterance(ttsNormalize(text));
     u.lang = "ja-JP";
     const v = nar.jaVoices.find((x) => x.voiceURI === nar.voiceURI);
     if (v) u.voice = v;
