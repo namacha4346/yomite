@@ -262,14 +262,51 @@ a {
   flex-direction: column;
   gap: 20px;
 }
+.builder-note {
+  font-size: 13px;
+  color: var(--text-soft);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin: 0;
+}
 .field {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
+.field-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
 .field-label {
   font-size: 14px;
   font-weight: 700;
+}
+/* 表／裏トグル */
+.sidetoggle {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.sidebtn {
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 4px 14px;
+  cursor: pointer;
+}
+.sidebtn.is-on {
+  background: var(--learn);
+  color: #fff;
 }
 .input {
   width: 100%;
@@ -446,12 +483,49 @@ a {
   border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-/* --- 本体 --- */
+/* --- 本体（表裏の面） --- */
 .scard-body {
+  padding: 0;
+}
+.scard-face {
   padding: 16px 20px 6px;
+}
+.scard-face + .scard-face {
+  border-top: 1px dashed var(--border);
+}
+.face-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.face-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  background: var(--ac);
+  padding: 2px 12px;
+  border-radius: 999px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.face-gametitle {
+  display: none; /* 画面では帯にタイトルがあるので隠す。印刷の裏面でだけ出す。 */
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
 }
 .scard-sec {
   margin-bottom: 18px;
+}
+.scard-notes {
+  margin: 0;
+  font-size: 14px;
+  white-space: pre-wrap; /* 改行をそのまま反映 */
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
 }
 .scard-h {
   display: flex;
@@ -624,6 +698,15 @@ a {
   }
   .print-sheet .step-text {
     font-size: 15px;
+  }
+  /* 裏面は新しいページに（両面印刷で表裏になる） */
+  .print-sheet .scard-face + .scard-face {
+    break-before: page;
+    border-top: none;
+  }
+  /* 2枚目（裏面）だけ、面ラベルの横にゲーム名を出す（1枚目は帯にある） */
+  .print-sheet .scard-face + .scard-face .face-gametitle {
+    display: inline;
   }
   /* 印刷では削除/印刷ボタンは出さない（そもそも onDelete/onPrint 無しで描画） */
   .print-sheet .scard-foot {

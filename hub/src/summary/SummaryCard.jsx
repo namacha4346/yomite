@@ -1,9 +1,99 @@
-// 作られたサマリーを「1枚の早見表（プレイヤーエイド）」として表示する部品。
-// 3部品（手番でできること／アイコン早見表／終了条件）を、こだわったレイアウトで並べる。
+import { withSides } from "./model.js";
+
+// 1つのセクション見出し
+function SecHead({ children }) {
+  return <h4 className="scard-h">{children}</h4>;
+}
+
+// 各セクションの描画（中身が空なら null を返す）
+function renderSection(key, s) {
+  const actions = (s.turnActions || []).filter(Boolean);
+  const glossary = (s.icons || []).filter((g) => g.icon || g.meaning);
+
+  if (key === "turn") {
+    if (actions.length === 0) return null;
+    return (
+      <section className="scard-sec" key="turn">
+        <SecHead>手番でできること</SecHead>
+        <ol className="scard-steps">
+          {actions.map((a, i) => (
+            <li key={i} className="step">
+              <span className="step-no">{i + 1}</span>
+              <span className="step-text">{a}</span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    );
+  }
+  if (key === "icons") {
+    if (glossary.length === 0) return null;
+    return (
+      <section className="scard-sec" key="icons">
+        <SecHead>アイコン早見表</SecHead>
+        <ul className="scard-icons">
+          {glossary.map((g, i) => (
+            <li key={i} className="gitem">
+              <span className="gitem-ic">{g.icon}</span>
+              <span className="gitem-mean">{g.meaning}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+  if (key === "end") {
+    if (!s.endCondition) return null;
+    return (
+      <section className="scard-sec" key="end">
+        <SecHead>終了条件</SecHead>
+        <div className="scard-end">
+          <span className="scard-end-flag" aria-hidden="true">🏁</span>
+          <p className="scard-end-text">{s.endCondition}</p>
+        </div>
+      </section>
+    );
+  }
+  if (key === "notes") {
+    if (!s.notes) return null;
+    return (
+      <section className="scard-sec" key="notes">
+        <SecHead>準備・メモ</SecHead>
+        <p className="scard-notes">{s.notes}</p>
+      </section>
+    );
+  }
+  return null;
+}
+
+// どのセクションがどちらの面かの対応
+const SECTION_SIDE = {
+  turn: "turnActionsSide",
+  icons: "iconsSide",
+  end: "endConditionSide",
+  notes: "notesSide",
+};
+// 面の中での並び順
+const ORDER = ["turn", "end", "icons", "notes"];
+
+// 作られたサマリーを「表裏1枚の早見表」として表示する部品。
 export default function SummaryCard({ summary, onDelete, onPrint }) {
-  const { gameTitle, turnActions = [], icons = [], endCondition, official } = summary;
-  const actions = turnActions.filter(Boolean);
-  const glossary = icons.filter((g) => g.icon || g.meaning);
+  const s = withSides(summary);
+  const { gameTitle, official } = s;
+
+  // 面ごとに、割り当てられた＆中身のあるセクションを集める
+  const facesDef = [
+    { side: "front", label: "表" },
+    { side: "back", label: "裏" },
+  ];
+  const faces = facesDef
+    .map((f) => {
+      const nodes = ORDER.filter((k) => s[SECTION_SIDE[k]] === f.side)
+        .map((k) => renderSection(k, s))
+        .filter(Boolean);
+      return { ...f, nodes };
+    })
+    .filter((f) => f.nodes.length > 0);
 
   return (
     <article className="scard">
@@ -17,42 +107,15 @@ export default function SummaryCard({ summary, onDelete, onPrint }) {
       </header>
 
       <div className="scard-body">
-        {/* ① 手番でできること：番号付きステップ（主役） */}
-        <section className="scard-sec">
-          <h4 className="scard-h">手番でできること</h4>
-          <ol className="scard-steps">
-            {actions.map((a, i) => (
-              <li key={i} className="step">
-                <span className="step-no">{i + 1}</span>
-                <span className="step-text">{a}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        {/* ② アイコン早見表：2列グリッド、絵文字をチップに */}
-        {glossary.length > 0 && (
-          <section className="scard-sec">
-            <h4 className="scard-h">アイコン早見表</h4>
-            <ul className="scard-icons">
-              {glossary.map((g, i) => (
-                <li key={i} className="gitem">
-                  <span className="gitem-ic">{g.icon}</span>
-                  <span className="gitem-mean">{g.meaning}</span>
-                </li>
-              ))}
-            </ul>
+        {faces.map((f) => (
+          <section className="scard-face" key={f.side}>
+            <div className="face-head">
+              <span className="face-badge">{f.label}</span>
+              <span className="face-gametitle">{gameTitle}</span>
+            </div>
+            {f.nodes}
           </section>
-        )}
-
-        {/* ③ 終了条件：ゴールの枠で締める */}
-        <section className="scard-sec">
-          <h4 className="scard-h">終了条件</h4>
-          <div className="scard-end">
-            <span className="scard-end-flag" aria-hidden="true">🏁</span>
-            <p className="scard-end-text">{endCondition}</p>
-          </div>
-        </section>
+        ))}
       </div>
 
       {(onPrint || onDelete) && (

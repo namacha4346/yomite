@@ -1,15 +1,41 @@
 import { useState } from "react";
 import IconPicker from "./IconPicker.jsx";
+import { SIDES } from "./model.js";
+
+// セクションを「表／裏」どちらの面に載せるか選ぶ小さなトグル
+function SideToggle({ value, onChange }) {
+  return (
+    <span className="sidetoggle" role="group" aria-label="表裏の割り当て">
+      {SIDES.map((s) => (
+        <button
+          type="button"
+          key={s.key}
+          className={"sidebtn" + (value === s.key ? " is-on" : "")}
+          onClick={() => onChange(s.key)}
+        >
+          {s.label}
+        </button>
+      ))}
+    </span>
+  );
+}
 
 // サマリー作成フォーム（ビルダー）。
-// 必須3部品：手番でできること／アイコン早見表／終了条件。
-// isPro は「有料アカウントか」の仮フラグ（今はUIの見本用）。
+// 必須3部品：手番でできること／アイコン早見表／終了条件（＋自由メモ）。
+// 各セクションは表／裏どちらの面に載せるか選べる。
 export default function Builder({ onSave, isPro = false }) {
   const [gameTitle, setGameTitle] = useState("");
   const [turnActions, setTurnActions] = useState([""]);
   const [icons, setIcons] = useState([{ icon: "", meaning: "" }]);
   const [endCondition, setEndCondition] = useState("");
-  const [pickerRow, setPickerRow] = useState(null); // 今アイコンを選んでいる行
+  const [notes, setNotes] = useState("");
+  const [pickerRow, setPickerRow] = useState(null);
+
+  // 各セクションの面（既定は定番の表裏構成）
+  const [turnActionsSide, setTurnActionsSide] = useState("front");
+  const [endConditionSide, setEndConditionSide] = useState("front");
+  const [iconsSide, setIconsSide] = useState("back");
+  const [notesSide, setNotesSide] = useState("back");
 
   // --- 手番でできること ---
   const setAction = (i, v) =>
@@ -39,17 +65,31 @@ export default function Builder({ onSave, isPro = false }) {
       turnActions: turnActions.map((a) => a.trim()).filter(Boolean),
       icons: icons.filter((g) => g.icon || g.meaning.trim()),
       endCondition: endCondition.trim(),
+      notes: notes.trim(),
+      turnActionsSide,
+      endConditionSide,
+      iconsSide,
+      notesSide,
     });
     // 入力をリセット
     setGameTitle("");
     setTurnActions([""]);
     setIcons([{ icon: "", meaning: "" }]);
     setEndCondition("");
+    setNotes("");
+    setTurnActionsSide("front");
+    setEndConditionSide("front");
+    setIconsSide("back");
+    setNotesSide("back");
     setPickerRow(null);
   };
 
   return (
     <div className="builder">
+      <p className="builder-note">
+        各セクションの <b>表 / 裏</b> ボタンで、どちらの面に載せるかを選べます（表裏1枚のサマリーになります）。
+      </p>
+
       <label className="field">
         <span className="field-label">ゲーム名</span>
         <input
@@ -62,7 +102,10 @@ export default function Builder({ onSave, isPro = false }) {
 
       {/* ① 手番でできること */}
       <div className="field">
-        <span className="field-label">① 手番でできること</span>
+        <div className="field-head">
+          <span className="field-label">① 手番でできること</span>
+          <SideToggle value={turnActionsSide} onChange={setTurnActionsSide} />
+        </div>
         {turnActions.map((a, i) => (
           <div className="row" key={i}>
             <input
@@ -83,7 +126,10 @@ export default function Builder({ onSave, isPro = false }) {
 
       {/* ② アイコン早見表 */}
       <div className="field">
-        <span className="field-label">② アイコン早見表</span>
+        <div className="field-head">
+          <span className="field-label">② アイコン早見表</span>
+          <SideToggle value={iconsSide} onChange={setIconsSide} />
+        </div>
         {icons.map((g, i) => (
           <div className="iconrow" key={i}>
             <div className="row">
@@ -128,15 +174,32 @@ export default function Builder({ onSave, isPro = false }) {
       </div>
 
       {/* ③ 終了条件 */}
-      <label className="field">
-        <span className="field-label">③ 終了条件</span>
+      <div className="field">
+        <div className="field-head">
+          <span className="field-label">③ 終了条件</span>
+          <SideToggle value={endConditionSide} onChange={setEndConditionSide} />
+        </div>
         <textarea
           className="input textarea"
           value={endCondition}
           onChange={(e) => setEndCondition(e.target.value)}
           placeholder="例：山札がなくなったら終了。⭐が一番多い人の勝ち。"
         />
-      </label>
+      </div>
+
+      {/* ④ 自由メモ（任意） */}
+      <div className="field">
+        <div className="field-head">
+          <span className="field-label">④ 準備・メモ（任意）</span>
+          <SideToggle value={notesSide} onChange={setNotesSide} />
+        </div>
+        <textarea
+          className="input textarea"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="例：各自カード5枚・コマ3個を配る。／手札上限は10枚まで。"
+        />
+      </div>
 
       <button className="savebtn" onClick={handleSave} disabled={!canSave}>
         このサマリーを保存
