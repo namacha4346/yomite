@@ -1,6 +1,6 @@
 // 作られたサマリーを「1枚のカンニングペーパー」として表示する部品。
 // 3部品（手番でできること／アイコン早見表／終了条件）を並べる。
-export default function SummaryCard({ summary, onDelete }) {
+export default function SummaryCard({ summary, onDelete, onPrint }) {
   const { gameTitle, turnActions = [], icons = [], endCondition, official } = summary;
 
   return (
@@ -36,11 +36,18 @@ export default function SummaryCard({ summary, onDelete }) {
         <p className="scard-end">{endCondition}</p>
       </section>
 
-      {onDelete && (
+      {(onPrint || onDelete) && (
         <footer className="scard-foot">
-          <button className="linkbtn" onClick={() => onDelete(summary.id)}>
-            削除
-          </button>
+          {onPrint && (
+            <button className="linkbtn" onClick={() => onPrint(summary)}>
+              🖨 印刷／PDF
+            </button>
+          )}
+          {onDelete && (
+            <button className="linkbtn" onClick={() => onDelete(summary.id)}>
+              削除
+            </button>
+          )}
         </footer>
       )}
     </article>

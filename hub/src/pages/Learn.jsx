@@ -10,11 +10,25 @@ import { loadSummaries, addSummary, deleteSummary } from "../summary/store.js";
 export default function Learn() {
   const [tab, setTab] = useState("browse"); // browse | build
   const [mine, setMine] = useState([]);
+  const [printTarget, setPrintTarget] = useState(null); // 印刷する1枚
 
   // 起動時にブラウザ内の保存を読む
   useEffect(() => {
     setMine(loadSummaries());
   }, []);
+
+  // 印刷対象がセットされたら、描画後にブラウザの印刷を呼ぶ。
+  // 印刷ダイアログを閉じたら対象を戻す。
+  useEffect(() => {
+    if (!printTarget) return;
+    const t = setTimeout(() => window.print(), 50);
+    const clear = () => setPrintTarget(null);
+    window.addEventListener("afterprint", clear);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("afterprint", clear);
+    };
+  }, [printTarget]);
 
   const handleSave = (summary) => {
     setMine(addSummary(summary));
@@ -54,18 +68,31 @@ export default function Learn() {
             <>
               <h2 className="cards-h">あなたが作ったサマリー</h2>
               {mine.map((s) => (
-                <SummaryCard key={s.id} summary={s} onDelete={handleDelete} />
+                <SummaryCard
+                  key={s.id}
+                  summary={s}
+                  onDelete={handleDelete}
+                  onPrint={setPrintTarget}
+                />
               ))}
             </>
           )}
           <h2 className="cards-h">公式サマリー（見本）</h2>
           {SAMPLE_SUMMARIES.map((s) => (
-            <SummaryCard key={s.id} summary={s} />
+            <SummaryCard key={s.id} summary={s} onPrint={setPrintTarget} />
           ))}
         </div>
       )}
 
       <Link to="/" className="page-back">← トップに戻る</Link>
+
+      {/* 印刷専用のシート。画面では見えず、印刷時だけ紙に出る（@media print）。 */}
+      {printTarget && (
+        <div className="print-sheet">
+          <SummaryCard summary={printTarget} />
+          <p className="print-foot">ボードゲームひろば（仮） — サマリー早見表</p>
+        </div>
+      )}
     </div>
   );
 }

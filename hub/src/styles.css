@@ -475,3 +475,70 @@ a {
   cursor: pointer;
   text-decoration: underline;
 }
+
+/* =========================================================
+   印刷レイアウト（サマリーを1枚の紙に）
+   ========================================================= */
+/* 画面では印刷用シートは隠す */
+.print-sheet {
+  display: none;
+}
+
+@media print {
+  /* 紙のサイズと余白 */
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  /* 画面のUI（ヘッダー・タブ・ボタン等）は印刷しない。
+     visibility で消して、印刷シートだけを見せる。 */
+  body * {
+    visibility: hidden;
+  }
+  .print-sheet,
+  .print-sheet * {
+    visibility: visible;
+  }
+  .print-sheet {
+    display: block;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* 紙の上ではカードの装飾を控えめにし、読みやすさ優先 */
+  .print-sheet .scard {
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 16px 20px;
+    /* 背景色や枠線を印刷に反映させる */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .print-sheet .scard-title {
+    font-size: 20px;
+  }
+  .print-sheet .scard-h {
+    font-size: 13px;
+    color: #000;
+    border-bottom: 1px solid #000;
+    padding-bottom: 2px;
+  }
+  .print-sheet .scard-actions li,
+  .print-sheet .scard-mean,
+  .print-sheet .scard-end {
+    font-size: 14px;
+  }
+  /* 印刷では削除/印刷ボタンは出さない（そもそも onDelete/onPrint 無しで描画） */
+  .print-sheet .scard-foot {
+    display: none;
+  }
+  .print-foot {
+    margin-top: 10px;
+    font-size: 11px;
+    color: #555;
+    text-align: right;
+  }
+}
