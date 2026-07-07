@@ -9,6 +9,7 @@ const DOORS = [
     hurdle: "インストのハードル",
     desc: "ルール説明を、初心者でもできるように。",
     key: "learn",
+    icon: "📖",
   },
   {
     to: "/place",
@@ -16,6 +17,7 @@ const DOORS = [
     hurdle: "場所のハードル",
     desc: "近くの卓・お店を見つけて、遊ぶ場所へ。",
     key: "place",
+    icon: "📍",
   },
   {
     to: "/discover",
@@ -23,6 +25,7 @@ const DOORS = [
     hurdle: "認知のハードル",
     desc: "自分に合う一作と出会う、はじめの一歩。",
     key: "discover",
+    icon: "🎲",
   },
 ];
 
@@ -42,9 +45,12 @@ export default function Home() {
       <nav className="doors" aria-label="3つの入口">
         {DOORS.map((d) => (
           <Link key={d.key} to={d.to} className={`door door--${d.key}`}>
-            <span className="door-hurdle">{d.hurdle}</span>
-            <span className="door-label">{d.label}</span>
-            <span className="door-desc">{d.desc}</span>
+            <span className="door-icon" aria-hidden="true">{d.icon}</span>
+            <span className="door-body">
+              <span className="door-hurdle">{d.hurdle}</span>
+              <span className="door-label">{d.label}</span>
+              <span className="door-desc">{d.desc}</span>
+            </span>
             <span className="door-arrow" aria-hidden="true">→</span>
           </Link>
         ))}

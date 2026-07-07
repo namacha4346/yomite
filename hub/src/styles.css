@@ -2,25 +2,33 @@
    デザイン変数（ここを変えれば全体の見た目が一括で変わる）
    ========================================================= */
 :root {
-  /* 色 */
-  --bg: #faf7f2;          /* 背景（あたたかい紙の色） */
-  --surface: #ffffff;     /* カードなどの面 */
-  --text: #2b2622;        /* 文字 */
-  --text-soft: #6f665d;   /* うすい文字 */
-  --border: #e7e0d6;      /* 罫線 */
+  /* 色（紙・木・盤面のあたたかいトーン） */
+  --bg: #f3ead9;          /* 背景（パーチメント＝古い紙） */
+  --bg2: #ece0c9;         /* 一段濃い紙 */
+  --surface: #fffdf7;     /* カードなどの面（あたたかい白） */
+  --ink: #26201a;         /* 濃い墨色 */
+  --text: #2e2820;        /* 文字 */
+  --text-soft: #7c6f5c;   /* うすい文字 */
+  --border: #e0d3ba;      /* 罫線 */
+  --dot: rgba(60, 44, 20, 0.05); /* 盤面のドット模様 */
 
-  /* 3つの扉のアクセント色 */
-  --learn: #e5732e;       /* インスト：オレンジ */
-  --place: #2e8b78;       /* 場所：グリーン */
-  --discover: #5b6cc4;    /* 認知：ブルー */
+  /* 3つの扉のアクセント色（すこし深みを持たせる） */
+  --learn: #cf6236;       /* インスト：テラコッタ */
+  --place: #2f8a6b;       /* 場所：盤面グリーン */
+  --discover: #4a58bd;    /* 認知：藍 */
+  --pop: #e6b23f;         /* 差し色：山吹（ハイライト） */
 
   /* 余白・角丸 */
   --gap: 16px;
-  --radius: 14px;
+  --radius: 16px;
+
+  /* 影（タイルの手触り） */
+  --shadow: 0 2px 0 rgba(60, 44, 20, 0.08), 0 6px 18px rgba(60, 44, 20, 0.08);
+  --shadow-lift: 0 4px 0 rgba(60, 44, 20, 0.1), 0 14px 28px rgba(60, 44, 20, 0.14);
 
   /* 文字 */
-  --font: system-ui, -apple-system, "Hiragino Kaku Gothic ProN",
-    "Noto Sans JP", Meiryo, sans-serif;
+  --font: system-ui, -apple-system, "Hiragino Maru Gothic ProN",
+    "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
 }
 
 /* リセット的な基本設定 */
@@ -33,7 +41,11 @@ body {
   padding: 0;
 }
 body {
-  background: var(--bg);
+  /* パーチメント地＋盤面のドット方眼 */
+  background-color: var(--bg);
+  background-image: radial-gradient(var(--dot) 1.4px, transparent 1.4px);
+  background-size: 22px 22px;
+  background-position: -11px -11px;
   color: var(--text);
   font-family: var(--font);
   line-height: 1.6;
@@ -58,15 +70,37 @@ a {
 
 .header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 18px 0;
+  border-bottom: 2px dotted var(--border);
 }
 .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 800;
   font-size: 18px;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+/* ミープル（コマ）のロゴマーク＝木のトークン風 */
+.logo-mark {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--learn);
+  color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 0 rgba(60, 44, 20, 0.18);
+}
+.logo-mark svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
 }
 .logo-note {
   font-size: 12px;
@@ -113,19 +147,22 @@ a {
   display: grid;
   gap: var(--gap);
 }
+/* 扉＝盤上のタイル。左に大きなアイコンのトークンを置く */
 .door {
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 16px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-left: 6px solid var(--door, #ccc);
+  border: 1.5px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px 20px;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
 }
 .door:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.07);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
 }
 .door--learn {
   --door: var(--learn);
@@ -136,29 +173,46 @@ a {
 .door--discover {
   --door: var(--discover);
 }
+/* アイコンのトークン（コマ風） */
+.door-icon {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  border-radius: 14px;
+  background: var(--door);
+  color: #fff;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12);
+}
+.door-body {
+  flex: 1;
+  min-width: 0;
+}
 .door-hurdle {
   display: block;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   color: var(--door);
-  margin-bottom: 2px;
+  margin-bottom: 1px;
 }
 .door-label {
   display: block;
   font-size: 20px;
   font-weight: 800;
+  color: var(--ink);
 }
 .door-desc {
   display: block;
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--text-soft);
-  margin-top: 4px;
+  margin-top: 3px;
 }
 .door-arrow {
-  position: absolute;
-  right: 18px;
-  top: 50%;
-  transform: translateY(-50%);
+  flex: 0 0 auto;
   font-size: 20px;
   color: var(--door);
 }
@@ -880,4 +934,58 @@ a {
   font-size: 13px;
   font-weight: 700;
   color: var(--text-soft);
+}
+
+/* =========================================================
+   ボードゲーム感の仕上げ（タイル/コマの手触り）
+   ========================================================= */
+/* 見出しは濃い墨色でしっかり */
+.hero-title,
+.page-title {
+  color: var(--ink);
+}
+.hero-title {
+  font-size: 32px;
+}
+.hero-sub {
+  font-weight: 600;
+}
+
+/* カードはタイルのように浮かせる */
+.scard,
+.scriptcard {
+  box-shadow: var(--shadow);
+}
+
+/* 保存ボタン＝押せるコマ（下に厚みの影） */
+.savebtn {
+  border-radius: 12px;
+  box-shadow: 0 3px 0 rgba(60, 44, 20, 0.22);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.savebtn:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(60, 44, 20, 0.22);
+}
+
+/* 選択中のタブ/ピルにも軽い厚み */
+.wiz-tab.is-on,
+.face-switch-btn.is-on,
+.sidebtn.is-on {
+  box-shadow: 0 2px 0 rgba(60, 44, 20, 0.18);
+}
+
+/* 早見表カードの帯にコマらしい下影 */
+.scard-band {
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* 入力欄も少しやわらかく */
+.input {
+  border-radius: 12px;
+}
+
+/* 見出しの区切りをドットに（盤面っぽさ） */
+.tabs {
+  border-bottom: 2px dotted var(--border);
 }
