@@ -873,9 +873,20 @@ a {
   font-size: 20px;
   flex: 0 0 26px;
 }
-/* 早見表ビューは中の SummaryCard に余白を持たせる */
+/* 早見表タブは、埋め込みの SummaryCard をそのまま流し込む */
 .script-summary {
-  padding: 14px 16px 6px;
+  padding: 4px 0 2px;
+}
+/* 帯・枠なしの埋め込み早見表（台本カードに溶け込ませる） */
+.scard--bare {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: visible;
+}
+.scard--bare .face-switch {
+  padding-top: 4px;
 }
 
 /* =========================================================

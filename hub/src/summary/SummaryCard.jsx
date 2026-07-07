@@ -68,7 +68,9 @@ const SECTION_SIDE = {
 const ORDER = ["turn", "end", "icons"];
 
 // 作られたサマリーを「表裏1枚の早見表」として表示する部品。
-export default function SummaryCard({ summary, onDelete, onPrint }) {
+// embedded=true のときは、帯・枠を出さず中身だけを描画する
+// （台本カードの中に入れても"別カード"に見えないように）。
+export default function SummaryCard({ summary, onDelete, onPrint, embedded = false }) {
   const s = withSides(summary);
   const { gameTitle, official } = s;
 
@@ -91,15 +93,17 @@ export default function SummaryCard({ summary, onDelete, onPrint }) {
   const activeSide = faces.some((f) => f.side === active) ? active : faces[0]?.side;
 
   return (
-    <article className="scard">
-      {/* ヘッダー帯 */}
-      <header className="scard-band">
-        <div className="scard-band-main">
-          <span className="scard-kicker">サマリー早見表</span>
-          <h3 className="scard-title">{gameTitle || "（無題のサマリー）"}</h3>
-        </div>
-        {official && <span className="scard-official">公式</span>}
-      </header>
+    <article className={"scard" + (embedded ? " scard--bare" : "")}>
+      {/* ヘッダー帯（埋め込み時は出さない＝台本カードの帯と重複しない） */}
+      {!embedded && (
+        <header className="scard-band">
+          <div className="scard-band-main">
+            <span className="scard-kicker">サマリー早見表</span>
+            <h3 className="scard-title">{gameTitle || "（無題のサマリー）"}</h3>
+          </div>
+          {official && <span className="scard-official">公式</span>}
+        </header>
+      )}
 
       {/* 面プレビュー切替（2面あるときだけ・印刷では出さない） */}
       {faces.length > 1 && (

@@ -71,7 +71,8 @@ export default function ScriptCard({ script, onDelete, onPrint }) {
 
       {tab === "summary" ? (
         <div className="script-summary">
-          <SummaryCard summary={summary} onPrint={onPrint} />
+          {/* 帯なしの埋め込み表示（印刷は下のフッターから） */}
+          <SummaryCard summary={summary} embedded />
         </div>
       ) : (
         <div className="script-body">
