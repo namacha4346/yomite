@@ -5,6 +5,10 @@ export const SAMPLE_SCRIPTS = [
     id: "splendor",
     official: true,
     gameTitle: "宝石の煌めき（Splendor）",
+    players: { min: 2, max: 4 },
+    time: 30,
+    color: "#6d5aa0",
+    coverEmoji: "💎",
     about:
       "あなたは宝石商。宝石を集めて発展カード（鉱山・輸送・宝石店）を買い、名声（威信ポイント）を積み上げる。一番の宝石商を目指すゲーム。2〜4人・30分ほど。",
     win: "だれかが15点（威信ポイント⭐）に達したラウンドで終了。最も⭐が多い人が勝ち。同点なら、買った発展カードが少ない人の勝ち。",
@@ -40,6 +44,10 @@ export const SAMPLE_SCRIPTS = [
     id: "sample-script-1",
     official: true,
     gameTitle: "サンプル：やさしい農場ゲーム（架空）",
+    players: { min: 2, max: 4 },
+    time: 20,
+    color: "#c98a3a",
+    coverEmoji: "🌾",
     about:
       "カードを集めて自分の農場を育てる、はじめての人向けのやさしいゲーム。一番いい農場を作った人が勝ち。",
     win: "ゲーム終了時に、勝利点⭐が一番多い人が勝ち。",

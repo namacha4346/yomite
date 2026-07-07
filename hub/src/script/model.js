@@ -4,6 +4,9 @@ import { withSides } from "../summary/model.js";
 export function emptyScript() {
   return {
     gameTitle: "",
+    playersMin: "",
+    playersMax: "",
+    timeMin: "",
     about: "",
     win: "",
     setup: "",

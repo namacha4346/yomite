@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import ScriptBuilder from "../script/ScriptBuilder.jsx";
 import ScriptCard from "../script/ScriptCard.jsx";
+import GameTile from "../script/GameTile.jsx";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
 
@@ -119,21 +120,73 @@ export default function Learn() {
   );
 }
 
-// 台本をつかう＝検索して探すページ。
+// 人数フィルタの選択肢
+const PLAYER_FILTERS = [
+  { key: "all", label: "すべて" },
+  { key: "2", label: "2人" },
+  { key: "34", label: "3〜4人" },
+  { key: "5", label: "5人以上" },
+];
+
+// 台本をつかう＝まずゲームのカタログ（表紙・人数）から探し、
+// タイルを選ぶと台本の詳細を開く。
 function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
+  const [players, setPlayers] = useState("all");
+  const [openId, setOpenId] = useState(null);
+
   const q = query.trim().toLowerCase();
-  const match = (s) =>
+  const textMatch = (s) =>
     !q ||
     (s.gameTitle || "").toLowerCase().includes(q) ||
     (s.about || "").toLowerCase().includes(q);
+  const playerMatch = (s) => {
+    if (players === "all") return true;
+    if (!s.players) return false;
+    const { min, max } = s.players;
+    if (players === "2") return min <= 2 && 2 <= max;
+    if (players === "34") return min <= 4 && max >= 3;
+    if (players === "5") return max >= 5;
+    return true;
+  };
 
-  const officialHits = official.filter(match);
-  const sharedHits = shared.filter(match);
-  const total = officialHits.length + sharedHits.length;
+  // 運営を先、みんなを後にまとめる
+  const allGames = [
+    ...official.map((s) => ({ ...s, _group: "official" })),
+    ...shared.map((s) => ({ ...s, _group: "shared" })),
+  ];
+  const results = allGames.filter(textMatch).filter(playerMatch);
 
+  // 詳細（台本）を開いているとき
+  const open = openId ? allGames.find((s) => s.id === openId) : null;
+  if (open) {
+    return (
+      <div className="cards">
+        <button
+          type="button"
+          className="linkbtn back-catalog"
+          onClick={() => setOpenId(null)}
+        >
+          ← 一覧にもどる
+        </button>
+        <ScriptCard
+          script={open}
+          onPrint={onPrint}
+          onDelete={
+            open._group === "shared"
+              ? (id) => {
+                  onDelete(id);
+                  setOpenId(null);
+                }
+              : undefined
+          }
+        />
+      </div>
+    );
+  }
+
+  // カタログ（検索＋人数フィルタ＋タイル）
   return (
-    <div className="cards">
-      {/* 検索 */}
+    <div className="catalog">
       <div className="search">
         <span className="search-icon" aria-hidden="true">🔍</span>
         <input
@@ -141,8 +194,8 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="ゲーム名で台本をさがす（例：宝石）"
-          aria-label="台本をさがす"
+          placeholder="ゲーム名でさがす（例：宝石）"
+          aria-label="ゲームをさがす"
         />
         {query && (
           <button
@@ -156,40 +209,30 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
         )}
       </div>
 
+      {/* 人数で絞り込み */}
+      <div className="filter-chips" role="group" aria-label="人数でしぼる">
+        {PLAYER_FILTERS.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            className={"chip" + (players === f.key ? " is-on" : "")}
+            onClick={() => setPlayers(f.key)}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {status === "loading" && <p className="hint">読み込み中…</p>}
-      {q && (
-        <p className="search-count">
-          「{query}」の検索結果：{total} 件
-        </p>
-      )}
-      {q && total === 0 && (
-        <p className="hint">合う台本が見つかりませんでした。別の言葉で探してみてください。</p>
+      {status !== "loading" && results.length === 0 && (
+        <p className="hint">条件に合うゲームが見つかりませんでした。</p>
       )}
 
-      {/* 運営の台本 */}
-      {officialHits.length > 0 && (
-        <>
-          <h2 className="cards-h">運営の台本</h2>
-          {officialHits.map((s) => (
-            <ScriptCard key={s.id} script={s} onPrint={onPrint} />
-          ))}
-        </>
-      )}
-
-      {/* みんなの台本（有料プランの人が作ったもの） */}
-      {sharedHits.length > 0 && (
-        <>
-          <h2 className="cards-h">みんなの台本</h2>
-          {sharedHits.map((s) => (
-            <ScriptCard
-              key={s.id}
-              script={s}
-              onDelete={onDelete}
-              onPrint={onPrint}
-            />
-          ))}
-        </>
-      )}
+      <div className="tiles">
+        {results.map((s) => (
+          <GameTile key={s.id} script={s} onOpen={setOpenId} />
+        ))}
+      </div>
     </div>
   );
 }

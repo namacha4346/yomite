@@ -53,8 +53,16 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
 
   const handleSave = () => {
     if (!canSave) return;
+    const pmin = parseInt(form.playersMin, 10);
+    const pmax = parseInt(form.playersMax, 10);
+    const players =
+      pmin > 0 && pmax > 0 ? { min: Math.min(pmin, pmax), max: Math.max(pmin, pmax) } : undefined;
+    const t = parseInt(form.timeMin, 10);
+    const time = t > 0 ? t : undefined;
     onSave({
       gameTitle: form.gameTitle.trim(),
+      ...(players ? { players } : {}),
+      ...(time ? { time } : {}),
       about: form.about.trim(),
       win: form.win.trim(),
       setup: form.setup.trim(),
@@ -170,6 +178,43 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
           placeholder="例：はじめての農場ゲーム"
         />
       </label>
+
+      {/* カタログ用のメタ情報（任意） */}
+      <div className="field">
+        <span className="field-label">人数・時間（任意・一覧に表示）</span>
+        <div className="meta-row">
+          <input
+            className="input meta-num"
+            type="number"
+            min="1"
+            value={form.playersMin}
+            onChange={(e) => set("playersMin", e.target.value)}
+            placeholder="最少"
+            aria-label="最少人数"
+          />
+          <span className="meta-sep">〜</span>
+          <input
+            className="input meta-num"
+            type="number"
+            min="1"
+            value={form.playersMax}
+            onChange={(e) => set("playersMax", e.target.value)}
+            placeholder="最多"
+            aria-label="最多人数"
+          />
+          <span className="meta-unit">人</span>
+          <input
+            className="input meta-num"
+            type="number"
+            min="1"
+            value={form.timeMin}
+            onChange={(e) => set("timeMin", e.target.value)}
+            placeholder="時間"
+            aria-label="所要時間（分）"
+          />
+          <span className="meta-unit">分</span>
+        </div>
+      </div>
 
       {/* テーマのタブ */}
       <div className="wiz-tabs" role="tablist" aria-label="台本のテーマ">

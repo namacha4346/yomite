@@ -49,7 +49,17 @@ function sanitize(body) {
     : [];
   if (icons.length === 0) return null;
 
-  return { gameTitle, ...texts, turn, icons };
+  // 任意のメタ情報（カタログ表示用）
+  const int = (v) => (Number.isFinite(+v) && +v > 0 ? Math.floor(+v) : null);
+  const meta = {};
+  if (body.players && int(body.players.min) && int(body.players.max)) {
+    const a = int(body.players.min);
+    const b = int(body.players.max);
+    meta.players = { min: Math.min(a, b), max: Math.max(a, b) };
+  }
+  if (int(body.time)) meta.time = int(body.time);
+
+  return { gameTitle, ...meta, ...texts, turn, icons };
 }
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
