@@ -26,3 +26,12 @@ export const SECTIONS = [
 
 // サマリー（早見表）に使うセクション
 export const SUMMARY_KEYS = { turn: "turn", end: "end", icons: "icons" };
+
+// 台本エディタのタブ（テーマごとに10項目をまとめる）
+export const THEMES = [
+  { id: "about", label: "概要", keys: ["about", "win"] },
+  { id: "setup", label: "準備・流れ", keys: ["setup", "flow"] },
+  { id: "play", label: "手番・得点・終了", keys: ["turn", "scoring", "end"] },
+  { id: "ref", label: "アイコン・注意", keys: ["icons", "special", "pitfalls"] },
+];
+

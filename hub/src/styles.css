@@ -822,3 +822,62 @@ a {
 .script-summary {
   padding: 14px 16px 6px;
 }
+
+/* =========================================================
+   台本エディタのテーマタブ（ウィザード）
+   ========================================================= */
+.wiz-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.wiz-tab {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 8px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.wiz-tab.is-on {
+  background: var(--learn);
+  color: #fff;
+  border-color: var(--learn);
+}
+.wiz-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--learn);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.wiz-tab.is-on .wiz-dot {
+  background: #fff;
+}
+.wiz-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 4px 0;
+}
+.wiz-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wiz-nav .addbtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.wiz-progress {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+}
