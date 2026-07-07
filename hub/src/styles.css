@@ -229,3 +229,249 @@ a {
   font-size: 14px;
   color: var(--text-soft);
 }
+
+/* =========================================================
+   サマリー機能（教わる/教える）
+   ========================================================= */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0 20px;
+  border-bottom: 1px solid var(--border);
+}
+.tab {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 10px 4px;
+  margin-bottom: -1px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-soft);
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+.tab.is-active {
+  color: var(--learn);
+  border-bottom-color: var(--learn);
+}
+
+/* --- ビルダー（フォーム） --- */
+.builder {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+.input {
+  width: 100%;
+  font: inherit;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+}
+.input:focus {
+  outline: 2px solid var(--learn);
+  outline-offset: 1px;
+}
+.textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.rowdel {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  font-size: 18px;
+  color: var(--text-soft);
+  cursor: pointer;
+}
+.addbtn {
+  align-self: flex-start;
+  border: 1px dashed var(--border);
+  background: none;
+  color: var(--text-soft);
+  padding: 8px 12px;
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+.iconrow {
+  margin-bottom: 8px;
+}
+.iconslot {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.savebtn {
+  align-self: flex-start;
+  background: var(--learn);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 10px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.savebtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.hint {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin: 2px 0 0;
+}
+
+/* --- アイコン選択 --- */
+.picker {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 6px;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.picker-item {
+  position: relative;
+  height: 48px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  font-size: 22px;
+  cursor: pointer;
+}
+.picker-item.is-selected {
+  outline: 2px solid var(--learn);
+}
+.picker-item.is-locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.picker-pro {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--discover);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 6px;
+}
+
+/* --- サマリーカード --- */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cards-h {
+  font-size: 15px;
+  margin: 12px 0 0;
+  color: var(--text-soft);
+}
+.scard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--learn);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+.scard-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.scard-title {
+  font-size: 18px;
+  margin: 0;
+}
+.scard-official {
+  background: var(--learn);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.scard-sec {
+  margin-top: 12px;
+}
+.scard-h {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--learn);
+  margin: 0 0 6px;
+}
+.scard-actions {
+  margin: 0;
+  padding-left: 20px;
+}
+.scard-actions li {
+  margin: 3px 0;
+}
+.scard-icons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.scard-icons li {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.scard-ic {
+  font-size: 20px;
+  flex: 0 0 24px;
+}
+.scard-mean {
+  font-size: 14px;
+}
+.scard-end {
+  margin: 0;
+}
+.scard-foot {
+  margin-top: 12px;
+  text-align: right;
+}
+.linkbtn {
+  border: none;
+  background: none;
+  color: var(--text-soft);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
