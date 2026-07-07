@@ -3,19 +3,29 @@ import { Link } from "react-router-dom";
 import Builder from "../summary/Builder.jsx";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import { SAMPLE_SUMMARIES } from "../summary/samples.js";
-import { loadSummaries, addSummary, deleteSummary } from "../summary/store.js";
+import { listSummaries, createSummary, removeSummary } from "../summary/store.js";
 
 // 「教わる／教える」＝サマリー共有プラットフォームのMVP。
-// 運営の公式サンプル ＋ 自分で作ったサマリーを一覧表示できる。
+// 運営の公式サンプル ＋ みんなが作ったサマリー（サーバー保存）を一覧表示できる。
 export default function Learn() {
   const [tab, setTab] = useState("browse"); // browse | build
-  const [mine, setMine] = useState([]);
+  const [shared, setShared] = useState([]);
+  const [status, setStatus] = useState("loading"); // loading | ok | error
   const [printTarget, setPrintTarget] = useState(null); // 印刷する1枚
 
-  // 起動時にブラウザ内の保存を読む
+  // 起動時にサーバーから共有サマリーを読む
   useEffect(() => {
-    setMine(loadSummaries());
+    refresh();
   }, []);
+
+  const refresh = async () => {
+    try {
+      setShared(await listSummaries());
+      setStatus("ok");
+    } catch {
+      setStatus("error");
+    }
+  };
 
   // 印刷対象がセットされたら、描画後にブラウザの印刷を呼ぶ。
   // 印刷ダイアログを閉じたら対象を戻す。
@@ -30,11 +40,22 @@ export default function Learn() {
     };
   }, [printTarget]);
 
-  const handleSave = (summary) => {
-    setMine(addSummary(summary));
-    setTab("browse"); // 保存したら一覧へ
+  const handleSave = async (summary) => {
+    try {
+      setShared(await createSummary(summary));
+      setStatus("ok");
+      setTab("browse"); // 保存したら一覧へ
+    } catch {
+      setStatus("error");
+    }
   };
-  const handleDelete = (id) => setMine(deleteSummary(id));
+  const handleDelete = async (id) => {
+    try {
+      setShared(await removeSummary(id));
+    } catch {
+      setStatus("error");
+    }
+  };
 
   return (
     <div className="page page--learn">
@@ -60,23 +81,30 @@ export default function Learn() {
         </button>
       </div>
 
+      {status === "error" && (
+        <div className="banner banner--error">
+          サーバーに接続できませんでした。バックエンド（hub/server）が起動しているか確認してください。
+        </div>
+      )}
+
       {tab === "build" ? (
         <Builder onSave={handleSave} isPro={false} />
       ) : (
         <div className="cards">
-          {mine.length > 0 && (
-            <>
-              <h2 className="cards-h">あなたが作ったサマリー</h2>
-              {mine.map((s) => (
-                <SummaryCard
-                  key={s.id}
-                  summary={s}
-                  onDelete={handleDelete}
-                  onPrint={setPrintTarget}
-                />
-              ))}
-            </>
+          <h2 className="cards-h">みんなが作ったサマリー</h2>
+          {status === "loading" && <p className="hint">読み込み中…</p>}
+          {status === "ok" && shared.length === 0 && (
+            <p className="hint">まだありません。「サマリーを作る」で最初の1枚を投稿しよう。</p>
           )}
+          {shared.map((s) => (
+            <SummaryCard
+              key={s.id}
+              summary={s}
+              onDelete={handleDelete}
+              onPrint={setPrintTarget}
+            />
+          ))}
+
           <h2 className="cards-h">公式サマリー（見本）</h2>
           {SAMPLE_SUMMARIES.map((s) => (
             <SummaryCard key={s.id} summary={s} onPrint={setPrintTarget} />

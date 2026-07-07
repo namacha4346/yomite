@@ -1,35 +1,31 @@
-// サマリーの保存。今はブラウザ内（localStorage）だけ。
-// アカウント・課金・共有DBは「あとで」バックエンドに載せる（設計上の保留事項）。
+// サマリーの保存。バックエンド（/api/summaries）経由で「みんなで共有」する。
+// 以前は localStorage（自分のブラウザ内だけ）だったが、サーバー保存に切替。
 
-const KEY = "hub.summaries.v1";
+const API = "/api/summaries";
 
-// 保存されている全サマリーを読む
-export function loadSummaries() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+// 全件を取得
+export async function listSummaries() {
+  const r = await fetch(API);
+  if (!r.ok) throw new Error("一覧の取得に失敗しました");
+  return r.json();
 }
 
-// 全サマリーを書き込む
-function saveAll(list) {
-  localStorage.setItem(KEY, JSON.stringify(list));
+// 1件追加 → 更新後の全件を返す
+export async function createSummary(summary) {
+  const r = await fetch(API, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(summary),
+  });
+  if (!r.ok) throw new Error("保存に失敗しました");
+  return r.json();
 }
 
-// 1件追加して、更新後の一覧を返す
-export function addSummary(summary) {
-  const list = loadSummaries();
-  const withId = { ...summary, id: crypto.randomUUID(), createdAt: Date.now() };
-  const next = [withId, ...list];
-  saveAll(next);
-  return next;
-}
-
-// 1件削除して、更新後の一覧を返す
-export function deleteSummary(id) {
-  const next = loadSummaries().filter((s) => s.id !== id);
-  saveAll(next);
-  return next;
+// 1件削除 → 更新後の全件を返す
+export async function removeSummary(id) {
+  const r = await fetch(`${API}/${encodeURIComponent(id)}`, {
+    method: "DELETE",
+  });
+  if (!r.ok) throw new Error("削除に失敗しました");
+  return r.json();
 }
