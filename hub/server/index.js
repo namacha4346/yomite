@@ -9,15 +9,35 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "256kb" }));
 
-// 入力の最低限のバリデーション（画像アップは無し＝テキスト/データのみ）。
+// 台本の入力バリデーション。全10セクション必須（テキストは一言でも可）。
+// 画像アップは無し＝テキスト/データのみ。
+const TEXT_KEYS = [
+  "about",
+  "win",
+  "setup",
+  "flow",
+  "scoring",
+  "end",
+  "special",
+  "pitfalls",
+];
+
 function sanitize(body) {
   if (!body || typeof body !== "object") return null;
   const gameTitle = String(body.gameTitle || "").trim();
-  const turnActions = Array.isArray(body.turnActions)
-    ? body.turnActions.map((s) => String(s)).filter((s) => s.trim())
+  if (!gameTitle) return null;
+
+  const texts = {};
+  for (const k of TEXT_KEYS) {
+    const v = String(body[k] || "").trim();
+    if (!v) return null;
+    texts[k] = v;
+  }
+
+  const turn = Array.isArray(body.turn)
+    ? body.turn.map((s) => String(s)).filter((s) => s.trim())
     : [];
-  const endCondition = String(body.endCondition || "").trim();
-  if (!gameTitle || turnActions.length === 0 || !endCondition) return null;
+  if (turn.length === 0) return null;
 
   const icons = Array.isArray(body.icons)
     ? body.icons
@@ -25,41 +45,33 @@ function sanitize(body) {
           icon: String(g.icon || ""),
           meaning: String(g.meaning || ""),
         }))
-        .filter((g) => g.icon || g.meaning)
+        .filter((g) => g.icon || g.meaning.trim())
     : [];
+  if (icons.length === 0) return null;
 
-  const side = (v, d) => (v === "front" || v === "back" ? v : d);
-  return {
-    gameTitle,
-    turnActions,
-    endCondition,
-    icons,
-    turnActionsSide: side(body.turnActionsSide, "front"),
-    endConditionSide: side(body.endConditionSide, "front"),
-    iconsSide: side(body.iconsSide, "back"),
-  };
+  return { gameTitle, ...texts, turn, icons };
 }
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 // 一覧
-app.get("/api/summaries", async (_req, res) => {
+app.get("/api/scripts", async (_req, res) => {
   res.json(await db.list());
 });
 
 // 追加（更新後の一覧を返す）
-app.post("/api/summaries", async (req, res) => {
+app.post("/api/scripts", async (req, res) => {
   const clean = sanitize(req.body);
   if (!clean) {
     return res
       .status(400)
-      .json({ error: "ゲーム名・手番でできること・終了条件は必須です。" });
+      .json({ error: "全ての項目に入力してください（一言でもOK）。" });
   }
   res.status(201).json(await db.create(clean));
 });
 
 // 削除（更新後の一覧を返す）
-app.delete("/api/summaries/:id", async (req, res) => {
+app.delete("/api/scripts/:id", async (req, res) => {
   res.json(await db.remove(req.params.id));
 });
 

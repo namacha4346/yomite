@@ -753,3 +753,72 @@ a {
   border: 1px solid #f5c2c0;
   color: #8a2620;
 }
+
+/* =========================================================
+   台本カード（教わる/教える）
+   ========================================================= */
+.scriptcard {
+  --ac: var(--learn);
+  --ac-soft: #fbeee4;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.script-body {
+  padding: 16px 20px 6px;
+}
+.sec-block {
+  margin-bottom: 16px;
+}
+.sec-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ac);
+  margin: 0 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sec-label::before {
+  content: "";
+  width: 4px;
+  height: 14px;
+  border-radius: 2px;
+  background: var(--ac);
+}
+.sec-text {
+  margin: 0;
+  font-size: 14px;
+  white-space: pre-wrap;
+}
+.sec-list {
+  margin: 0;
+  padding-left: 20px;
+}
+.sec-list li {
+  margin: 3px 0;
+  font-size: 14px;
+}
+.sec-icons {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+.sec-icons li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+.sec-ic {
+  font-size: 20px;
+  flex: 0 0 26px;
+}
+/* 早見表ビューは中の SummaryCard に余白を持たせる */
+.script-summary {
+  padding: 14px 16px 6px;
+}

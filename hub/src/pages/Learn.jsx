@@ -1,26 +1,27 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import Builder from "../summary/Builder.jsx";
 import SummaryCard from "../summary/SummaryCard.jsx";
-import { SAMPLE_SUMMARIES } from "../summary/samples.js";
-import { listSummaries, createSummary, removeSummary } from "../summary/store.js";
+import ScriptBuilder from "../script/ScriptBuilder.jsx";
+import ScriptCard from "../script/ScriptCard.jsx";
+import { SAMPLE_SCRIPTS } from "../script/samples.js";
+import { listScripts, createScript, removeScript } from "../script/store.js";
 
-// 「教わる／教える」＝サマリー共有プラットフォームのMVP。
-// 運営の公式サンプル ＋ みんなが作ったサマリー（サーバー保存）を一覧表示できる。
+// 「教わる／教える」＝インスト台本の作成・共有プラットフォーム。
+// 台本を書くと、そこから早見表（サマリー）が自動生成される。
 export default function Learn() {
   const [tab, setTab] = useState("browse"); // browse | build
   const [shared, setShared] = useState([]);
   const [status, setStatus] = useState("loading"); // loading | ok | error
-  const [printTarget, setPrintTarget] = useState(null); // 印刷する1枚
+  const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
 
-  // 起動時にサーバーから共有サマリーを読む
+  // 起動時にサーバーから共有台本を読む
   useEffect(() => {
     refresh();
   }, []);
 
   const refresh = async () => {
     try {
-      setShared(await listSummaries());
+      setShared(await listScripts());
       setStatus("ok");
     } catch {
       setStatus("error");
@@ -28,7 +29,6 @@ export default function Learn() {
   };
 
   // 印刷対象がセットされたら、描画後にブラウザの印刷を呼ぶ。
-  // 印刷ダイアログを閉じたら対象を戻す。
   useEffect(() => {
     if (!printTarget) return;
     const t = setTimeout(() => window.print(), 50);
@@ -40,9 +40,9 @@ export default function Learn() {
     };
   }, [printTarget]);
 
-  const handleSave = async (summary) => {
+  const handleSave = async (script) => {
     try {
-      setShared(await createSummary(summary));
+      setShared(await createScript(script));
       setStatus("ok");
       setTab("browse"); // 保存したら一覧へ
     } catch {
@@ -51,7 +51,7 @@ export default function Learn() {
   };
   const handleDelete = async (id) => {
     try {
-      setShared(await removeSummary(id));
+      setShared(await removeScript(id));
     } catch {
       setStatus("error");
     }
@@ -62,8 +62,8 @@ export default function Learn() {
       <span className="page-hurdle">インストのハードル</span>
       <h1 className="page-title">教わる／教える</h1>
       <p className="page-lead">
-        「サマリー（早見表）」があるだけで、初心者の質問はぐっと減る。
-        作って、みんなで共有しよう。
+        インストの台本を書くと、遊ぶとき用の早見表（サマリー）も自動でできる。
+        書いて、みんなで共有しよう。
       </p>
 
       <div className="tabs">
@@ -71,13 +71,13 @@ export default function Learn() {
           className={"tab" + (tab === "browse" ? " is-active" : "")}
           onClick={() => setTab("browse")}
         >
-          みんなのサマリー
+          みんなの台本
         </button>
         <button
           className={"tab" + (tab === "build" ? " is-active" : "")}
           onClick={() => setTab("build")}
         >
-          サマリーを作る
+          台本を作る
         </button>
       </div>
 
@@ -88,26 +88,26 @@ export default function Learn() {
       )}
 
       {tab === "build" ? (
-        <Builder onSave={handleSave} isPro={false} />
+        <ScriptBuilder onSave={handleSave} isPro={false} />
       ) : (
         <div className="cards">
-          <h2 className="cards-h">みんなが作ったサマリー</h2>
+          <h2 className="cards-h">みんなが作った台本</h2>
           {status === "loading" && <p className="hint">読み込み中…</p>}
           {status === "ok" && shared.length === 0 && (
-            <p className="hint">まだありません。「サマリーを作る」で最初の1枚を投稿しよう。</p>
+            <p className="hint">まだありません。「台本を作る」で最初の1本を書こう。</p>
           )}
           {shared.map((s) => (
-            <SummaryCard
+            <ScriptCard
               key={s.id}
-              summary={s}
+              script={s}
               onDelete={handleDelete}
               onPrint={setPrintTarget}
             />
           ))}
 
-          <h2 className="cards-h">公式サマリー（見本）</h2>
-          {SAMPLE_SUMMARIES.map((s) => (
-            <SummaryCard key={s.id} summary={s} onPrint={setPrintTarget} />
+          <h2 className="cards-h">公式の台本（見本）</h2>
+          {SAMPLE_SCRIPTS.map((s) => (
+            <ScriptCard key={s.id} script={s} onPrint={setPrintTarget} />
           ))}
         </div>
       )}
