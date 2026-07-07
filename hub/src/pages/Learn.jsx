@@ -14,6 +14,7 @@ export default function Learn() {
   const [status, setStatus] = useState("loading"); // loading | ok | error
   const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
   const [isPro, setIsPro] = useState(false); // 有料プランか（今は仮フラグ）
+  const [query, setQuery] = useState(""); // 台本の検索語
 
   useEffect(() => {
     refresh();
@@ -94,29 +95,15 @@ export default function Learn() {
           <Paywall onTryDemo={() => setIsPro(true)} />
         )
       ) : (
-        <div className="cards">
-          {/* ベース＝運営の台本 */}
-          <h2 className="cards-h">運営の台本</h2>
-          {SAMPLE_SCRIPTS.map((s) => (
-            <ScriptCard key={s.id} script={s} onPrint={setPrintTarget} />
-          ))}
-
-          {/* 有料プランの人が作った台本 */}
-          {status === "ok" && shared.length > 0 && (
-            <>
-              <h2 className="cards-h">みんなの台本</h2>
-              {shared.map((s) => (
-                <ScriptCard
-                  key={s.id}
-                  script={s}
-                  onDelete={handleDelete}
-                  onPrint={setPrintTarget}
-                />
-              ))}
-            </>
-          )}
-          {status === "loading" && <p className="hint">読み込み中…</p>}
-        </div>
+        <Browse
+          query={query}
+          setQuery={setQuery}
+          official={SAMPLE_SCRIPTS}
+          shared={shared}
+          status={status}
+          onDelete={handleDelete}
+          onPrint={setPrintTarget}
+        />
       )}
 
       <Link to="/" className="page-back">← トップに戻る</Link>
@@ -127,6 +114,81 @@ export default function Learn() {
           <SummaryCard summary={printTarget} />
           <p className="print-foot">ボードゲームひろば（仮） — サマリー早見表</p>
         </div>
+      )}
+    </div>
+  );
+}
+
+// 台本をつかう＝検索して探すページ。
+function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
+  const q = query.trim().toLowerCase();
+  const match = (s) =>
+    !q ||
+    (s.gameTitle || "").toLowerCase().includes(q) ||
+    (s.about || "").toLowerCase().includes(q);
+
+  const officialHits = official.filter(match);
+  const sharedHits = shared.filter(match);
+  const total = officialHits.length + sharedHits.length;
+
+  return (
+    <div className="cards">
+      {/* 検索 */}
+      <div className="search">
+        <span className="search-icon" aria-hidden="true">🔍</span>
+        <input
+          className="search-input"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="ゲーム名で台本をさがす（例：宝石）"
+          aria-label="台本をさがす"
+        />
+        {query && (
+          <button
+            type="button"
+            className="search-clear"
+            onClick={() => setQuery("")}
+            aria-label="検索をクリア"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
+      {status === "loading" && <p className="hint">読み込み中…</p>}
+      {q && (
+        <p className="search-count">
+          「{query}」の検索結果：{total} 件
+        </p>
+      )}
+      {q && total === 0 && (
+        <p className="hint">合う台本が見つかりませんでした。別の言葉で探してみてください。</p>
+      )}
+
+      {/* 運営の台本 */}
+      {officialHits.length > 0 && (
+        <>
+          <h2 className="cards-h">運営の台本</h2>
+          {officialHits.map((s) => (
+            <ScriptCard key={s.id} script={s} onPrint={onPrint} />
+          ))}
+        </>
+      )}
+
+      {/* みんなの台本（有料プランの人が作ったもの） */}
+      {sharedHits.length > 0 && (
+        <>
+          <h2 className="cards-h">みんなの台本</h2>
+          {sharedHits.map((s) => (
+            <ScriptCard
+              key={s.id}
+              script={s}
+              onDelete={onDelete}
+              onPrint={onPrint}
+            />
+          ))}
+        </>
       )}
     </div>
   );

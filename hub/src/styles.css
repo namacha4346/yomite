@@ -1073,3 +1073,53 @@ a {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* =========================================================
+   台本の検索
+   ========================================================= */
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.search-input {
+  width: 100%;
+  font: inherit;
+  font-size: 16px;
+  padding: 13px 40px 13px 42px;
+  border: 1.5px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.search-input:focus {
+  outline: 2px solid var(--learn);
+  outline-offset: 1px;
+}
+.search-clear {
+  position: absolute;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: var(--bg2);
+  color: var(--text-soft);
+  border-radius: 50%;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+.search-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  margin: 2px 2px -4px;
+}
