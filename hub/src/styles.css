@@ -541,15 +541,6 @@ a {
 .scard-sec {
   margin-bottom: 18px;
 }
-.scard-notes {
-  margin: 0;
-  font-size: 14px;
-  white-space: pre-wrap; /* 改行をそのまま反映 */
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 12px 14px;
-}
 .scard-h {
   display: flex;
   align-items: center;
@@ -604,40 +595,40 @@ a {
   font-size: 15px;
 }
 
-/* ② アイコン早見表：2列グリッド */
+/* ② アイコン早見表：大きめの2列グリッド（読みやすさ重視） */
 .scard-icons {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
 }
 .gitem {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 7px 10px;
+  border-radius: 12px;
+  padding: 12px 14px;
 }
 .gitem-ic {
   flex: 0 0 auto;
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
   background: var(--ac-soft);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 28px;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }
 .gitem-mean {
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.45;
 }
 
 /* ③ 終了条件：ゴール枠 */

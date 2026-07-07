@@ -28,14 +28,12 @@ export default function Builder({ onSave, isPro = false }) {
   const [turnActions, setTurnActions] = useState([""]);
   const [icons, setIcons] = useState([{ icon: "", meaning: "" }]);
   const [endCondition, setEndCondition] = useState("");
-  const [notes, setNotes] = useState("");
   const [pickerRow, setPickerRow] = useState(null);
 
   // 各セクションの面（既定は定番の表裏構成）
   const [turnActionsSide, setTurnActionsSide] = useState("front");
   const [endConditionSide, setEndConditionSide] = useState("front");
   const [iconsSide, setIconsSide] = useState("back");
-  const [notesSide, setNotesSide] = useState("back");
 
   // --- 手番でできること ---
   const setAction = (i, v) =>
@@ -65,22 +63,18 @@ export default function Builder({ onSave, isPro = false }) {
       turnActions: turnActions.map((a) => a.trim()).filter(Boolean),
       icons: icons.filter((g) => g.icon || g.meaning.trim()),
       endCondition: endCondition.trim(),
-      notes: notes.trim(),
       turnActionsSide,
       endConditionSide,
       iconsSide,
-      notesSide,
     });
     // 入力をリセット
     setGameTitle("");
     setTurnActions([""]);
     setIcons([{ icon: "", meaning: "" }]);
     setEndCondition("");
-    setNotes("");
     setTurnActionsSide("front");
     setEndConditionSide("front");
     setIconsSide("back");
-    setNotesSide("back");
     setPickerRow(null);
   };
 
@@ -184,20 +178,6 @@ export default function Builder({ onSave, isPro = false }) {
           value={endCondition}
           onChange={(e) => setEndCondition(e.target.value)}
           placeholder="例：山札がなくなったら終了。⭐が一番多い人の勝ち。"
-        />
-      </div>
-
-      {/* ④ 自由メモ（任意） */}
-      <div className="field">
-        <div className="field-head">
-          <span className="field-label">④ 準備・メモ（任意）</span>
-          <SideToggle value={notesSide} onChange={setNotesSide} />
-        </div>
-        <textarea
-          className="input textarea"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="例：各自カード5枚・コマ3個を配る。／手札上限は10枚まで。"
         />
       </div>
 

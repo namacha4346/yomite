@@ -55,15 +55,6 @@ function renderSection(key, s) {
       </section>
     );
   }
-  if (key === "notes") {
-    if (!s.notes) return null;
-    return (
-      <section className="scard-sec" key="notes">
-        <SecHead>準備・メモ</SecHead>
-        <p className="scard-notes">{s.notes}</p>
-      </section>
-    );
-  }
   return null;
 }
 
@@ -72,10 +63,9 @@ const SECTION_SIDE = {
   turn: "turnActionsSide",
   icons: "iconsSide",
   end: "endConditionSide",
-  notes: "notesSide",
 };
 // 面の中での並び順
-const ORDER = ["turn", "end", "icons", "notes"];
+const ORDER = ["turn", "end", "icons"];
 
 // 作られたサマリーを「表裏1枚の早見表」として表示する部品。
 export default function SummaryCard({ summary, onDelete, onPrint }) {
