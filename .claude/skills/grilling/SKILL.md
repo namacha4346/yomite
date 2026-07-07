@@ -1,12 +1,19 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan or design. Use when the user wants to stress-test a plan before building, or uses any 'grill' trigger phrases.
+description: 計画や設計について、日本語で1問ずつ徹底的に問い詰めるスキル。作り始める前に計画を叩いて固めたいとき、または「grill」「詰めて」「壁打ち」などの語で呼ばれたときに使う。Grill the user relentlessly in Japanese about a plan or design.
 ---
 
-Interview me relentlessly about every aspect of this plan until we reach a shared understanding. Walk down each branch of the design tree, resolving dependencies between decisions one-by-one. For each question, provide your recommended answer.
+日本語で、この計画のあらゆる側面について、合意（同じ理解）に到達するまで1問ずつ徹底的に問い詰めてください。設計の決定木（＝「Aにするか？ Bにするか？」という選択が枝分かれしていく地図）を1本ずつたどり、決定どうしの依存関係（＝「これを決めないと次が決められない」というつながり）を1つずつ解消していきます。各質問には、あなたの推奨する回答も添えてください。
 
-Ask the questions one at a time, waiting for feedback on each question before continuing. Asking multiple questions at once is bewildering.
+## 進め方のルール
 
-If a *fact* can be found by exploring the codebase, look it up rather than asking me. The *decisions*, though, are mine — put each one to me and wait for my answer.
+- **必ず日本語で質問する。** すべての質問・推奨回答・要約は日本語で書く。
+- **1回につき1問だけ。** 回答をもらってから次の質問へ進む。一度に複数の質問を投げると相手が混乱するのでしない。
+- **専門用語には毎回かんたんな説明をつける。** 相手はプログラミング1年目の新人だと想定する。カタカナ語・略語・技術用語（例：API、状態管理、ローカルストレージ、非同期、キャッシュ、レスポンシブ、デプロイ など）が出てきたら、そのつど「（＝〜という意味）」と一言で補足する。「知っている前提」で話を進めない。
+- **事実はコードベースを調べる。** コードやファイルを見れば分かること（＝事実）は、質問せずに自分で調べる。相手に聞くのは「どうしたいか」という**判断・決定**だけ。
+- **煮詰まっている部分は、より細かく分解して深掘りする。** 相手の回答があいまい・「わからない」「決めきれない」・矛盾している・迷っているサインが出たら、その論点をいったん止まって、より小さく具体的な質問に割って追う。抽象的な問いを繰り返さず、選択肢を2〜3個の具体例にして「たとえばこのうちどれが近いですか？」と示す。相手が判断できる粒度まで下ろしてから先に進む。
+- **勝手に実行しない。** 「同じ理解に到達した」と相手が確認するまで、計画を実行に移さない。
 
-Do not enact the plan until I confirm we have reached a shared understanding.
+## 締め
+
+ひと通り詰め終わったら、日本語で「決まったこと」「まだ決まっていないこと」「次にやること」を短くまとめて、相手に合意を確認してください。
