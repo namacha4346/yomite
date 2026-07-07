@@ -6,15 +6,15 @@ import ScriptCard from "../script/ScriptCard.jsx";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
 
-// 「教わる／教える」＝インスト台本の作成・共有プラットフォーム。
-// 台本を書くと、そこから早見表（サマリー）が自動生成される。
+// 「教わる／教える」。
+// ベースは【運営の台本を使う】（無料）。【台本を作る】は有料プランの機能。
 export default function Learn() {
   const [tab, setTab] = useState("browse"); // browse | build
   const [shared, setShared] = useState([]);
   const [status, setStatus] = useState("loading"); // loading | ok | error
   const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
+  const [isPro, setIsPro] = useState(false); // 有料プランか（今は仮フラグ）
 
-  // 起動時にサーバーから共有台本を読む
   useEffect(() => {
     refresh();
   }, []);
@@ -44,7 +44,7 @@ export default function Learn() {
     try {
       setShared(await createScript(script));
       setStatus("ok");
-      setTab("browse"); // 保存したら一覧へ
+      setTab("browse");
     } catch {
       setStatus("error");
     }
@@ -62,8 +62,7 @@ export default function Learn() {
       <span className="page-hurdle">インストのハードル</span>
       <h1 className="page-title">教わる／教える</h1>
       <p className="page-lead">
-        インストの台本を書くと、遊ぶとき用の早見表（サマリー）も自動でできる。
-        書いて、みんなで共有しよう。
+        運営がつくったインスト台本を、そのまま使える。台本には遊ぶとき用の早見表（サマリー）も付いてくる。
       </p>
 
       <div className="tabs">
@@ -71,13 +70,14 @@ export default function Learn() {
           className={"tab" + (tab === "browse" ? " is-active" : "")}
           onClick={() => setTab("browse")}
         >
-          みんなの台本
+          台本をつかう
         </button>
         <button
           className={"tab" + (tab === "build" ? " is-active" : "")}
           onClick={() => setTab("build")}
         >
-          台本を作る
+          台本をつくる
+          <span className="tab-pro">PRO</span>
         </button>
       </div>
 
@@ -88,27 +88,34 @@ export default function Learn() {
       )}
 
       {tab === "build" ? (
-        <ScriptBuilder onSave={handleSave} isPro={false} />
+        isPro ? (
+          <ScriptBuilder onSave={handleSave} isPro={isPro} />
+        ) : (
+          <Paywall onTryDemo={() => setIsPro(true)} />
+        )
       ) : (
         <div className="cards">
-          <h2 className="cards-h">みんなが作った台本</h2>
-          {status === "loading" && <p className="hint">読み込み中…</p>}
-          {status === "ok" && shared.length === 0 && (
-            <p className="hint">まだありません。「台本を作る」で最初の1本を書こう。</p>
-          )}
-          {shared.map((s) => (
-            <ScriptCard
-              key={s.id}
-              script={s}
-              onDelete={handleDelete}
-              onPrint={setPrintTarget}
-            />
-          ))}
-
-          <h2 className="cards-h">公式の台本（見本）</h2>
+          {/* ベース＝運営の台本 */}
+          <h2 className="cards-h">運営の台本</h2>
           {SAMPLE_SCRIPTS.map((s) => (
             <ScriptCard key={s.id} script={s} onPrint={setPrintTarget} />
           ))}
+
+          {/* 有料プランの人が作った台本 */}
+          {status === "ok" && shared.length > 0 && (
+            <>
+              <h2 className="cards-h">みんなの台本</h2>
+              {shared.map((s) => (
+                <ScriptCard
+                  key={s.id}
+                  script={s}
+                  onDelete={handleDelete}
+                  onPrint={setPrintTarget}
+                />
+              ))}
+            </>
+          )}
+          {status === "loading" && <p className="hint">読み込み中…</p>}
         </div>
       )}
 
@@ -121,6 +128,30 @@ export default function Learn() {
           <p className="print-foot">ボードゲームひろば（仮） — サマリー早見表</p>
         </div>
       )}
+    </div>
+  );
+}
+
+// 台本づくりは有料プランの機能。無料の人にはこの案内を出す。
+function Paywall({ onTryDemo }) {
+  return (
+    <div className="paywall">
+      <span className="paywall-badge">PRO プラン</span>
+      <h3 className="paywall-title">台本づくりは有料プランの機能です</h3>
+      <p className="paywall-lead">
+        まずは運営の台本を無料で使えます。自分のゲームの台本を作りたくなったら、有料プランへ。
+      </p>
+      <ul className="paywall-list">
+        <li>自分のゲームの台本を作成・共有できる</li>
+        <li>台本から早見表（サマリー）を自動生成・印刷</li>
+        <li>PRO アイコンが解禁される</li>
+      </ul>
+      <button className="savebtn" type="button">
+        有料プランについて
+      </button>
+      <button className="paywall-demo" type="button" onClick={onTryDemo}>
+        （デモ）試しに使ってみる →
+      </button>
     </div>
   );
 }
