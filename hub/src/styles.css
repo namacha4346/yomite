@@ -490,8 +490,31 @@ a {
 .scard-face {
   padding: 16px 20px 6px;
 }
-.scard-face + .scard-face {
-  border-top: 1px dashed var(--border);
+/* 画面では非表示の面（印刷では両面出す） */
+.is-hidden-screen {
+  display: none;
+}
+/* 面プレビュー切替（表面/裏面タブ） */
+.face-switch {
+  display: flex;
+  gap: 6px;
+  padding: 12px 20px 0;
+}
+.face-switch-btn {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 6px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.face-switch-btn.is-on {
+  background: var(--ac);
+  color: #fff;
+  border-color: var(--ac);
 }
 .face-head {
   display: flex;
@@ -698,6 +721,13 @@ a {
   }
   .print-sheet .step-text {
     font-size: 15px;
+  }
+  /* 印刷では面の切替UIは出さず、両面とも印刷する */
+  .print-sheet .face-switch {
+    display: none;
+  }
+  .print-sheet .scard-face.is-hidden-screen {
+    display: block;
   }
   /* 裏面は新しいページに（両面印刷で表裏になる） */
   .print-sheet .scard-face + .scard-face {

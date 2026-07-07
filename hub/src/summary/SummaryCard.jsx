@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { withSides } from "./model.js";
 
 // 1つのセクション見出し
@@ -95,6 +96,10 @@ export default function SummaryCard({ summary, onDelete, onPrint }) {
     })
     .filter((f) => f.nodes.length > 0);
 
+  // 画面で表示中の面（印刷には影響しない）
+  const [active, setActive] = useState(faces[0]?.side || "front");
+  const activeSide = faces.some((f) => f.side === active) ? active : faces[0]?.side;
+
   return (
     <article className="scard">
       {/* ヘッダー帯 */}
@@ -106,9 +111,31 @@ export default function SummaryCard({ summary, onDelete, onPrint }) {
         {official && <span className="scard-official">公式</span>}
       </header>
 
+      {/* 面プレビュー切替（2面あるときだけ・印刷では出さない） */}
+      {faces.length > 1 && (
+        <div className="face-switch" role="tablist" aria-label="表裏の切替">
+          {faces.map((f) => (
+            <button
+              key={f.side}
+              role="tab"
+              aria-selected={f.side === activeSide}
+              className={"face-switch-btn" + (f.side === activeSide ? " is-on" : "")}
+              onClick={() => setActive(f.side)}
+            >
+              {f.label}面
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="scard-body">
         {faces.map((f) => (
-          <section className="scard-face" key={f.side}>
+          <section
+            className={
+              "scard-face" + (f.side === activeSide ? "" : " is-hidden-screen")
+            }
+            key={f.side}
+          >
             <div className="face-head">
               <span className="face-badge">{f.label}</span>
               <span className="face-gametitle">{gameTitle}</span>
