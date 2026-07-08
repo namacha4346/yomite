@@ -1,7 +1,14 @@
 import { useState } from "react";
 import SummaryCard from "../summary/SummaryCard.jsx";
+import LikeButton from "../social/LikeButton.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary } from "./model.js";
+
+// 作者名（公式は運営、投稿は作者ハンドル）
+function authorName(script) {
+  if (script.official) return "運営";
+  return script.author ? "@" + script.author : "みんな";
+}
 
 // タブ = 4テーマ ＋ 早見表
 const TABS = [...THEMES, { id: "summary", label: "早見表" }];
@@ -39,7 +46,14 @@ function renderSection(sec, script) {
 
 // 台本1件の表示。テーマごとのタブで切り替える（縦長にならないように）。
 // 最後のタブ「早見表」は台本から自動生成した SummaryCard。
-export default function ScriptCard({ script, onDelete, onPrint }) {
+export default function ScriptCard({
+  script,
+  onDelete,
+  onPrint,
+  user,
+  onNeedName,
+  onLikeChange,
+}) {
   const [tab, setTab] = useState(THEMES[0].id);
   const { gameTitle, official } = script;
   const summary = deriveSummary(script);
@@ -49,7 +63,7 @@ export default function ScriptCard({ script, onDelete, onPrint }) {
     <article className="scriptcard">
       <header className="scard-band">
         <div className="scard-band-main">
-          <span className="scard-kicker">インスト台本</span>
+          <span className="scard-kicker">インスト台本・作者 {authorName(script)}</span>
           <h3 className="scard-title">{gameTitle || "（無題の台本）"}</h3>
         </div>
         {official && <span className="scard-official">公式</span>}
@@ -83,6 +97,13 @@ export default function ScriptCard({ script, onDelete, onPrint }) {
       )}
 
       <footer className="scard-foot">
+        <LikeButton
+          id={script.id}
+          user={user}
+          onNeedName={onNeedName}
+          onChange={onLikeChange}
+        />
+        <span className="foot-spacer" />
         {onPrint && (
           <button className="linkbtn" onClick={() => onPrint(summary)}>
             🖨 早見表を印刷／PDF

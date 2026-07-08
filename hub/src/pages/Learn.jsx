@@ -7,6 +7,8 @@ import GameTile from "../script/GameTile.jsx";
 import { sortMechanics } from "../script/mechanics.js";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
+import { getUser, setUser } from "../social/user.js";
+import { likeCount, likedIds } from "../social/likes.js";
 
 // 「教わる／教える」。
 // ベースは【運営の台本を使う】（無料）。【台本を作る】は有料プランの機能。
@@ -17,6 +19,20 @@ export default function Learn() {
   const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
   const [isPro, setIsPro] = useState(false); // 有料プランか（今は仮フラグ）
   const [query, setQuery] = useState(""); // 台本の検索語
+  const [user, setUserState] = useState(getUser()); // 現在のハンドル
+  const [draftName, setDraftName] = useState(""); // 名前入力中
+  const [askName, setAskName] = useState(false); // 「名前を決めて」の促し
+  const [, setLikeTick] = useState(0); // いいね変更で再描画するための刻み
+
+  const bumpLike = () => setLikeTick((t) => t + 1);
+  const saveName = () => {
+    const n = setUser(draftName);
+    if (n) {
+      setUserState(n);
+      setDraftName("");
+      setAskName(false);
+    }
+  };
 
   useEffect(() => {
     refresh();
@@ -45,7 +61,8 @@ export default function Learn() {
 
   const handleSave = async (script) => {
     try {
-      setShared(await createScript(script));
+      // 作者（ハンドル）を付けて投稿
+      setShared(await createScript({ ...script, author: user }));
       setStatus("ok");
       setTab("browse");
     } catch {
@@ -68,6 +85,42 @@ export default function Learn() {
         運営がつくったインスト台本を、そのまま使える。台本には遊ぶとき用の早見表（サマリー）も付いてくる。
       </p>
 
+      {/* 簡易アカウント（ニックネーム） */}
+      <div className={"idbar" + (askName ? " is-ask" : "")}>
+        {user ? (
+          <>
+            <span className="idbar-hi">こんにちは、<b>@{user}</b> さん</span>
+            <button
+              type="button"
+              className="linkbtn"
+              onClick={() => {
+                setUser("");
+                setUserState("");
+              }}
+            >
+              名前を変える
+            </button>
+          </>
+        ) : (
+          <>
+            <span className="idbar-hi">ニックネームを決めると、いいね・投稿ができます</span>
+            <span className="idbar-form">
+              <input
+                className="input idbar-input"
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && saveName()}
+                placeholder="なまえ"
+                aria-label="ニックネーム"
+              />
+              <button type="button" className="idbar-go" onClick={saveName}>
+                決定
+              </button>
+            </span>
+          </>
+        )}
+      </div>
+
       <div className="tabs">
         <button
           className={"tab" + (tab === "browse" ? " is-active" : "")}
@@ -81,6 +134,12 @@ export default function Learn() {
         >
           台本をつくる
           <span className="tab-pro">PRO</span>
+        </button>
+        <button
+          className={"tab" + (tab === "me" ? " is-active" : "")}
+          onClick={() => setTab("me")}
+        >
+          マイページ
         </button>
       </div>
 
@@ -96,6 +155,16 @@ export default function Learn() {
         ) : (
           <Paywall onTryDemo={() => setIsPro(true)} />
         )
+      ) : tab === "me" ? (
+        <MyPage
+          user={user}
+          official={SAMPLE_SCRIPTS}
+          shared={shared}
+          onDelete={handleDelete}
+          onPrint={setPrintTarget}
+          onNeedName={() => setAskName(true)}
+          onLikeChange={bumpLike}
+        />
       ) : (
         <Browse
           query={query}
@@ -105,6 +174,9 @@ export default function Learn() {
           status={status}
           onDelete={handleDelete}
           onPrint={setPrintTarget}
+          user={user}
+          onNeedName={() => setAskName(true)}
+          onLikeChange={bumpLike}
         />
       )}
 
@@ -134,9 +206,21 @@ const PLAYER_BUCKETS = [
 
 // 台本をつかう＝まずゲームのカタログ（表紙・人数）から探し、
 // タイルを選ぶと台本の詳細を開く。
-function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
+function Browse({
+  query,
+  setQuery,
+  official,
+  shared,
+  status,
+  onDelete,
+  onPrint,
+  user,
+  onNeedName,
+  onLikeChange,
+}) {
   const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
+  const [sort, setSort] = useState("new"); // new | popular
   const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
   const [openId, setOpenId] = useState(null); // 開いている台本
 
@@ -177,14 +261,18 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
     groups.get(key).push(s);
   }
   const games = [...groups.entries()].map(([key, list]) => {
+    // 公式を先に、その中はいいねが多い→新しい順
     const sorted = [...list].sort((a, b) => {
       const ao = a._group === "official" ? 0 : 1;
       const bo = b._group === "official" ? 0 : 1;
       if (ao !== bo) return ao - bo;
+      const dl = likeCount(b.id) - likeCount(a.id);
+      if (dl !== 0) return dl;
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
     const rep = sorted.find((s) => s._group === "official") || sorted[0];
-    return { key, rep, list: sorted };
+    const likes = list.reduce((n, s) => n + likeCount(s.id), 0);
+    return { key, rep, list: sorted, likes };
   });
 
   // 【3層目】実際の台本を開いているとき
@@ -203,6 +291,9 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
           <ScriptCard
             script={open}
             onPrint={onPrint}
+            user={user}
+            onNeedName={onNeedName}
+            onLikeChange={onLikeChange}
             onDelete={
               open._group === "shared"
                 ? (id) => {
@@ -263,16 +354,20 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
                 </span>
                 <span className="variant-main">
                   <span className="variant-name">
-                    {s._group === "official" ? "公式台本（運営）" : "みんなの台本"}
+                    {s._group === "official"
+                      ? "公式台本（運営）"
+                      : s.author
+                      ? "@" + s.author + " の台本"
+                      : "みんなの台本"}
                   </span>
                   <span className="variant-note">
-                    {s._group === "official"
+                    {(s._group === "official"
                       ? "運営がつくった台本"
                       : "投稿" +
                         (s.createdAt
                           ? "：" +
                             new Date(s.createdAt).toLocaleDateString("ja-JP")
-                          : "")}
+                          : "")) + `　❤️ ${likeCount(s.id)}`}
                   </span>
                 </span>
                 <span className="variant-arrow" aria-hidden="true">→</span>
@@ -285,9 +380,11 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
   }
 
   // 【1層目】ゲームのカタログ（検索＋人数・ジャンル＋タイル）
-  const gamesFiltered = games.filter(
-    (g) => textMatch(g.rep) && playerMatch(g.rep) && genreMatch(g.rep)
-  );
+  const gamesFiltered = games
+    .filter((g) => textMatch(g.rep) && playerMatch(g.rep) && genreMatch(g.rep))
+    .sort((a, b) =>
+      sort === "popular" ? b.likes - a.likes : 0
+    );
   return (
     <div className="catalog">
       <div className="search">
@@ -363,6 +460,27 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
         </div>
       )}
 
+      {/* 並び替え */}
+      <div className="filter-row">
+        <span className="filter-label">並び</span>
+        <div className="filter-chips" role="group" aria-label="並び替え">
+          <button
+            type="button"
+            className={"chip" + (sort === "new" ? " is-on" : "")}
+            onClick={() => setSort("new")}
+          >
+            新着
+          </button>
+          <button
+            type="button"
+            className={"chip" + (sort === "popular" ? " is-on" : "")}
+            onClick={() => setSort("popular")}
+          >
+            人気（❤️順）
+          </button>
+        </div>
+      </div>
+
       {status === "loading" && <p className="hint">読み込み中…</p>}
       {status !== "loading" && gamesFiltered.length === 0 && (
         <p className="hint">条件に合うゲームが見つかりませんでした。</p>
@@ -378,6 +496,76 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+// マイページ：自分のハンドル・作った台本・いいねした台本。
+function MyPage({ user, official, shared, onDelete, onPrint, onNeedName, onLikeChange }) {
+  if (!user) {
+    return (
+      <div className="paywall">
+        <span className="paywall-badge">マイページ</span>
+        <h3 className="paywall-title">まずニックネームを決めよう</h3>
+        <p className="paywall-lead">
+          名前を決めると、作った台本といいねした台本がここにまとまります。
+        </p>
+        <button className="savebtn" type="button" onClick={onNeedName}>
+          上の欄で名前を決める
+        </button>
+      </div>
+    );
+  }
+
+  const all = [
+    ...official.map((s) => ({ ...s, _group: "official" })),
+    ...shared.map((s) => ({ ...s, _group: "shared" })),
+  ];
+  const mine = shared.filter((s) => s.author === user);
+  const likedSet = new Set(likedIds(user));
+  const liked = all.filter((s) => likedSet.has(s.id));
+
+  const cardProps = {
+    user,
+    onNeedName,
+    onLikeChange,
+    onPrint,
+  };
+
+  return (
+    <div className="cards">
+      <div className="mypage-head">
+        <span className="mypage-avatar" aria-hidden="true">
+          {user.slice(0, 1)}
+        </span>
+        <div>
+          <h2 className="variants-title">@{user}</h2>
+          <p className="variants-sub">
+            作った台本 {mine.length}／いいね {liked.length}
+          </p>
+        </div>
+      </div>
+
+      <h2 className="cards-h">作った台本</h2>
+      {mine.length === 0 ? (
+        <p className="hint">まだありません。「台本をつくる」から投稿できます。</p>
+      ) : (
+        mine.map((s) => (
+          <ScriptCard
+            key={s.id}
+            script={s}
+            {...cardProps}
+            onDelete={onDelete}
+          />
+        ))
+      )}
+
+      <h2 className="cards-h">いいねした台本</h2>
+      {liked.length === 0 ? (
+        <p className="hint">気に入った台本の ❤️ を押すと、ここにたまります。</p>
+      ) : (
+        liked.map((s) => <ScriptCard key={s.id} script={s} {...cardProps} />)
+      )}
     </div>
   );
 }
