@@ -4,6 +4,7 @@ import Home from "./pages/Home.jsx";
 import Learn from "./pages/Learn.jsx";
 import Place from "./pages/Place.jsx";
 import Discover from "./pages/Discover.jsx";
+import GameIntro from "./pages/GameIntro.jsx";
 import Profile from "./pages/Profile.jsx";
 import AuthGate from "./pages/AuthGate.jsx";
 import { AuthContext } from "./social/AuthContext.js";
@@ -76,6 +77,7 @@ export default function App() {
             <Route path="/learn" element={<Learn />} />
             <Route path="/place" element={<Place />} />
             <Route path="/discover" element={<Discover />} />
+            <Route path="/game/:id" element={<GameIntro />} />
             <Route path="/u/:handle" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>

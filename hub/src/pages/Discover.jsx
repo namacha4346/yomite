@@ -153,8 +153,8 @@ function GameOverview({ item, pct, big }) {
         </div>
       )}
 
-      <Link to="/learn" className="overview-cta">
-        この台本で教わる →
+      <Link to={`/game/${g.id}`} className="overview-cta">
+        くわしく見る →
       </Link>
     </article>
   );
