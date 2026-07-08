@@ -121,20 +121,26 @@ export default function Learn() {
   );
 }
 
-// 人数フィルタの選択肢
-const PLAYER_FILTERS = [
-  { key: "all", label: "すべて" },
-  { key: "2", label: "2人" },
-  { key: "34", label: "3〜4人" },
-  { key: "5", label: "5人以上" },
+// 人数フィルタ（複数選択できる）。8以上は「8人以上」にまとめる。
+const PLAYER_BUCKETS = [
+  { key: "2", label: "2人", n: 2 },
+  { key: "3", label: "3人", n: 3 },
+  { key: "4", label: "4人", n: 4 },
+  { key: "5", label: "5人", n: 5 },
+  { key: "6", label: "6人", n: 6 },
+  { key: "7", label: "7人", n: 7 },
+  { key: "8", label: "8人以上", n: 8, plus: true },
 ];
 
 // 台本をつかう＝まずゲームのカタログ（表紙・人数）から探し、
 // タイルを選ぶと台本の詳細を開く。
 function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
-  const [players, setPlayers] = useState("all");
+  const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
   const [openId, setOpenId] = useState(null);
+
+  const togglePlayer = (k) =>
+    setPlayers((ps) => (ps.includes(k) ? ps.filter((x) => x !== k) : [...ps, k]));
 
   const q = query.trim().toLowerCase();
   const textMatch = (s) =>
@@ -142,13 +148,15 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
     (s.gameTitle || "").toLowerCase().includes(q) ||
     (s.about || "").toLowerCase().includes(q);
   const playerMatch = (s) => {
-    if (players === "all") return true;
+    if (players.length === 0) return true; // 未選択＝すべて
     if (!s.players) return false;
     const { min, max } = s.players;
-    if (players === "2") return min <= 2 && 2 <= max;
-    if (players === "34") return min <= 4 && max >= 3;
-    if (players === "5") return max >= 5;
-    return true;
+    // 選んだ人数のどれかで遊べればOK（OR）
+    return players.some((k) => {
+      const bk = PLAYER_BUCKETS.find((b) => b.key === k);
+      if (!bk) return false;
+      return bk.plus ? max >= 8 : min <= bk.n && bk.n <= max;
+    });
   };
   const genreMatch = (s) =>
     genre === "all" || (s.mechanics || []).includes(genre);
@@ -218,16 +226,24 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
         )}
       </div>
 
-      {/* 人数で絞り込み */}
+      {/* 人数で絞り込み（複数選択できる） */}
       <div className="filter-row">
         <span className="filter-label">人数</span>
         <div className="filter-chips" role="group" aria-label="人数でしぼる">
-          {PLAYER_FILTERS.map((f) => (
+          <button
+            type="button"
+            className={"chip" + (players.length === 0 ? " is-on" : "")}
+            onClick={() => setPlayers([])}
+          >
+            すべて
+          </button>
+          {PLAYER_BUCKETS.map((f) => (
             <button
               key={f.key}
               type="button"
-              className={"chip" + (players === f.key ? " is-on" : "")}
-              onClick={() => setPlayers(f.key)}
+              aria-pressed={players.includes(f.key)}
+              className={"chip" + (players.includes(f.key) ? " is-on" : "")}
+              onClick={() => togglePlayer(f.key)}
             >
               {f.label}
             </button>
