@@ -5,6 +5,8 @@ import SummaryCard from "../summary/SummaryCard.jsx";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, removeScript } from "../script/store.js";
 import { likedIds, likeCount } from "../social/likes.js";
+import { followingList, followingCount, followerCount } from "../social/follows.js";
+import FollowButton from "../social/FollowButton.jsx";
 import { useAuth } from "../social/AuthContext.js";
 
 // 個人プロフィールページ（X風）。/u/:handle
@@ -44,6 +46,9 @@ export default function Profile() {
   const totalLikes = posts.reduce((n, s) => n + likeCount(s.id), 0);
   const likedSet = new Set(isMe ? likedIds(handle) : []);
   const liked = all.filter((s) => likedSet.has(s.id));
+  // フォロー中の作者の台本（自分のページのみ）
+  const followingSet = new Set(isMe ? followingList(handle) : []);
+  const feed = isMe ? shared.filter((s) => followingSet.has(s.author)) : [];
 
   const cardProps = {
     user: account ? account.handle : "",
@@ -68,17 +73,24 @@ export default function Profile() {
           {handle.slice(0, 1)}
         </span>
         <div className="profile-meta">
-          <h1 className="profile-name">
-            {isMe && account.name ? account.name : handle}
-          </h1>
+          <div className="profile-name-row">
+            <h1 className="profile-name">
+              {isMe && account.name ? account.name : handle}
+            </h1>
+            {!isMe && (
+              <FollowButton
+                handle={handle}
+                user={account ? account.handle : ""}
+                onNeedName={requireLogin}
+                onChange={bump}
+              />
+            )}
+          </div>
           <p className="profile-handle">@{handle}</p>
           <p className="profile-stats">
-            台本 <b>{posts.length}</b>　もらった❤️ <b>{totalLikes}</b>
-            {isMe && (
-              <>
-                　いいねした <b>{liked.length}</b>
-              </>
-            )}
+            フォロー中 <b>{followingCount(handle)}</b>　フォロワー{" "}
+            <b>{followerCount(handle)}</b>　台本 <b>{posts.length}</b>　もらった❤️{" "}
+            <b>{totalLikes}</b>
           </p>
         </div>
       </div>
@@ -91,18 +103,26 @@ export default function Profile() {
           台本
         </button>
         {isMe && (
-          <button
-            className={"tab" + (tab === "likes" ? " is-active" : "")}
-            onClick={() => setTab("likes")}
-          >
-            いいね
-          </button>
+          <>
+            <button
+              className={"tab" + (tab === "likes" ? " is-active" : "")}
+              onClick={() => setTab("likes")}
+            >
+              いいね
+            </button>
+            <button
+              className={"tab" + (tab === "feed" ? " is-active" : "")}
+              onClick={() => setTab("feed")}
+            >
+              フォロー中
+            </button>
+          </>
         )}
       </div>
 
       <div className="cards">
-        {tab === "posts" ? (
-          posts.length === 0 ? (
+        {tab === "posts" &&
+          (posts.length === 0 ? (
             <p className="hint">
               まだ台本がありません。
               {isMe && "「教わる／教える」→「台本をつくる」から投稿できます。"}
@@ -116,12 +136,23 @@ export default function Profile() {
                 onDelete={isMe ? handleDelete : undefined}
               />
             ))
-          )
-        ) : liked.length === 0 ? (
-          <p className="hint">いいねした台本がここにたまります。</p>
-        ) : (
-          liked.map((s) => <ScriptCard key={s.id} script={s} {...cardProps} />)
-        )}
+          ))}
+
+        {tab === "likes" &&
+          (liked.length === 0 ? (
+            <p className="hint">いいねした台本がここにたまります。</p>
+          ) : (
+            liked.map((s) => <ScriptCard key={s.id} script={s} {...cardProps} />)
+          ))}
+
+        {tab === "feed" &&
+          (feed.length === 0 ? (
+            <p className="hint">
+              フォローした作者の新しい台本がここに並びます。作者のプロフィールから「＋フォロー」しよう。
+            </p>
+          ) : (
+            feed.map((s) => <ScriptCard key={s.id} script={s} {...cardProps} />)
+          ))}
       </div>
 
       <Link to="/learn" className="page-back">← 教わる／教える へ</Link>

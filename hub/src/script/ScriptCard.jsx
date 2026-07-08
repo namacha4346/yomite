@@ -1,14 +1,24 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import LikeButton from "../social/LikeButton.jsx";
 import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary } from "./model.js";
 
-// 作者名（公式は運営、投稿は作者ハンドル）
-function authorName(script) {
-  if (script.official) return "運営";
-  return script.author ? "@" + script.author : "みんな";
+// 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
+function AuthorLabel({ script }) {
+  if (script.official) return <>インスト台本・作者 運営</>;
+  if (script.author)
+    return (
+      <>
+        インスト台本・作者{" "}
+        <Link className="author-link" to={`/u/${script.author}`}>
+          @{script.author}
+        </Link>
+      </>
+    );
+  return <>インスト台本・作者 みんな</>;
 }
 
 // タブ = 4テーマ ＋ 早見表
@@ -65,7 +75,9 @@ export default function ScriptCard({
     <article className="scriptcard">
       <header className="scard-band">
         <div className="scard-band-main">
-          <span className="scard-kicker">インスト台本・作者 {authorName(script)}</span>
+          <span className="scard-kicker">
+            <AuthorLabel script={script} />
+          </span>
           <h3 className="scard-title">{gameTitle || "（無題の台本）"}</h3>
         </div>
         {official && <span className="scard-official">公式</span>}

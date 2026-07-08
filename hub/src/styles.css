@@ -1800,3 +1800,34 @@ a {
   cursor: pointer;
   padding: 0;
 }
+
+/* フォロー */
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.follow-btn {
+  border: 1.5px solid var(--learn);
+  background: var(--learn);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  padding: 5px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 0 rgba(60, 44, 20, 0.18);
+}
+.follow-btn.is-on {
+  background: var(--surface);
+  color: var(--text-soft);
+  border-color: var(--border);
+  box-shadow: none;
+}
+.author-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
