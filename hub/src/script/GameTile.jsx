@@ -1,12 +1,13 @@
 // カタログのゲームタイル（表紙＋タイトル＋人数・時間）。
 // 表紙は cover（画像URL）があれば写真、なければ color＋絵文字のプレースホルダー。
-export default function GameTile({ script, onOpen }) {
+// count = そのゲームにある台本の本数。
+export default function GameTile({ script, onOpen, count }) {
   const { gameTitle, players, time, color, coverEmoji, cover, official, mechanics } =
     script;
   const genre = mechanics && mechanics[0];
 
   return (
-    <button className="tile" type="button" onClick={() => onOpen(script.id)}>
+    <button className="tile" type="button" onClick={() => onOpen()}>
       <span className="tile-cover" style={{ background: color || "#8a7f6c" }}>
         {cover ? (
           <img className="tile-img" src={cover} alt="" />
@@ -15,7 +16,7 @@ export default function GameTile({ script, onOpen }) {
             {coverEmoji || "🎲"}
           </span>
         )}
-        {official && <span className="tile-official">公式</span>}
+        {count > 1 && <span className="tile-count">台本 {count}本</span>}
       </span>
 
       <span className="tile-body">

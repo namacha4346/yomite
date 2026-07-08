@@ -137,7 +137,8 @@ const PLAYER_BUCKETS = [
 function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
   const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
-  const [openId, setOpenId] = useState(null);
+  const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
+  const [openId, setOpenId] = useState(null); // 開いている台本
 
   const togglePlayer = (k) =>
     setPlayers((ps) => (ps.includes(k) ? ps.filter((x) => x !== k) : [...ps, k]));
@@ -161,47 +162,132 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
   const genreMatch = (s) =>
     genre === "all" || (s.mechanics || []).includes(genre);
 
-  // 運営を先、みんなを後にまとめる
-  const allGames = [
+  // 全台本に区分をつける
+  const allScripts = [
     ...official.map((s) => ({ ...s, _group: "official" })),
     ...shared.map((s) => ({ ...s, _group: "shared" })),
   ];
-  // 実際に存在するジャンルだけをチップに出す
-  const genres = sortMechanics(allGames.flatMap((g) => g.mechanics || []));
-  const results = allGames
-    .filter(textMatch)
-    .filter(playerMatch)
-    .filter(genreMatch);
+  const genres = sortMechanics(allScripts.flatMap((g) => g.mechanics || []));
 
-  // 詳細（台本）を開いているとき
-  const open = openId ? allGames.find((s) => s.id === openId) : null;
-  if (open) {
-    return (
-      <div className="cards">
-        <button
-          type="button"
-          className="linkbtn back-catalog"
-          onClick={() => setOpenId(null)}
-        >
-          ← 一覧にもどる
-        </button>
-        <ScriptCard
-          script={open}
-          onPrint={onPrint}
-          onDelete={
-            open._group === "shared"
-              ? (id) => {
-                  onDelete(id);
-                  setOpenId(null);
-                }
-              : undefined
-          }
-        />
-      </div>
-    );
+  // ゲーム（タイトル）ごとにまとめる。rep=代表（公式優先）、list=公式→新しい順
+  const groups = new Map();
+  for (const s of allScripts) {
+    const key = (s.gameTitle || "").trim() || s.id;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(s);
+  }
+  const games = [...groups.entries()].map(([key, list]) => {
+    const sorted = [...list].sort((a, b) => {
+      const ao = a._group === "official" ? 0 : 1;
+      const bo = b._group === "official" ? 0 : 1;
+      if (ao !== bo) return ao - bo;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+    const rep = sorted.find((s) => s._group === "official") || sorted[0];
+    return { key, rep, list: sorted };
+  });
+
+  // 【3層目】実際の台本を開いているとき
+  if (openId) {
+    const open = allScripts.find((s) => s.id === openId);
+    if (open) {
+      return (
+        <div className="cards">
+          <button
+            type="button"
+            className="linkbtn back-catalog"
+            onClick={() => setOpenId(null)}
+          >
+            ← 台本一覧にもどる
+          </button>
+          <ScriptCard
+            script={open}
+            onPrint={onPrint}
+            onDelete={
+              open._group === "shared"
+                ? (id) => {
+                    onDelete(id);
+                    setOpenId(null);
+                  }
+                : undefined
+            }
+          />
+        </div>
+      );
+    }
   }
 
-  // カタログ（検索＋人数フィルタ＋タイル）
+  // 【2層目】そのゲームの「どの台本を使うか（公式か/みんなか）」を選ぶ
+  if (selectedGame) {
+    const g = games.find((x) => x.key === selectedGame);
+    if (g) {
+      return (
+        <div className="cards">
+          <button
+            type="button"
+            className="linkbtn back-catalog"
+            onClick={() => setSelectedGame(null)}
+          >
+            ← ゲーム一覧にもどる
+          </button>
+
+          <div className="variants-head">
+            <span
+              className="variants-cover"
+              style={{ background: g.rep.color || "#8a7f6c" }}
+              aria-hidden="true"
+            >
+              {g.rep.coverEmoji || "🎲"}
+            </span>
+            <div>
+              <h2 className="variants-title">{g.rep.gameTitle}</h2>
+              <p className="variants-sub">どの台本を使う？（{g.list.length}本）</p>
+            </div>
+          </div>
+
+          <div className="variants">
+            {g.list.map((s) => (
+              <button
+                key={s.id}
+                type="button"
+                className="variant"
+                onClick={() => setOpenId(s.id)}
+              >
+                <span
+                  className={
+                    "variant-badge" +
+                    (s._group === "official" ? " is-official" : "")
+                  }
+                >
+                  {s._group === "official" ? "公式" : "みんな"}
+                </span>
+                <span className="variant-main">
+                  <span className="variant-name">
+                    {s._group === "official" ? "公式台本（運営）" : "みんなの台本"}
+                  </span>
+                  <span className="variant-note">
+                    {s._group === "official"
+                      ? "運営がつくった台本"
+                      : "投稿" +
+                        (s.createdAt
+                          ? "：" +
+                            new Date(s.createdAt).toLocaleDateString("ja-JP")
+                          : "")}
+                  </span>
+                </span>
+                <span className="variant-arrow" aria-hidden="true">→</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // 【1層目】ゲームのカタログ（検索＋人数・ジャンル＋タイル）
+  const gamesFiltered = games.filter(
+    (g) => textMatch(g.rep) && playerMatch(g.rep) && genreMatch(g.rep)
+  );
   return (
     <div className="catalog">
       <div className="search">
@@ -278,13 +364,18 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
       )}
 
       {status === "loading" && <p className="hint">読み込み中…</p>}
-      {status !== "loading" && results.length === 0 && (
+      {status !== "loading" && gamesFiltered.length === 0 && (
         <p className="hint">条件に合うゲームが見つかりませんでした。</p>
       )}
 
       <div className="tiles">
-        {results.map((s) => (
-          <GameTile key={s.id} script={s} onOpen={setOpenId} />
+        {gamesFiltered.map((g) => (
+          <GameTile
+            key={g.key}
+            script={g.rep}
+            count={g.list.length}
+            onOpen={() => setSelectedGame(g.key)}
+          />
         ))}
       </div>
     </div>
