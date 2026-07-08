@@ -20,6 +20,7 @@ export default function GameTile({ script, onOpen, count }) {
       </span>
 
       <span className="tile-body">
+        {/* 各行は高さを確保して、ゲーム間で横位置が揃うようにする（空白可） */}
         <span className="tile-title">{gameTitle || "（無題）"}</span>
         <span className="tile-meta">
           {players && (
@@ -27,7 +28,9 @@ export default function GameTile({ script, onOpen, count }) {
           )}
           {time && <span className="tile-chip">⏱ {time}分</span>}
         </span>
-        {genre && <span className="tile-genre">{genre}</span>}
+        <span className="tile-genre-row">
+          {genre && <span className="tile-genre">{genre}</span>}
+        </span>
       </span>
     </button>
   );
