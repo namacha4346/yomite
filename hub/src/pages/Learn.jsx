@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import ScriptBuilder from "../script/ScriptBuilder.jsx";
 import ScriptCard from "../script/ScriptCard.jsx";
@@ -21,6 +21,8 @@ export default function Learn() {
   const [query, setQuery] = useState(""); // 台本の検索語
   const { account, requireLogin } = useAuth();
   const user = account ? account.handle : ""; // 未ログインは空
+  const [searchParams] = useSearchParams();
+  const initialOpenId = searchParams.get("script") || null; // 紹介ページから直行するとき
   const [, setLikeTick] = useState(0); // いいね変更で再描画するための刻み
   const bumpLike = () => setLikeTick((t) => t + 1);
 
@@ -117,6 +119,7 @@ export default function Learn() {
           user={user}
           onNeedName={requireLogin}
           onLikeChange={bumpLike}
+          initialOpenId={initialOpenId}
         />
       )}
 
@@ -157,12 +160,13 @@ function Browse({
   user,
   onNeedName,
   onLikeChange,
+  initialOpenId,
 }) {
   const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
   const [sort, setSort] = useState("new"); // new | popular
   const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
-  const [openId, setOpenId] = useState(null); // 開いている台本
+  const [openId, setOpenId] = useState(initialOpenId || null); // 開いている台本
 
   const togglePlayer = (k) =>
     setPlayers((ps) => (ps.includes(k) ? ps.filter((x) => x !== k) : [...ps, k]));

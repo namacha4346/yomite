@@ -85,7 +85,7 @@ export default function GameIntro() {
 
       {/* 次のステップ：ルールを見る（教わる） */}
       <div className="gi-cta-row">
-        <Link to="/learn" className="savebtn gi-cta">
+        <Link to={`/learn?script=${game.id}`} className="savebtn gi-cta">
           遊びたくなったら → ルールを見る（教わる）
         </Link>
         <Link to="/discover" className="gi-cta-sub">
