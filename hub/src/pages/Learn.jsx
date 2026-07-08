@@ -235,6 +235,7 @@ function Browse({
             user={user}
             onNeedName={onNeedName}
             onLikeChange={onLikeChange}
+            showComments
             onDelete={
               open._group === "shared"
                 ? (id) => {

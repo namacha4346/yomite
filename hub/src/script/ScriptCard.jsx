@@ -1,6 +1,7 @@
 import { useState } from "react";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import LikeButton from "../social/LikeButton.jsx";
+import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary } from "./model.js";
 
@@ -53,6 +54,7 @@ export default function ScriptCard({
   user,
   onNeedName,
   onLikeChange,
+  showComments = false,
 }) {
   const [tab, setTab] = useState(THEMES[0].id);
   const { gameTitle, official } = script;
@@ -115,6 +117,10 @@ export default function ScriptCard({
           </button>
         )}
       </footer>
+
+      {showComments && (
+        <Comments scriptId={script.id} user={user} onNeedName={onNeedName} />
+      )}
     </article>
   );
 }
