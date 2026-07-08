@@ -1,18 +1,161 @@
-import Placeholder from "./Placeholder.jsx";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { QUESTIONS } from "../discover/quiz.js";
+import { recommend, MAX_SCORE } from "../discover/match.js";
 
-// 認知のハードル担当。中身は後から作り込む（今は仮置き）。
+// 認知のハードル：ぴったり診断 → おすすめゲームの概要。
 export default function Discover() {
+  const [step, setStep] = useState(0); // 0..QUESTIONS.length（=結果）
+  const [answers, setAnswers] = useState({});
+
+  const answer = (key, value) => {
+    setAnswers((a) => ({ ...a, [key]: value }));
+    setStep((s) => s + 1);
+  };
+  const back = () => setStep((s) => Math.max(0, s - 1));
+  const restart = () => {
+    setAnswers({});
+    setStep(0);
+  };
+
+  const done = step >= QUESTIONS.length;
+
   return (
-    <Placeholder
-      accent="discover"
-      hurdle="認知のハードル"
-      title="出会う"
-      lead="自分に合う一作と出会う、はじめの一歩。"
-      todo={[
-        "かんたん診断でおすすめを表示",
-        "人数・時間・気分でゲームを紹介",
-        "遊んだ記録・シェア",
-      ]}
-    />
+    <div className="page page--discover">
+      <span className="page-hurdle">認知のハードル</span>
+      <h1 className="page-title">出会う</h1>
+      <p className="page-lead">
+        いくつかの質問に答えると、あなたに合いそうなゲームが見つかる「ぴったり診断」。
+      </p>
+
+      {!done ? (
+        <Quiz
+          step={step}
+          answers={answers}
+          onAnswer={answer}
+          onBack={back}
+        />
+      ) : (
+        <Results answers={answers} onRestart={restart} />
+      )}
+
+      <Link to="/" className="page-back">← トップに戻る</Link>
+    </div>
+  );
+}
+
+function Quiz({ step, answers, onAnswer, onBack }) {
+  const q = QUESTIONS[step];
+  return (
+    <div className="quiz">
+      <div className="quiz-progress">
+        質問 {step + 1} / {QUESTIONS.length}
+      </div>
+      <h2 className="quiz-q">{q.q}</h2>
+      <div className="quiz-opts">
+        {q.opts.map(([label, value]) => (
+          <button
+            key={label}
+            type="button"
+            className={"quiz-opt" + (answers[q.key] === value ? " is-on" : "")}
+            onClick={() => onAnswer(q.key, value)}
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          type="button"
+          className="quiz-skip"
+          onClick={() => onAnswer(q.key, null)}
+        >
+          どれでもOK（スキップ）
+        </button>
+      </div>
+      {step > 0 && (
+        <button type="button" className="linkbtn quiz-back" onClick={onBack}>
+          ← 前の質問へ
+        </button>
+      )}
+    </div>
+  );
+}
+
+function Results({ answers, onRestart }) {
+  const ranked = recommend(answers).filter((r) => r.score > 0);
+  const top = ranked[0];
+  const rest = ranked.slice(1, 3);
+
+  if (!top) {
+    return (
+      <div className="results">
+        <p className="hint">条件に合うゲームが見つかりませんでした。</p>
+        <button type="button" className="savebtn" onClick={onRestart}>
+          もう一度診断する
+        </button>
+      </div>
+    );
+  }
+
+  const pct = Math.round((top.score / MAX_SCORE) * 100);
+
+  return (
+    <div className="results">
+      <p className="results-lead">あなたにぴったりなのは…</p>
+      <GameOverview item={top} pct={pct} big />
+
+      {rest.length > 0 && (
+        <>
+          <h3 className="results-h">次点のおすすめ</h3>
+          {rest.map((r) => (
+            <GameOverview key={r.game.id} item={r} />
+          ))}
+        </>
+      )}
+
+      <button type="button" className="savebtn results-again" onClick={onRestart}>
+        もう一度診断する
+      </button>
+    </div>
+  );
+}
+
+function GameOverview({ item, pct, big }) {
+  const g = item.game;
+  return (
+    <article className={"overview" + (big ? " overview--big" : "")}>
+      <div className="overview-head">
+        <span
+          className="overview-cover"
+          style={{ background: g.color || "#8a7f6c" }}
+          aria-hidden="true"
+        >
+          {g.coverEmoji || "🎲"}
+        </span>
+        <div className="overview-title-wrap">
+          <h3 className="overview-title">{g.gameTitle}</h3>
+          <p className="overview-meta">
+            {g.players && `👥 ${g.players.min}–${g.players.max}人`}
+            {g.time && `　⏱ ${g.time}分`}
+          </p>
+          {big && pct != null && (
+            <span className="overview-fit">ぴったり度 {pct}%</span>
+          )}
+        </div>
+      </div>
+
+      {g.about && <p className="overview-about">{g.about}</p>}
+
+      {g.mechanics && g.mechanics.length > 0 && (
+        <div className="overview-tags">
+          {g.mechanics.map((m) => (
+            <span key={m} className="overview-tag">{m}</span>
+          ))}
+        </div>
+      )}
+
+      <Link to="/learn" className="overview-cta">
+        この台本で教わる →
+      </Link>
+    </article>
   );
 }
