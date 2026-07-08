@@ -19,8 +19,8 @@ export default function Learn() {
   const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
   const [isPro, setIsPro] = useState(false); // 有料プランか（今は仮フラグ）
   const [query, setQuery] = useState(""); // 台本の検索語
-  const { account } = useAuth();
-  const user = account.handle; // 現在のハンドル（アプリ全体のアカウント）
+  const { account, requireLogin } = useAuth();
+  const user = account ? account.handle : ""; // 未ログインは空
   const [, setLikeTick] = useState(0); // いいね変更で再描画するための刻み
   const bumpLike = () => setLikeTick((t) => t + 1);
 
@@ -98,7 +98,9 @@ export default function Learn() {
       )}
 
       {tab === "build" ? (
-        isPro ? (
+        !user ? (
+          <LoginPrompt onLogin={requireLogin} />
+        ) : isPro ? (
           <ScriptBuilder onSave={handleSave} isPro={isPro} />
         ) : (
           <Paywall onTryDemo={() => setIsPro(true)} />
@@ -113,6 +115,7 @@ export default function Learn() {
           onDelete={handleDelete}
           onPrint={setPrintTarget}
           user={user}
+          onNeedName={requireLogin}
           onLikeChange={bumpLike}
         />
       )}
@@ -209,7 +212,8 @@ function Browse({
     });
     const rep = sorted.find((s) => s._group === "official") || sorted[0];
     const likes = list.reduce((n, s) => n + likeCount(s.id), 0);
-    return { key, rep, list: sorted, likes };
+    const newest = list.reduce((m, s) => Math.max(m, s.createdAt || 0), 0);
+    return { key, rep, list: sorted, likes, newest };
   });
 
   // 【3層目】実際の台本を開いているとき
@@ -223,7 +227,7 @@ function Browse({
             className="linkbtn back-catalog"
             onClick={() => setOpenId(null)}
           >
-            ← 台本一覧にもどる
+            {selectedGame ? "← 台本一覧にもどる" : "← ゲーム一覧にもどる"}
           </button>
           <ScriptCard
             script={open}
@@ -320,7 +324,7 @@ function Browse({
   const gamesFiltered = games
     .filter((g) => textMatch(g.rep) && playerMatch(g.rep) && genreMatch(g.rep))
     .sort((a, b) =>
-      sort === "popular" ? b.likes - a.likes : 0
+      sort === "popular" ? b.likes - a.likes : b.newest - a.newest
     );
   return (
     <div className="catalog">
@@ -429,10 +433,30 @@ function Browse({
             key={g.key}
             script={g.rep}
             count={g.list.length}
-            onOpen={() => setSelectedGame(g.key)}
+            onOpen={() =>
+              g.list.length === 1
+                ? setOpenId(g.list[0].id) // 台本が1本なら中間画面を飛ばして直行
+                : setSelectedGame(g.key)
+            }
           />
         ))}
       </div>
+    </div>
+  );
+}
+
+// 未ログインで台本作成を開いたときの案内。
+function LoginPrompt({ onLogin }) {
+  return (
+    <div className="paywall">
+      <span className="paywall-badge">ログインが必要</span>
+      <h3 className="paywall-title">台本づくりにはログインが必要です</h3>
+      <p className="paywall-lead">
+        閲覧はログインなしでOK。台本の作成・投稿・いいねをするにはログインしてください。
+      </p>
+      <button className="savebtn" type="button" onClick={onLogin}>
+        ログイン／新規登録
+      </button>
     </div>
   );
 }

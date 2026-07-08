@@ -10,7 +10,7 @@ import { useAuth } from "../social/AuthContext.js";
 // 個人プロフィールページ（X風）。/u/:handle
 export default function Profile() {
   const { handle } = useParams();
-  const { account } = useAuth();
+  const { account, requireLogin } = useAuth();
   const isMe = account && account.handle === handle;
 
   const [shared, setShared] = useState([]);
@@ -45,7 +45,12 @@ export default function Profile() {
   const likedSet = new Set(isMe ? likedIds(handle) : []);
   const liked = all.filter((s) => likedSet.has(s.id));
 
-  const cardProps = { user: account && account.handle, onPrint: setPrintTarget, onLikeChange: bump };
+  const cardProps = {
+    user: account ? account.handle : "",
+    onNeedName: requireLogin,
+    onPrint: setPrintTarget,
+    onLikeChange: bump,
+  };
 
   const handleDelete = async (id) => {
     try {

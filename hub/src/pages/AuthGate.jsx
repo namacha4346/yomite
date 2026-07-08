@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { normalizeHandle } from "../social/auth.js";
 
-// 登録／ログイン画面。未登録のときにサイト全体の手前に出る。
+// ログイン／新規登録モーダル。閲覧は誰でも可。
+// いいね・投稿・編集など「ログインが要る操作」をしたときに開く。
 // デモ仕様：ハンドルと表示名を決めるだけ（本番はメール／SNS認証に差し替え）。
-export default function AuthGate({ onRegister }) {
+export default function AuthGate({ onRegister, onClose }) {
   const [handle, setHandle] = useState("");
   const [name, setName] = useState("");
   const h = normalizeHandle(handle);
@@ -16,16 +17,26 @@ export default function AuthGate({ onRegister }) {
   };
 
   return (
-    <div className="gate">
-      <div className="gate-card">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="gate-card" onClick={(e) => e.stopPropagation()}>
+        {onClose && (
+          <button
+            type="button"
+            className="modal-close"
+            onClick={onClose}
+            aria-label="閉じる"
+          >
+            ×
+          </button>
+        )}
         <span className="logo-mark gate-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24">
             <path d="M12 2a3 3 0 0 1 3 3c0 1.05-.54 1.97-1.35 2.51 1.94.62 3.12 1.86 3.6 3.63l.62 2.3c.24.9-.44 1.78-1.38 1.78h-1.3l.52 5.28A1 1 0 0 1 14.72 21H9.28a1 1 0 0 1-1-.99l.52-5.29H7.5c-.94 0-1.62-.88-1.38-1.79l.62-2.29c.48-1.77 1.66-3.01 3.6-3.63A3 3 0 0 1 12 2z" />
           </svg>
         </span>
-        <h1 className="gate-title">ボードゲームひろば</h1>
+        <h1 className="gate-title">ログイン／新規登録</h1>
         <p className="gate-sub">
-          はじめるにはアカウントが必要です。ニックネームを決めて登録しよう。
+          閲覧はログインなしでOK。いいね・投稿・編集をするにはログインしてください。
         </p>
 
         <form className="gate-form" onSubmit={submit}>
@@ -52,7 +63,7 @@ export default function AuthGate({ onRegister }) {
             />
           </label>
           <button className="savebtn gate-go" type="submit" disabled={!canGo}>
-            登録してはじめる
+            はじめる
           </button>
           {!canGo && handle && (
             <p className="hint">ユーザーIDは英数字2文字以上で入力してください。</p>

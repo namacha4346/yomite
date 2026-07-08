@@ -15,22 +15,23 @@ const Meeple = () => (
   </svg>
 );
 
-// アプリの骨組み。未登録なら登録画面でゲートし、登録後に本編を出す。
+// アプリの骨組み。閲覧は誰でも可。ログインは任意（いいね・投稿・編集で必要）。
 export default function App() {
   const [account, setAccount] = useState(getAccount());
+  const [showLogin, setShowLogin] = useState(false);
 
-  // 未登録：サイト全体の手前に登録／ログイン画面
-  if (!account) {
-    return <AuthGate onRegister={(a) => setAccount(saveAccount(a))} />;
-  }
-
+  const login = (a) => {
+    setAccount(saveAccount(a));
+    setShowLogin(false);
+  };
   const logout = () => {
     clearAccount();
     setAccount(null);
   };
+  const requireLogin = () => setShowLogin(true);
 
   return (
-    <AuthContext.Provider value={{ account, logout }}>
+    <AuthContext.Provider value={{ account, login, logout, requireLogin }}>
       <div className="app">
         <header className="header">
           <Link to="/" className="logo">
@@ -40,17 +41,32 @@ export default function App() {
             ボードゲームひろば<span className="logo-note">（仮）</span>
           </Link>
 
-          {/* アカウント（アバター＝プロフィールへ、ログアウト） */}
           <div className="acct">
-            <Link to={`/u/${account.handle}`} className="acct-chip" title="プロフィール">
-              <span className="acct-avatar" aria-hidden="true">
-                {account.handle.slice(0, 1)}
-              </span>
-              <span className="acct-handle">@{account.handle}</span>
-            </Link>
-            <button type="button" className="acct-logout" onClick={logout}>
-              ログアウト
-            </button>
+            {account ? (
+              <>
+                <Link
+                  to={`/u/${account.handle}`}
+                  className="acct-chip"
+                  title="プロフィール"
+                >
+                  <span className="acct-avatar" aria-hidden="true">
+                    {account.handle.slice(0, 1)}
+                  </span>
+                  <span className="acct-handle">@{account.handle}</span>
+                </Link>
+                <button type="button" className="acct-logout" onClick={logout}>
+                  ログアウト
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="acct-login"
+                onClick={requireLogin}
+              >
+                ログイン
+              </button>
+            )}
           </div>
         </header>
 
@@ -69,6 +85,10 @@ export default function App() {
           ボードゲームを、日本の"ふつうの遊び"に。
         </footer>
       </div>
+
+      {showLogin && (
+        <AuthGate onRegister={login} onClose={() => setShowLogin(false)} />
+      )}
     </AuthContext.Provider>
   );
 }
