@@ -1250,3 +1250,34 @@ a {
   font-size: 14px;
   color: var(--text-soft);
 }
+
+/* フィルタ行（人数・ジャンル） */
+.filter-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.filter-label {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-soft);
+  padding-top: 8px;
+  width: 3.5em;
+}
+.filter-row .filter-chips {
+  flex: 1;
+}
+/* タイルのジャンルタグ */
+.tile-genre {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--learn);
+  background: var(--ac-soft, #fbeee4);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 999px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}

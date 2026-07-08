@@ -1,6 +1,7 @@
 import { useState } from "react";
 import IconPicker from "../summary/IconPicker.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
+import { MECHANICS } from "./mechanics.js";
 import { emptyScript, isComplete } from "./model.js";
 
 // 台本エディタ。10セクションを「テーマごとのタブ」に分けて入力する。
@@ -49,6 +50,14 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
   };
   const themeDone = (t) => t.keys.every(isFilled);
 
+  const toggleMech = (m) =>
+    setForm((f) => ({
+      ...f,
+      mechanics: f.mechanics.includes(m)
+        ? f.mechanics.filter((x) => x !== m)
+        : [...f.mechanics, m],
+    }));
+
   const canSave = isComplete(form);
 
   const handleSave = () => {
@@ -59,10 +68,12 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
       pmin > 0 && pmax > 0 ? { min: Math.min(pmin, pmax), max: Math.max(pmin, pmax) } : undefined;
     const t = parseInt(form.timeMin, 10);
     const time = t > 0 ? t : undefined;
+    const mechanics = form.mechanics.length ? form.mechanics : undefined;
     onSave({
       gameTitle: form.gameTitle.trim(),
       ...(players ? { players } : {}),
       ...(time ? { time } : {}),
+      ...(mechanics ? { mechanics } : {}),
       about: form.about.trim(),
       win: form.win.trim(),
       setup: form.setup.trim(),
@@ -213,6 +224,23 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
             aria-label="所要時間（分）"
           />
           <span className="meta-unit">分</span>
+        </div>
+      </div>
+
+      {/* ジャンル（システム）タグ（任意・複数可） */}
+      <div className="field">
+        <span className="field-label">ジャンル（任意・複数可・一覧のしぼり込みに使う）</span>
+        <div className="filter-chips">
+          {MECHANICS.map((m) => (
+            <button
+              key={m}
+              type="button"
+              className={"chip" + (form.mechanics.includes(m) ? " is-on" : "")}
+              onClick={() => toggleMech(m)}
+            >
+              {m}
+            </button>
+          ))}
         </div>
       </div>
 

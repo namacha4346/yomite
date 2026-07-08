@@ -1,7 +1,9 @@
 // カタログのゲームタイル（表紙＋タイトル＋人数・時間）。
 // 表紙は cover（画像URL）があれば写真、なければ color＋絵文字のプレースホルダー。
 export default function GameTile({ script, onOpen }) {
-  const { gameTitle, players, time, color, coverEmoji, cover, official } = script;
+  const { gameTitle, players, time, color, coverEmoji, cover, official, mechanics } =
+    script;
+  const genre = mechanics && mechanics[0];
 
   return (
     <button className="tile" type="button" onClick={() => onOpen(script.id)}>
@@ -24,6 +26,7 @@ export default function GameTile({ script, onOpen }) {
           )}
           {time && <span className="tile-chip">⏱ {time}分</span>}
         </span>
+        {genre && <span className="tile-genre">{genre}</span>}
       </span>
     </button>
   );

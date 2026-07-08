@@ -4,6 +4,7 @@ import SummaryCard from "../summary/SummaryCard.jsx";
 import ScriptBuilder from "../script/ScriptBuilder.jsx";
 import ScriptCard from "../script/ScriptCard.jsx";
 import GameTile from "../script/GameTile.jsx";
+import { sortMechanics } from "../script/mechanics.js";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
 
@@ -132,6 +133,7 @@ const PLAYER_FILTERS = [
 // タイルを選ぶと台本の詳細を開く。
 function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }) {
   const [players, setPlayers] = useState("all");
+  const [genre, setGenre] = useState("all");
   const [openId, setOpenId] = useState(null);
 
   const q = query.trim().toLowerCase();
@@ -148,13 +150,20 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
     if (players === "5") return max >= 5;
     return true;
   };
+  const genreMatch = (s) =>
+    genre === "all" || (s.mechanics || []).includes(genre);
 
   // 運営を先、みんなを後にまとめる
   const allGames = [
     ...official.map((s) => ({ ...s, _group: "official" })),
     ...shared.map((s) => ({ ...s, _group: "shared" })),
   ];
-  const results = allGames.filter(textMatch).filter(playerMatch);
+  // 実際に存在するジャンルだけをチップに出す
+  const genres = sortMechanics(allGames.flatMap((g) => g.mechanics || []));
+  const results = allGames
+    .filter(textMatch)
+    .filter(playerMatch)
+    .filter(genreMatch);
 
   // 詳細（台本）を開いているとき
   const open = openId ? allGames.find((s) => s.id === openId) : null;
@@ -210,18 +219,47 @@ function Browse({ query, setQuery, official, shared, status, onDelete, onPrint }
       </div>
 
       {/* 人数で絞り込み */}
-      <div className="filter-chips" role="group" aria-label="人数でしぼる">
-        {PLAYER_FILTERS.map((f) => (
-          <button
-            key={f.key}
-            type="button"
-            className={"chip" + (players === f.key ? " is-on" : "")}
-            onClick={() => setPlayers(f.key)}
-          >
-            {f.label}
-          </button>
-        ))}
+      <div className="filter-row">
+        <span className="filter-label">人数</span>
+        <div className="filter-chips" role="group" aria-label="人数でしぼる">
+          {PLAYER_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              className={"chip" + (players === f.key ? " is-on" : "")}
+              onClick={() => setPlayers(f.key)}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* ジャンル（システム）で絞り込み */}
+      {genres.length > 0 && (
+        <div className="filter-row">
+          <span className="filter-label">ジャンル</span>
+          <div className="filter-chips" role="group" aria-label="ジャンルでしぼる">
+            <button
+              type="button"
+              className={"chip" + (genre === "all" ? " is-on" : "")}
+              onClick={() => setGenre("all")}
+            >
+              すべて
+            </button>
+            {genres.map((g) => (
+              <button
+                key={g}
+                type="button"
+                className={"chip" + (genre === g ? " is-on" : "")}
+                onClick={() => setGenre(g)}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {status === "loading" && <p className="hint">読み込み中…</p>}
       {status !== "loading" && results.length === 0 && (

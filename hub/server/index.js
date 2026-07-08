@@ -58,6 +58,13 @@ function sanitize(body) {
     meta.players = { min: Math.min(a, b), max: Math.max(a, b) };
   }
   if (int(body.time)) meta.time = int(body.time);
+  if (Array.isArray(body.mechanics)) {
+    const m = body.mechanics
+      .map((x) => String(x).trim())
+      .filter(Boolean)
+      .slice(0, 8);
+    if (m.length) meta.mechanics = m;
+  }
 
   return { gameTitle, ...meta, ...texts, turn, icons };
 }

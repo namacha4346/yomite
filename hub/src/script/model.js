@@ -7,6 +7,7 @@ export function emptyScript() {
     playersMin: "",
     playersMax: "",
     timeMin: "",
+    mechanics: [],
     about: "",
     win: "",
     setup: "",
