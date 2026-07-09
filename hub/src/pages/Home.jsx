@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
+import { GameArt, Icon } from "../ui/graphics.jsx";
 
 // トップ画面：コンセプト一言 ＋ 3つの入口（扉）＋ 注目のゲーム。
 // 3つのハードル（インスト・場所・認知）にそれぞれ対応している。
@@ -10,7 +11,7 @@ const DOORS = [
     hurdle: "インストのハードル",
     desc: "ルール説明を、初心者でもできるように。",
     key: "learn",
-    icon: "📖",
+    icon: "book",
   },
   {
     to: "/discover",
@@ -18,7 +19,7 @@ const DOORS = [
     hurdle: "認知のハードル",
     desc: "自分に合う一作と出会う、はじめの一歩。",
     key: "discover",
-    icon: "🎲",
+    icon: "compass",
   },
   {
     to: "/place",
@@ -26,7 +27,7 @@ const DOORS = [
     hurdle: "場所のハードル",
     desc: "近くの卓・お店を見つけて、遊ぶ場所へ。",
     key: "place",
-    icon: "📍",
+    icon: "pin",
     soon: true,
   },
 ];
@@ -46,8 +47,9 @@ export default function Home() {
           ボードゲームの「教える・集まる・出会う」を、少しずつやさしく。
         </p>
         <div className="hero-cta">
-          <Link to="/discover" className="savebtn hero-cta-btn">
-            はじめての人は「ぴったり診断」から →
+          <Link to="/discover" className="btn btn--primary hero-cta-btn">
+            はじめての人は「ぴったり診断」から
+            <Icon name="arrow" />
           </Link>
         </div>
       </section>
@@ -59,7 +61,9 @@ export default function Home() {
             to={d.to}
             className={`door door--${d.key}` + (d.soon ? " door--soon" : "")}
           >
-            <span className="door-icon" aria-hidden="true">{d.icon}</span>
+            <span className="door-icon" aria-hidden="true">
+              <Icon name={d.icon} />
+            </span>
             <span className="door-body">
               <span className="door-hurdle">{d.hurdle}</span>
               <span className="door-label">
@@ -68,7 +72,9 @@ export default function Home() {
               </span>
               <span className="door-desc">{d.desc}</span>
             </span>
-            <span className="door-arrow" aria-hidden="true">→</span>
+            <span className="door-arrow" aria-hidden="true">
+              <Icon name="arrow" />
+            </span>
           </Link>
         ))}
       </nav>
@@ -76,22 +82,29 @@ export default function Home() {
       <section className="feat">
         <div className="feat-head">
           <h2 className="feat-title">注目のゲーム</h2>
-          <Link to="/learn" className="feat-more">すべて見る →</Link>
+          <Link to="/learn" className="feat-more">
+            すべて見る
+            <Icon name="arrow" />
+          </Link>
         </div>
         <div className="feat-grid">
           {FEATURED.map((g) => (
             <Link key={g.id} to={`/game/${g.id}`} className="feat-card">
-              <span
-                className="feat-cover"
-                style={{ background: g.color || "#8a7f6c" }}
-                aria-hidden="true"
-              >
-                {g.coverEmoji || "🎲"}
-              </span>
+              <GameArt game={g} className="feat-cover" />
               <span className="feat-name">{g.gameTitle}</span>
               <span className="feat-meta">
-                {g.players && `${g.players.min}–${g.players.max}人`}
-                {g.time && `・${g.time}分`}
+                {g.players && (
+                  <span className="mini-chip">
+                    <Icon name="users" />
+                    {g.players.min}–{g.players.max}
+                  </span>
+                )}
+                {g.time && (
+                  <span className="mini-chip">
+                    <Icon name="clock" />
+                    {g.time}分
+                  </span>
+                )}
               </span>
             </Link>
           ))}

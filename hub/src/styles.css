@@ -2480,3 +2480,448 @@ body::before {
   opacity: 0.5;
   margin-bottom: 6px;
 }
+
+/* =========================================================
+   REDESIGN v3 — 無印 × ボードゲームカフェ × 大人向けやさしいWeb
+   （絵文字廃止＝統一SVG／紙の質感の背景／カード・タブ・タイポ洗練）
+   ここは最後に読み込まれ、これ以前の指定を上書きする。
+   ========================================================= */
+
+/* ---- 1. 背景：生成りの紙（上部だけ明るいグラデ＋極薄ドット） ---- */
+body {
+  background-color: #f4efe4;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 460px),
+    radial-gradient(rgba(67, 48, 33, 0.04) 1px, transparent 1.6px);
+  background-size: 100% 460px, 22px 22px;
+  background-position: top center, 0 0;
+  background-repeat: no-repeat, repeat;
+  font-weight: 400;
+  line-height: 1.7;
+}
+/* 盤面のシルエットはさらに控えめに（よく見ると遊び心） */
+body::before {
+  opacity: 0.5;
+}
+
+/* ---- 2. 統一アイコン ---- */
+.icn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+}
+.icn svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---- 3. ゲームのアートサムネイル（線画エンブレム） ---- */
+.art {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(118% 100% at 22% 12%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 58%),
+    linear-gradient(152deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.22)),
+    var(--art, #8a7f6c);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 -30px 48px rgba(0, 0, 0, 0.14);
+}
+.art-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.94);
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.18));
+}
+.art-emblem svg {
+  width: 46%;
+  height: 46%;
+}
+
+/* 各所のサムネイルの外形 */
+.tile-cover {
+  aspect-ratio: 4 / 3;
+  border-radius: 0;
+  box-shadow: none;
+}
+.feat-cover {
+  aspect-ratio: 16 / 9;
+  font-size: 0;
+  box-shadow: none;
+}
+.overview-cover {
+  width: 60px;
+  height: 60px;
+  aspect-ratio: auto;
+  border-radius: 15px;
+  flex: 0 0 auto;
+  font-size: 0;
+}
+.overview-cover .art-emblem svg {
+  width: 52%;
+  height: 52%;
+}
+.gi-cover {
+  width: 104px;
+  height: 104px;
+  aspect-ratio: auto;
+  border-radius: 22px;
+  margin: 0 auto 8px;
+  font-size: 0;
+}
+
+/* ---- 4. 小さなチップ（人数・時間・難易度） ---- */
+.mini-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+.mini-chip .icn {
+  width: 14px;
+  height: 14px;
+  color: #a2917a;
+}
+
+/* ---- 5. カードUIの洗練 ---- */
+.tile,
+.feat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--e1);
+}
+.tile:hover,
+.feat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.tile-body {
+  padding: 13px 15px 15px;
+  gap: 9px;
+}
+.tile-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  min-height: calc(1.35em * 2);
+}
+.tile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  min-height: 18px;
+}
+.tile-foot {
+  display: flex;
+  min-height: 24px;
+}
+.tile-scene {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--text-soft);
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+.tile-genre {
+  color: var(--text-soft);
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  font-weight: 700;
+}
+
+/* 1列表示（リスト）：横型カード */
+.tiles--list {
+  grid-template-columns: 1fr;
+}
+.tiles--list .tile {
+  flex-direction: row;
+}
+.tiles--list .tile-cover {
+  width: 116px;
+  flex: 0 0 116px;
+  aspect-ratio: 1 / 1;
+}
+.tiles--list .tile-body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---- feat（注目のゲーム） ---- */
+.feat-name {
+  font-weight: 800;
+  font-size: 13px;
+}
+.feat-meta {
+  display: flex;
+  gap: 12px;
+  padding: 4px 12px 12px;
+}
+
+/* ---- 6. フィルターUI：横スクロールのチップ列 ---- */
+.filter-row {
+  align-items: center;
+  gap: 10px;
+}
+.filter-label {
+  padding-top: 0;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.filter-chips {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 2px 2px 4px;
+}
+.filter-chips::-webkit-scrollbar {
+  display: none;
+}
+.chip {
+  min-height: 34px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-soft);
+  font-weight: 600;
+  white-space: nowrap;
+  border-radius: 999px;
+}
+.chip:not(.is-on):hover {
+  background: var(--surface);
+  border-color: var(--brown-light);
+}
+.chip.is-on {
+  background: var(--brown-dark);
+  color: #fff;
+  border-color: var(--brown-dark);
+  font-weight: 700;
+}
+/* 並び＋表示切り替え行 */
+.filter-row--sort {
+  flex-wrap: nowrap;
+}
+.view-toggle {
+  margin-left: auto;
+  display: inline-flex;
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.view-btn {
+  border: none;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-soft);
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.view-btn.is-on {
+  background: var(--brown-dark);
+  color: #fff;
+}
+
+/* ---- 7. トップの3導線カード ---- */
+.door {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--e1);
+  background:
+    linear-gradient(152deg, color-mix(in srgb, var(--door) 7%, transparent), transparent 60%),
+    var(--surface);
+}
+.door:hover {
+  box-shadow: var(--shadow-lift);
+}
+.door-icon {
+  background: var(--door);
+  color: #fff;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 5px 12px color-mix(in srgb, var(--door) 40%, transparent);
+}
+.door-icon .icn {
+  width: 26px;
+  height: 26px;
+}
+.door-hurdle {
+  letter-spacing: 0.06em;
+}
+.door-arrow {
+  color: var(--door);
+  opacity: 0.55;
+}
+.door-arrow .icn {
+  width: 20px;
+  height: 20px;
+}
+
+/* ---- 8. ヘッダー ---- */
+.header {
+  border-bottom: 1px solid var(--border);
+}
+.logo-text {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.logo-pill {
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--brown-dark);
+  background: var(--brown-light);
+  padding: 1px 8px;
+  border-radius: 999px;
+  margin-left: 4px;
+  letter-spacing: 0.04em;
+}
+.acct-login {
+  padding: 6px 14px;
+  font-size: 12.5px;
+}
+
+/* ---- 9. 詳細タブ（早見表など）を軽い下線タブに ---- */
+.face-switch {
+  gap: 2px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+}
+.face-switch::-webkit-scrollbar {
+  display: none;
+}
+.face-switch-btn {
+  border: none;
+  background: none !important;
+  border-radius: 0;
+  padding: 9px 13px;
+  color: var(--text-soft);
+  font-weight: 700;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  box-shadow: none !important;
+  margin-bottom: -1px;
+}
+.face-switch-btn.is-on {
+  color: var(--learn);
+  border-bottom-color: var(--learn);
+}
+
+/* ---- 10. タイポグラフィ（太さ3段：800 見出し / 600 ラベル / 400 本文） ---- */
+.hero-sub,
+.page-lead,
+.door-desc,
+.gi-text,
+.gi-catch,
+.overview-about,
+.hint {
+  font-weight: 400;
+}
+.hero-sub {
+  font-weight: 500;
+}
+.page-hurdle {
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.hint::before {
+  content: none;
+}
+.search-icon .icn {
+  width: 18px;
+  height: 18px;
+  color: var(--text-soft);
+}
+.search-icon {
+  opacity: 1;
+  display: inline-flex;
+}
+
+/* ---- ボタン（統一） ---- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: inherit;
+  font-weight: 700;
+  border: none;
+  border-radius: 12px;
+  padding: 13px 22px;
+  cursor: pointer;
+  text-align: center;
+}
+.btn .icn {
+  width: 18px;
+  height: 18px;
+}
+.btn--primary {
+  background: var(--learn);
+  color: #fff;
+  box-shadow: 0 3px 0 rgba(90, 58, 46, 0.26);
+  transition: filter 0.12s ease, transform 0.08s ease, box-shadow 0.08s ease;
+}
+.btn--primary:hover {
+  filter: brightness(1.05);
+}
+.btn--primary:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(90, 58, 46, 0.26);
+}
+
+/* feat「すべて見る」リンクをアイコン付きで整える */
+.feat-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.feat-more .icn {
+  width: 15px;
+  height: 15px;
+}
+
+/* いいねハート（SVGアイコン化）と印刷リンク */
+.like .like-heart {
+  width: 16px;
+  height: 16px;
+  color: #b6a893;
+}
+.like.is-on .like-heart {
+  color: #cf5566;
+}
+.like.is-on .like-heart svg path {
+  fill: currentColor;
+}
+.linkbtn--icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.linkbtn--icon .icn {
+  width: 15px;
+  height: 15px;
+}

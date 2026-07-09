@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { INTRO, DIFFICULTY_LABEL } from "../discover/intro.js";
+import { GameArt, Icon } from "../ui/graphics.jsx";
 
 // 初心者向けのゲーム紹介ページ。/game/:id
 // 「どんなゲームか」を、ルールを読む前に把握できる。
@@ -24,22 +25,27 @@ export default function GameIntro() {
 
       {/* ヒーロー */}
       <div className="gi-hero">
-        <span
-          className="gi-cover"
-          style={{ "--cov": game.color || "#8a7f6c" }}
-          aria-hidden="true"
-        >
-          {game.coverEmoji || "🎲"}
-        </span>
+        <GameArt game={game} className="gi-cover" />
         <h1 className="gi-title">{game.gameTitle}</h1>
         {intro.catch && <p className="gi-catch">{intro.catch}</p>}
         <div className="gi-meta">
           {game.players && (
-            <span className="gi-chip">👥 {game.players.min}–{game.players.max}人</span>
+            <span className="mini-chip">
+              <Icon name="users" />
+              {game.players.min}–{game.players.max}
+            </span>
           )}
-          {game.time && <span className="gi-chip">⏱ {game.time}分</span>}
+          {game.time && (
+            <span className="mini-chip">
+              <Icon name="clock" />
+              {game.time}分
+            </span>
+          )}
           {intro.difficulty && (
-            <span className="gi-chip">🎯 {DIFFICULTY_LABEL[intro.difficulty]}</span>
+            <span className="mini-chip">
+              <Icon name="gauge" />
+              {DIFFICULTY_LABEL[intro.difficulty]}
+            </span>
           )}
         </div>
         {game.mechanics && game.mechanics.length > 0 && (
@@ -85,8 +91,9 @@ export default function GameIntro() {
 
       {/* 次のステップ：ルールを見る（教わる） */}
       <div className="gi-cta-row">
-        <Link to={`/learn?script=${game.id}`} className="savebtn gi-cta">
-          遊びたくなったら → ルールを見る（教わる）
+        <Link to={`/learn?script=${game.id}`} className="btn btn--primary gi-cta">
+          遊びたくなったら、ルールを見る（教わる）
+          <Icon name="arrow" />
         </Link>
         <Link to="/discover" className="gi-cta-sub">
           もう一度診断する

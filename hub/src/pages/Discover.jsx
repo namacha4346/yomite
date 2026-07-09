@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { QUESTIONS } from "../discover/quiz.js";
 import { recommend, MAX_SCORE } from "../discover/match.js";
+import { GameArt, Icon } from "../ui/graphics.jsx";
 
 // 紹介文の末尾にある「2〜4人・約30分」などのメタ表記を取り除く
 // （人数・時間はチップで別に表示しているため重複を避ける）。
@@ -132,18 +133,22 @@ function GameOverview({ item, pct, big }) {
   return (
     <article className={"overview" + (big ? " overview--big" : "")}>
       <div className="overview-head">
-        <span
-          className="overview-cover"
-          style={{ "--cov": g.color || "#8a7f6c" }}
-          aria-hidden="true"
-        >
-          {g.coverEmoji || "🎲"}
-        </span>
+        <GameArt game={g} className="overview-cover" />
         <div className="overview-title-wrap">
           <h3 className="overview-title">{g.gameTitle}</h3>
           <p className="overview-meta">
-            {g.players && `👥 ${g.players.min}–${g.players.max}人`}
-            {g.time && `　⏱ ${g.time}分`}
+            {g.players && (
+              <span className="mini-chip">
+                <Icon name="users" />
+                {g.players.min}–{g.players.max}
+              </span>
+            )}
+            {g.time && (
+              <span className="mini-chip">
+                <Icon name="clock" />
+                {g.time}分
+              </span>
+            )}
           </p>
           {big && pct != null && (
             <span className="overview-fit">ぴったり度 {pct}%</span>
@@ -162,7 +167,8 @@ function GameOverview({ item, pct, big }) {
       )}
 
       <Link to={`/game/${g.id}`} className="overview-cta">
-        くわしく見る →
+        くわしく見る
+        <Icon name="arrow" />
       </Link>
     </article>
   );

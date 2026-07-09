@@ -39,7 +39,8 @@ export default function App() {
             <span className="logo-mark" aria-hidden="true">
               <Meeple />
             </span>
-            ボードゲームひろば<span className="logo-note">（仮）</span>
+            <span className="logo-text">ボードゲームひろば</span>
+            <span className="logo-pill">仮</span>
           </Link>
 
           <nav className="mainnav" aria-label="3つの入口">

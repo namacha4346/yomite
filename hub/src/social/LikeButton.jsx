@@ -1,4 +1,5 @@
 import { likeCount, hasLiked, toggleLike } from "./likes.js";
+import { Icon } from "../ui/graphics.jsx";
 
 // いいねボタン（❤️＋件数）。user が無ければ onNeedName を呼ぶ。
 export default function LikeButton({ id, user, onNeedName, onChange }) {
@@ -20,7 +21,7 @@ export default function LikeButton({ id, user, onNeedName, onChange }) {
       aria-pressed={liked}
       aria-label={liked ? "いいねを取り消す" : "いいねする"}
     >
-      <span className="like-heart" aria-hidden="true">{liked ? "❤️" : "🤍"}</span>
+      <Icon name="heart" className="like-heart" />
       <span className="like-count">{count}</span>
     </button>
   );

@@ -5,6 +5,7 @@ import ScriptBuilder from "../script/ScriptBuilder.jsx";
 import ScriptCard from "../script/ScriptCard.jsx";
 import GameTile from "../script/GameTile.jsx";
 import { sortMechanics } from "../script/mechanics.js";
+import { Icon } from "../ui/graphics.jsx";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
 import { likeCount } from "../social/likes.js";
@@ -165,6 +166,7 @@ function Browse({
   const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
   const [sort, setSort] = useState("new"); // new | popular
+  const [view, setView] = useState("grid"); // grid（2列）| list（1列）
   const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
   const [openId, setOpenId] = useState(initialOpenId || null); // 開いている台本
 
@@ -334,7 +336,9 @@ function Browse({
   return (
     <div className="catalog">
       <div className="search">
-        <span className="search-icon" aria-hidden="true">🔍</span>
+        <span className="search-icon" aria-hidden="true">
+          <Icon name="search" />
+        </span>
         <input
           className="search-input"
           type="search"
@@ -406,8 +410,8 @@ function Browse({
         </div>
       )}
 
-      {/* 並び替え */}
-      <div className="filter-row">
+      {/* 並び替え＋表示切り替え */}
+      <div className="filter-row filter-row--sort">
         <span className="filter-label">並び</span>
         <div className="filter-chips" role="group" aria-label="並び替え">
           <button
@@ -422,7 +426,25 @@ function Browse({
             className={"chip" + (sort === "popular" ? " is-on" : "")}
             onClick={() => setSort("popular")}
           >
-            人気（❤️順）
+            人気
+          </button>
+        </div>
+        <div className="view-toggle" role="group" aria-label="表示切り替え">
+          <button
+            type="button"
+            className={"view-btn" + (view === "grid" ? " is-on" : "")}
+            onClick={() => setView("grid")}
+            aria-pressed={view === "grid"}
+          >
+            2列
+          </button>
+          <button
+            type="button"
+            className={"view-btn" + (view === "list" ? " is-on" : "")}
+            onClick={() => setView("list")}
+            aria-pressed={view === "list"}
+          >
+            1列
           </button>
         </div>
       </div>
@@ -432,7 +454,7 @@ function Browse({
         <p className="hint">条件に合うゲームが見つかりませんでした。</p>
       )}
 
-      <div className="tiles">
+      <div className={"tiles" + (view === "list" ? " tiles--list" : "")}>
         {gamesFiltered.map((g) => (
           <GameTile
             key={g.key}

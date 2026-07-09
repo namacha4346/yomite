@@ -5,6 +5,7 @@ import LikeButton from "../social/LikeButton.jsx";
 import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary } from "./model.js";
+import { Icon } from "../ui/graphics.jsx";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -119,8 +120,9 @@ export default function ScriptCard({
         />
         <span className="foot-spacer" />
         {onPrint && (
-          <button className="linkbtn" onClick={() => onPrint(summary)}>
-            🖨 早見表を印刷／PDF
+          <button className="linkbtn linkbtn--icon" onClick={() => onPrint(summary)}>
+            <Icon name="print" />
+            早見表を印刷／PDF
           </button>
         )}
         {onDelete && (
