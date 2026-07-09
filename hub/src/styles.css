@@ -2691,6 +2691,9 @@ body::before {
 .filter-chips {
   flex-wrap: nowrap;
   overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   -ms-overflow-style: none;
   padding: 2px 2px 4px;
@@ -2808,6 +2811,9 @@ body::before {
   gap: 2px;
   flex-wrap: nowrap;
   overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x;
+  overscroll-behavior: contain;
   scrollbar-width: none;
   border-bottom: 1px solid var(--border);
 }
