@@ -9,5 +9,10 @@ export const DIAGNOSIS = {
   carcassonne: { moods: ["strategy"], weight: 1, scenes: ["family", "adult"], conflict: "attack" },
   "stone-age": { moods: ["strategy"], weight: 3, scenes: ["adult", "family"], conflict: "attack" },
   "ticket-to-ride": { moods: ["strategy", "party"], weight: 1, scenes: ["family", "adult"], conflict: "attack" },
+  nanjamonja: { moods: ["party"], weight: 1, scenes: ["family", "drink"], conflict: "peace" },
+  ito: { moods: ["party", "coop"], weight: 1, scenes: ["drink", "adult", "family"], conflict: "peace" },
+  "love-letter": { moods: ["bluff", "party"], weight: 1, scenes: ["adult", "drink"], conflict: "attack" },
+  "cockroach-poker": { moods: ["bluff", "party"], weight: 1, scenes: ["family", "drink"], conflict: "attack" },
+  vulture: { moods: ["bluff", "party"], weight: 1, scenes: ["family", "adult"], conflict: "attack" },
   "sample-script-1": { moods: ["party"], weight: 1, scenes: ["family"], conflict: "peace" },
 };
