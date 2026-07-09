@@ -2,16 +2,36 @@ import { useState } from "react";
 import IconPicker from "../summary/IconPicker.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { MECHANICS } from "./mechanics.js";
-import { emptyScript, isComplete } from "./model.js";
+import { emptyScript, isComplete, DEFAULT_THEME_ORDER } from "./model.js";
 
 // 台本エディタ。10セクションを「テーマごとのタブ」に分けて入力する。
 // ⑤手番=箇条書き、⑧アイコン早見表=アイコン選択、他=長文。全項目必須（一言可）。
 export default function ScriptBuilder({ onSave, isPro = false }) {
   const [form, setForm] = useState(emptyScript());
   const [pickerRow, setPickerRow] = useState(null);
-  const [theme, setTheme] = useState(0); // 表示中のテーマ（タブ）
+  const [theme, setTheme] = useState(0); // 表示中のテーマ（並び順のインデックス）
+  const [editOrder, setEditOrder] = useState(false);
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
+
+  // 作者が決める「教える順番」（テーマの並び）
+  const orderedThemes = form.themeOrder
+    .map((id) => THEMES.find((t) => t.id === id))
+    .filter(Boolean);
+  const moveTheme = (i, dir) => {
+    const j = i + dir;
+    if (j < 0 || j >= form.themeOrder.length) return;
+    setForm((f) => {
+      const next = f.themeOrder.slice();
+      [next[i], next[j]] = [next[j], next[i]];
+      return { ...f, themeOrder: next };
+    });
+  };
+  const resetOrder = () =>
+    setForm((f) => ({ ...f, themeOrder: DEFAULT_THEME_ORDER.slice() }));
+  const isDefaultOrder =
+    form.themeOrder.length === DEFAULT_THEME_ORDER.length &&
+    form.themeOrder.every((id, i) => id === DEFAULT_THEME_ORDER[i]);
 
   // ⑤手番（箇条書き）
   const setTurn = (i, v) =>
@@ -74,6 +94,7 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
       ...(players ? { players } : {}),
       ...(time ? { time } : {}),
       ...(mechanics ? { mechanics } : {}),
+      themeOrder: form.themeOrder.slice(),
       about: form.about.trim(),
       win: form.win.trim(),
       setup: form.setup.trim(),
@@ -93,9 +114,7 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
   // 1セクションの入力欄を描画
   const renderSection = (sec) => (
     <div className="field" key={sec.key}>
-      <span className="field-label">
-        {sec.no} {sec.label}
-      </span>
+      <span className="field-label">{sec.label}</span>
 
       {sec.type === "text" && (
         <textarea
@@ -170,13 +189,13 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
     </div>
   );
 
-  const current = THEMES[theme];
+  const current = orderedThemes[theme] || orderedThemes[0];
   const sectionsInTheme = SECTIONS.filter((s) => current.keys.includes(s.key));
 
   return (
     <div className="builder">
       <p className="builder-note">
-        台本を書くと、<b>⑤手番・⑦終了条件・⑧アイコン</b> から早見表（サマリー）が自動で作られます。
+        台本を書くと、<b>手番でできること・終了条件・アイコン早見表</b> から早見表（サマリー）が自動で作られます。
         全項目必須ですが、軽いゲームは「特になし」など一言でもOKです。
       </p>
 
@@ -244,9 +263,61 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
         </div>
       </div>
 
-      {/* テーマのタブ */}
+      {/* 教える順番（テーマの並び）を作者が決める */}
+      <div className="field">
+        <div className="field-head">
+          <span className="field-label">教える順番（タブの並び）</span>
+          <button
+            type="button"
+            className="order-toggle"
+            aria-expanded={editOrder}
+            onClick={() => setEditOrder((v) => !v)}
+          >
+            {editOrder ? "並べ替えを閉じる" : "順番を変える"}
+          </button>
+        </div>
+        {editOrder && (
+          <div className="order-edit">
+            <p className="order-edit-note">
+              この順番でタブ（＝インストの流れ）が並び、台本に保存されます。早見表は末尾固定です。
+            </p>
+            <ol className="order-list">
+              {orderedThemes.map((t, i) => (
+                <li key={t.id}>
+                  <span className="order-name">{t.label}</span>
+                  <span className="order-moves">
+                    <button
+                      type="button"
+                      onClick={() => moveTheme(i, -1)}
+                      disabled={i === 0}
+                      aria-label={`${t.label}を上へ`}
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => moveTheme(i, 1)}
+                      disabled={i === orderedThemes.length - 1}
+                      aria-label={`${t.label}を下へ`}
+                    >
+                      ▼
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ol>
+            {!isDefaultOrder && (
+              <button type="button" className="linkbtn order-reset" onClick={resetOrder}>
+                公式順にもどす
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* テーマのタブ（作者が決めた順） */}
       <div className="wiz-tabs" role="tablist" aria-label="台本のテーマ">
-        {THEMES.map((t, i) => (
+        {orderedThemes.map((t, i) => (
           <button
             key={t.id}
             role="tab"
@@ -274,13 +345,13 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
           ← 前へ
         </button>
         <span className="wiz-progress">
-          {theme + 1} / {THEMES.length}
+          {theme + 1} / {orderedThemes.length}
         </span>
         <button
           type="button"
           className="addbtn"
-          disabled={theme === THEMES.length - 1}
-          onClick={() => setTheme((t) => Math.min(THEMES.length - 1, t + 1))}
+          disabled={theme === orderedThemes.length - 1}
+          onClick={() => setTheme((t) => Math.min(orderedThemes.length - 1, t + 1))}
         >
           次へ →
         </button>

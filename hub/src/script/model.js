@@ -1,4 +1,17 @@
 import { withSides } from "../summary/model.js";
+import { THEMES } from "./sections.js";
+
+// テーマ（教えるタブ）のデフォルト順＝公式順
+export const DEFAULT_THEME_ORDER = THEMES.map((t) => t.id);
+
+// 台本の themeOrder を正規化（不正値を除き、足りないテーマは末尾に補う）
+export function normalizeThemeOrder(order) {
+  const valid = Array.isArray(order)
+    ? order.filter((id) => THEMES.some((t) => t.id === id))
+    : [];
+  for (const t of THEMES) if (!valid.includes(t.id)) valid.push(t.id);
+  return valid;
+}
 
 // 空の台本（エディタの初期値）
 export function emptyScript() {
@@ -8,6 +21,7 @@ export function emptyScript() {
     playersMax: "",
     timeMin: "",
     mechanics: [],
+    themeOrder: DEFAULT_THEME_ORDER.slice(),
     about: "",
     win: "",
     setup: "",

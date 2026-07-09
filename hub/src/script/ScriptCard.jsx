@@ -4,14 +4,8 @@ import SummaryCard from "../summary/SummaryCard.jsx";
 import LikeButton from "../social/LikeButton.jsx";
 import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
-import { deriveSummary } from "./model.js";
+import { deriveSummary, normalizeThemeOrder } from "./model.js";
 import { Icon } from "../ui/graphics.jsx";
-import {
-  getThemeOrder,
-  setThemeOrder,
-  resetThemeOrder,
-  isDefaultOrder,
-} from "./tabPrefs.js";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -68,32 +62,15 @@ export default function ScriptCard({
   onLikeChange,
   showComments = false,
 }) {
-  const [order, setOrder] = useState(getThemeOrder);
-  const [editOrder, setEditOrder] = useState(false);
+  // 台本に保存された「作者が決めた教える順番」で表示（無ければ公式順）
+  const order = normalizeThemeOrder(script.themeOrder);
+  const orderedThemes = order.map((id) => THEMES.find((t) => t.id === id));
+  const tabs = [...orderedThemes, { id: "summary", label: "早見表" }];
+
   const [tab, setTab] = useState(order[0]);
   const { gameTitle, official } = script;
   const summary = deriveSummary(script);
   const activeTheme = THEMES.find((t) => t.id === tab);
-
-  // 並び替えられたテーマ ＋ 早見表（末尾固定）
-  const orderedThemes = order
-    .map((id) => THEMES.find((t) => t.id === id))
-    .filter(Boolean);
-  const tabs = [...orderedThemes, { id: "summary", label: "早見表" }];
-
-  const move = (i, dir) => {
-    const j = i + dir;
-    if (j < 0 || j >= order.length) return;
-    const next = order.slice();
-    [next[i], next[j]] = [next[j], next[i]];
-    setOrder(next);
-    setThemeOrder(next);
-  };
-  const resetOrder = () => {
-    const d = THEMES.map((t) => t.id);
-    setOrder(d);
-    resetThemeOrder();
-  };
 
   return (
     <article className="scriptcard">
@@ -120,55 +97,6 @@ export default function ScriptCard({
           </button>
         ))}
       </div>
-
-      <div className="order-bar">
-        <button
-          type="button"
-          className="order-toggle"
-          aria-expanded={editOrder}
-          onClick={() => setEditOrder((v) => !v)}
-        >
-          {editOrder ? "並べ替えを閉じる" : "インストの順番を変える"}
-        </button>
-      </div>
-
-      {editOrder && (
-        <div className="order-edit">
-          <p className="order-edit-note">
-            教える順番を自分好みに並べ替えできます（この端末に保存されます／早見表は末尾固定）。
-          </p>
-          <ol className="order-list">
-            {orderedThemes.map((t, i) => (
-              <li key={t.id}>
-                <span className="order-name">{t.label}</span>
-                <span className="order-moves">
-                  <button
-                    type="button"
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0}
-                    aria-label={`${t.label}を上へ`}
-                  >
-                    ▲
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(i, 1)}
-                    disabled={i === orderedThemes.length - 1}
-                    aria-label={`${t.label}を下へ`}
-                  >
-                    ▼
-                  </button>
-                </span>
-              </li>
-            ))}
-          </ol>
-          {!isDefaultOrder(order) && (
-            <button type="button" className="linkbtn order-reset" onClick={resetOrder}>
-              公式順にもどす
-            </button>
-          )}
-        </div>
-      )}
 
       {tab === "summary" ? (
         <div className="script-summary">

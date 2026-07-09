@@ -67,6 +67,15 @@ function sanitize(body) {
       .slice(0, 8);
     if (m.length) meta.mechanics = m;
   }
+  // 教える順番（テーマの並び）。既知のテーマIDのみ許可。
+  const VALID_THEMES = ["about", "setup", "play", "ref"];
+  if (Array.isArray(body.themeOrder)) {
+    const order = body.themeOrder
+      .map((x) => String(x))
+      .filter((id) => VALID_THEMES.includes(id));
+    for (const id of VALID_THEMES) if (!order.includes(id)) order.push(id);
+    meta.themeOrder = order;
+  }
 
   return { gameTitle, ...meta, ...texts, turn, icons };
 }
