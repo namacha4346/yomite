@@ -31,6 +31,20 @@
   --shadow: 0 1px 0 rgba(67, 48, 33, 0.06), 0 6px 18px rgba(67, 48, 33, 0.1);
   --shadow-lift: 0 4px 0 rgba(67, 48, 33, 0.08), 0 14px 28px rgba(67, 48, 33, 0.16);
 
+  /* スケール（余白・角丸・影・段階をトークン化して統一） */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --e1: 0 1px 0 rgba(67, 48, 33, 0.05), 0 2px 6px rgba(67, 48, 33, 0.07);
+  --focus: #4d5fa8; /* フォーカスリング（青） */
+
   /* 文字 */
   --font: system-ui, -apple-system, "Hiragino Maru Gothic ProN",
     "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif;
@@ -2357,4 +2371,112 @@ body::before {
   background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Cpath%20d%3D%22M12%202a3%203%200%200%201%203%203c0%201.05-.54%201.97-1.35%202.51%201.94.62%203.12%201.86%203.6%203.63l.62%202.3c.24.9-.44%201.78-1.38%201.78h-1.3l.52%205.28A1%201%200%200%201%2014.72%2021H9.28a1%201%200%200%201-1-.99l.52-5.29H7.5c-.94%200-1.62-.88-1.38-1.79l.62-2.29c.48-1.77%201.66-3.01%203.6-3.63A3%203%200%200%201%2012%202z%22%20fill%3D%22rgba(90%2C58%2C46%2C0.03)%22%2F%3E%3C%2Fsvg%3E"), url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%222.5%22%20y%3D%222.5%22%20width%3D%2219%22%20height%3D%2219%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22rgba(90%2C58%2C46%2C0.03)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20fill%3D%22rgba(90%2C58%2C46%2C0.03)%22%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%227.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%227.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%2216.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%2216.5%22%20r%3D%221.7%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E"), url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%3E%3Crect%20x%3D%222.5%22%20y%3D%222.5%22%20width%3D%2219%22%20height%3D%2219%22%20rx%3D%225%22%20fill%3D%22none%22%20stroke%3D%22rgba(90%2C58%2C46%2C0.03)%22%20stroke-width%3D%221.4%22%2F%3E%3Cg%20fill%3D%22rgba(90%2C58%2C46%2C0.03)%22%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%227.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%227.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%227.5%22%20cy%3D%2216.5%22%20r%3D%221.7%22%2F%3E%3Ccircle%20cx%3D%2216.5%22%20cy%3D%2216.5%22%20r%3D%221.7%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E");
   background-position: right -50px top 30%, left -60px bottom 12%, right 12% top -60px;
   background-size: 240px, 260px, 200px;
+}
+
+/* =========================================================
+   仕上げ（2026-07 その2）：フォーカス可視化・ボタン/入力の
+   状態設計・表紙の質感・タップ領域・タイポ微調整
+   ========================================================= */
+
+/* --- フォーカス可視化（キーボード操作のアクセシビリティ） --- */
+:where(a, button, input, textarea, select, [tabindex]):focus-visible {
+  outline: 2.5px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+/* マウスクリック時は余計なリングを出さない */
+:where(a, button):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* --- ボタンの状態（hover / active / disabled は既存） --- */
+.savebtn {
+  transition: filter 0.12s ease, transform 0.08s ease, box-shadow 0.08s ease;
+}
+.savebtn:not(:disabled):hover {
+  filter: brightness(1.06);
+}
+.acct-login {
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+.acct-login:hover {
+  background: var(--bg2);
+}
+/* テキストリンク的ボタンにも hover の手応え */
+.linkbtn {
+  transition: color 0.12s ease;
+}
+
+/* --- 入力・検索のフォーカスをやわらかいグロー＋枠色に --- */
+.input:focus,
+.search-input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--learn);
+  box-shadow: 0 0 0 3px rgba(183, 99, 62, 0.16);
+}
+.search-input:focus {
+  box-shadow: var(--shadow), 0 0 0 3px rgba(183, 99, 62, 0.16);
+}
+
+/* --- チップ・ナビ：タップ領域を確保＋状態遷移 --- */
+.chip {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.chip:not(.is-on):hover {
+  border-color: var(--brown-light);
+  background: var(--bg2);
+}
+.mainnav-link {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+}
+.quiz-opt {
+  transition: border-color 0.12s ease, background 0.12s ease, transform 0.08s ease;
+}
+.quiz-opt:active {
+  transform: translateY(1px);
+}
+
+/* --- 表紙チップの質感を一段上げる（内側の縁取り＋沈み込む影） --- */
+.tile-cover,
+.feat-cover,
+.overview-cover,
+.gi-cover {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
+    inset 0 -22px 34px rgba(0, 0, 0, 0.12);
+}
+.tile-emoji {
+  font-size: 52px;
+}
+.feat-cover {
+  font-size: 44px;
+}
+
+/* --- タイポ微調整（見出しの字間・カードタイトルの統一感） --- */
+.hero-title {
+  letter-spacing: 0.01em;
+}
+.page-title,
+.feat-title,
+.scard-title {
+  letter-spacing: 0.01em;
+}
+
+/* --- 空・読込・エラー表示に軽い"気配"を足す --- */
+.hint {
+  text-align: center;
+  padding: 22px 8px;
+}
+.hint::before {
+  content: "🎲";
+  display: block;
+  font-size: 26px;
+  opacity: 0.5;
+  margin-bottom: 6px;
 }
