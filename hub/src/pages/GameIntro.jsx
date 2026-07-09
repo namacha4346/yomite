@@ -26,7 +26,7 @@ export default function GameIntro() {
       <div className="gi-hero">
         <span
           className="gi-cover"
-          style={{ background: game.color || "#8a7f6c" }}
+          style={{ "--cov": game.color || "#8a7f6c" }}
           aria-hidden="true"
         >
           {game.coverEmoji || "🎲"}

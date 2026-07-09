@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, NavLink } from "react-router-dom";
 import Home from "./pages/Home.jsx";
 import Learn from "./pages/Learn.jsx";
 import Place from "./pages/Place.jsx";
@@ -41,6 +41,18 @@ export default function App() {
             </span>
             ボードゲームひろば<span className="logo-note">（仮）</span>
           </Link>
+
+          <nav className="mainnav" aria-label="3つの入口">
+            <NavLink to="/learn" className="mainnav-link mainnav-link--learn">
+              教わる
+            </NavLink>
+            <NavLink to="/place" className="mainnav-link mainnav-link--place">
+              集まる
+            </NavLink>
+            <NavLink to="/discover" className="mainnav-link mainnav-link--discover">
+              出会う
+            </NavLink>
+          </nav>
 
           <div className="acct">
             {account ? (

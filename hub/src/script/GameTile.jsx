@@ -8,7 +8,7 @@ export default function GameTile({ script, onOpen, count }) {
 
   return (
     <button className="tile" type="button" onClick={() => onOpen()}>
-      <span className="tile-cover" style={{ background: color || "#8a7f6c" }}>
+      <span className="tile-cover" style={{ "--cov": color || "#8a7f6c" }}>
         {cover ? (
           <img className="tile-img" src={cover} alt="" />
         ) : (

@@ -3,6 +3,14 @@ import { Link } from "react-router-dom";
 import { QUESTIONS } from "../discover/quiz.js";
 import { recommend, MAX_SCORE } from "../discover/match.js";
 
+// 紹介文の末尾にある「2〜4人・約30分」などのメタ表記を取り除く
+// （人数・時間はチップで別に表示しているため重複を避ける）。
+function stripMeta(about) {
+  return about
+    .replace(/[0-9０-９]+[〜～][0-9０-９]+人[^。]*。?\s*$/, "")
+    .trim();
+}
+
 // 認知のハードル：ぴったり診断 → おすすめゲームの概要。
 export default function Discover() {
   const [step, setStep] = useState(0); // 0..QUESTIONS.length（=結果）
@@ -126,7 +134,7 @@ function GameOverview({ item, pct, big }) {
       <div className="overview-head">
         <span
           className="overview-cover"
-          style={{ background: g.color || "#8a7f6c" }}
+          style={{ "--cov": g.color || "#8a7f6c" }}
           aria-hidden="true"
         >
           {g.coverEmoji || "🎲"}
@@ -143,7 +151,7 @@ function GameOverview({ item, pct, big }) {
         </div>
       </div>
 
-      {g.about && <p className="overview-about">{g.about}</p>}
+      {g.about && <p className="overview-about">{stripMeta(g.about)}</p>}
 
       {g.mechanics && g.mechanics.length > 0 && (
         <div className="overview-tags">
