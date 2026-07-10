@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { QUESTIONS } from "../discover/quiz.js";
 import { recommend, maxScore } from "../discover/match.js";
@@ -16,6 +16,11 @@ function stripMeta(about) {
 export default function Discover() {
   const [step, setStep] = useState(0); // 0..QUESTIONS.length（=結果）
   const [answers, setAnswers] = useState({});
+
+  // 質問が進む／結果に切り替わるたびに一番上へ。
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
 
   const answer = (key, value) => {
     setAnswers((a) => ({ ...a, [key]: value }));

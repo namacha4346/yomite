@@ -190,6 +190,11 @@ function Browse({
   const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
   const [openId, setOpenId] = useState(initialOpenId || null); // 開いている台本
 
+  // 台本を開く／中間ページに移る／一覧に戻るときも、画面を一番上へ。
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [openId, selectedGame]);
+
   const togglePlayer = (k) =>
     setPlayers((ps) => (ps.includes(k) ? ps.filter((x) => x !== k) : [...ps, k]));
 
