@@ -11,6 +11,19 @@ const GAMES = SAMPLE_SCRIPTS.filter((s) => s.id !== "sample-script-1").map(
 // 満点＝各軸の最大の合計：人数2＋時間2＋気分4＋重さ2＋場2＋攻撃2
 export const MAX_SCORE = 14;
 
+// 回答した質問ぶんの満点（スキップした軸は数えない）。
+// ぴったり度% を「答えた内容に対する一致度」にするために使う。
+export function maxScore(a) {
+  let m = 0;
+  if (a.players != null) m += 2;
+  if (a.time) m += 2;
+  if (a.mood) m += 4;
+  if (a.weight != null) m += 2;
+  if (a.scene) m += 2;
+  if (a.conflict) m += 2;
+  return m || 1; // 全スキップ時の0除算回避
+}
+
 // ゲームの所要時間（分）を short / mid / long のバケツに変換。
 // 質問の答えも short/mid/long なので、これで型を揃える（以前は数値と文字を
 // 比較していて永久に一致しなかった＝時間が効いていなかった）。

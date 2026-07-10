@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { QUESTIONS } from "../discover/quiz.js";
-import { recommend, MAX_SCORE } from "../discover/match.js";
+import { recommend, maxScore } from "../discover/match.js";
 import { GameArt, Icon } from "../ui/graphics.jsx";
 
 // 紹介文の末尾にある「2〜4人・約30分」などのメタ表記を取り除く
@@ -105,7 +105,7 @@ function Results({ answers, onRestart }) {
     );
   }
 
-  const pct = Math.round((top.score / MAX_SCORE) * 100);
+  const pct = Math.round((Math.max(0, top.score) / maxScore(answers)) * 100);
 
   return (
     <div className="results">
