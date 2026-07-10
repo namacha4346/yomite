@@ -35,6 +35,34 @@ export function emptyScript() {
   };
 }
 
+// 既存の台本 → エディタのフォーム形へ変換（フォーク＝自分版づくりの下敷き）。
+export function scriptToForm(s) {
+  const base = emptyScript();
+  if (!s) return base;
+  return {
+    ...base,
+    gameTitle: s.gameTitle || "",
+    playersMin: s.players && s.players.min != null ? String(s.players.min) : "",
+    playersMax: s.players && s.players.max != null ? String(s.players.max) : "",
+    timeMin: s.time != null ? String(s.time) : "",
+    mechanics: Array.isArray(s.mechanics) ? [...s.mechanics] : [],
+    themeOrder: normalizeThemeOrder(s.themeOrder),
+    about: s.about || "",
+    win: s.win || "",
+    setup: s.setup || "",
+    flow: s.flow || "",
+    turn: Array.isArray(s.turn) && s.turn.length ? [...s.turn] : [""],
+    scoring: s.scoring || "",
+    end: s.end || "",
+    icons:
+      Array.isArray(s.icons) && s.icons.length
+        ? s.icons.map((g) => ({ icon: g.icon || "", meaning: g.meaning || "" }))
+        : [{ icon: "", meaning: "" }],
+    special: s.special || "",
+    pitfalls: s.pitfalls || "",
+  };
+}
+
 // 台本 → サマリー（早見表）を自動生成。
 // ⑤手番でできること / ⑦終了条件 / ⑧アイコン早見表 を取り出し、
 // 既存の表裏レイアウト（手番=表・終了=表・アイコン=裏）で表示する。

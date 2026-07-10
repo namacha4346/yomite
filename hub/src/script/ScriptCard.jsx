@@ -57,6 +57,7 @@ export default function ScriptCard({
   script,
   onDelete,
   onPrint,
+  onFork,
   user,
   onNeedName,
   onLikeChange,
@@ -108,6 +109,22 @@ export default function ScriptCard({
           {SECTIONS.filter((s) => activeTheme.keys.includes(s.key)).map((sec) =>
             renderSection(sec, script)
           )}
+        </div>
+      )}
+
+      {onFork && (
+        <div className="fork-cta-row">
+          <button
+            type="button"
+            className="fork-cta"
+            onClick={() => onFork(script)}
+          >
+            この台本をもとに自分版をつくる
+            <span className="fork-cta-pro">PRO</span>
+          </button>
+          <span className="fork-cta-note">
+            公式のお勧めを下敷きに、自分のインスト用へ書き換えられます。
+          </span>
         </div>
       )}
 

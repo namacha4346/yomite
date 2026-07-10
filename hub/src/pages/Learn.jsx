@@ -20,6 +20,7 @@ export default function Learn() {
   const [printTarget, setPrintTarget] = useState(null); // 印刷する早見表
   const [isPro, setIsPro] = useState(false); // 有料プランか（今は仮フラグ）
   const [query, setQuery] = useState(""); // 台本の検索語
+  const [forkSeed, setForkSeed] = useState(null); // 「自分版」の下敷きにする台本（PRO）
   const { account, requireLogin } = useAuth();
   const user = account ? account.handle : ""; // 未ログインは空
   const [searchParams] = useSearchParams();
@@ -57,10 +58,18 @@ export default function Learn() {
       // 作者（ハンドル）を付けて投稿
       setShared(await createScript({ ...script, author: user }));
       setStatus("ok");
+      setForkSeed(null);
       setTab("browse");
     } catch {
       setStatus("error");
     }
+  };
+
+  // 公式（や誰かの）台本を下敷きに「自分版」を編集する（PRO機能）。
+  // ログイン／PRO のゲートは「台本をつくる」タブ側で出す。
+  const startFork = (script) => {
+    setForkSeed(script);
+    setTab("build");
   };
   const handleDelete = async (id) => {
     try {
@@ -87,7 +96,10 @@ export default function Learn() {
         </button>
         <button
           className={"tab" + (tab === "build" ? " is-active" : "")}
-          onClick={() => setTab("build")}
+          onClick={() => {
+            setForkSeed(null);
+            setTab("build");
+          }}
         >
           台本をつくる
           <span className="tab-pro">PRO</span>
@@ -102,11 +114,17 @@ export default function Learn() {
 
       {tab === "build" ? (
         !user ? (
-          <LoginPrompt onLogin={requireLogin} />
+          <LoginPrompt onLogin={requireLogin} seed={forkSeed} />
         ) : isPro ? (
-          <ScriptBuilder onSave={handleSave} isPro={isPro} />
+          <ScriptBuilder
+            key={forkSeed ? "fork-" + forkSeed.id : "new"}
+            onSave={handleSave}
+            isPro={isPro}
+            initial={forkSeed}
+            onNewBlank={() => setForkSeed(null)}
+          />
         ) : (
-          <Paywall onTryDemo={() => setIsPro(true)} />
+          <Paywall onTryDemo={() => setIsPro(true)} seed={forkSeed} />
         )
       ) : (
         <Browse
@@ -117,6 +135,7 @@ export default function Learn() {
           status={status}
           onDelete={handleDelete}
           onPrint={setPrintTarget}
+          onFork={startFork}
           user={user}
           onNeedName={requireLogin}
           onLikeChange={bumpLike}
@@ -158,6 +177,7 @@ function Browse({
   status,
   onDelete,
   onPrint,
+  onFork,
   user,
   onNeedName,
   onLikeChange,
@@ -238,6 +258,7 @@ function Browse({
           <ScriptCard
             script={open}
             onPrint={onPrint}
+            onFork={onFork}
             user={user}
             onNeedName={onNeedName}
             onLikeChange={onLikeChange}
@@ -473,13 +494,17 @@ function Browse({
 }
 
 // 未ログインで台本作成を開いたときの案内。
-function LoginPrompt({ onLogin }) {
+function LoginPrompt({ onLogin, seed }) {
   return (
     <div className="paywall">
       <span className="paywall-badge">ログインが必要</span>
-      <h3 className="paywall-title">台本づくりにはログインが必要です</h3>
+      <h3 className="paywall-title">
+        {seed ? "自分版づくりにはログインが必要です" : "台本づくりにはログインが必要です"}
+      </h3>
       <p className="paywall-lead">
-        閲覧はログインなしでOK。台本の作成・投稿・いいねをするにはログインしてください。
+        {seed
+          ? `「${seed.gameTitle}」を下敷きに自分版をつくるには、ログインしてください。`
+          : "閲覧はログインなしでOK。台本の作成・投稿・いいねをするにはログインしてください。"}
       </p>
       <button className="savebtn" type="button" onClick={onLogin}>
         ログイン／新規登録
@@ -488,14 +513,18 @@ function LoginPrompt({ onLogin }) {
   );
 }
 
-// 台本づくりは有料プランの機能。無料の人にはこの案内を出す。
-function Paywall({ onTryDemo }) {
+// 台本づくり（自分版づくり含む）は有料プランの機能。無料の人にはこの案内を出す。
+function Paywall({ onTryDemo, seed }) {
   return (
     <div className="paywall">
       <span className="paywall-badge">PRO プラン</span>
-      <h3 className="paywall-title">台本づくりは有料プランの機能です</h3>
+      <h3 className="paywall-title">
+        {seed ? "自分版づくりは有料プランの機能です" : "台本づくりは有料プランの機能です"}
+      </h3>
       <p className="paywall-lead">
-        まずは運営の台本を無料で使えます。自分のゲームの台本を作りたくなったら、有料プランへ。
+        {seed
+          ? `公式の「${seed.gameTitle}」はそのまま無料で使えます。中身を自分のインスト用に書き換えて「自分版」を持ちたくなったら、有料プランへ。`
+          : "まずは運営の台本を無料で使えます。自分のゲームの台本を作りたくなったら、有料プランへ。"}
       </p>
       <ul className="paywall-list">
         <li>自分のゲームの台本を作成・共有できる</li>

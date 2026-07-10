@@ -2,12 +2,15 @@ import { useState } from "react";
 import IconPicker from "../summary/IconPicker.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { MECHANICS } from "./mechanics.js";
-import { emptyScript, isComplete, DEFAULT_THEME_ORDER } from "./model.js";
+import { emptyScript, isComplete, scriptToForm, DEFAULT_THEME_ORDER } from "./model.js";
 
 // 台本エディタ。10セクションを「テーマごとのタブ」に分けて入力する。
-// ⑤手番=箇条書き、⑧アイコン早見表=アイコン選択、他=長文。全項目必須（一言可）。
-export default function ScriptBuilder({ onSave, isPro = false }) {
-  const [form, setForm] = useState(emptyScript());
+// 手番=箇条書き、アイコン早見表=アイコン選択、他=長文。全項目必須（一言可）。
+// initial を渡すと、その台本（公式のお勧め）を下敷きに「自分版」を編集できる（フォーク）。
+export default function ScriptBuilder({ onSave, isPro = false, initial = null, onNewBlank }) {
+  const [form, setForm] = useState(() =>
+    initial ? scriptToForm(initial) : emptyScript()
+  );
   const [pickerRow, setPickerRow] = useState(null);
   const [theme, setTheme] = useState(0); // 表示中のテーマ（並び順のインデックス）
   const [editOrder, setEditOrder] = useState(false);
@@ -194,10 +197,27 @@ export default function ScriptBuilder({ onSave, isPro = false }) {
 
   return (
     <div className="builder">
-      <p className="builder-note">
-        台本を書くと、<b>手番でできること・終了条件・アイコン早見表</b> から早見表（サマリー）が自動で作られます。
-        全項目必須ですが、軽いゲームは「特になし」など一言でもOKです。
-      </p>
+      {initial ? (
+        <div className="fork-note">
+          <div className="fork-note-main">
+            <span className="fork-badge">自分版（PRO）</span>
+            <p className="fork-note-text">
+              <b>「{initial.gameTitle}」</b>の公式のお勧めを下敷きに編集中。各項目を
+              あなたのインスト用に書き換えて、自分の台本として保存できます（元の公式台本はそのまま）。
+            </p>
+          </div>
+          {onNewBlank && (
+            <button type="button" className="linkbtn" onClick={onNewBlank}>
+              最初から新規で作る
+            </button>
+          )}
+        </div>
+      ) : (
+        <p className="builder-note">
+          台本を書くと、<b>手番でできること・終了条件・アイコン早見表</b> から早見表（サマリー）が自動で作られます。
+          全項目必須ですが、軽いゲームは「特になし」など一言でもOKです。
+        </p>
+      )}
 
       <label className="field">
         <span className="field-label">ゲーム名</span>
