@@ -1,21 +1,7 @@
-import { useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-// 免責・商標表記＋権利者向けオプトアウト窓口。
-// ※お問い合わせ先は本番で設定してください（空なら「準備中」と表示）。
-const CONTACT_EMAIL = "";
-
+// 免責・商標表記。権利者向けの窓口は独立ページ（/rights）へ。
 export default function About() {
-  const [searchParams] = useSearchParams();
-
-  // フッターの「権利者・出版社の方へ」から来たら、該当セクションへスクロール。
-  useEffect(() => {
-    if (searchParams.get("to") === "rights") {
-      const el = document.getElementById("rights");
-      if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
-    }
-  }, [searchParams]);
-
   return (
     <div className="page page--learn about">
       <span className="page-hurdle">このサイトについて</span>
@@ -57,31 +43,24 @@ export default function About() {
         </ul>
       </section>
 
-      <section className="about-sec" id="rights">
-        <h2 className="about-h">権利者・出版社の方へ（掲載の停止・修正）</h2>
-        <p className="about-text">
-          自社タイトルの掲載停止・修正のご要望や、内容についてのご指摘がありましたら、
-          下記の窓口までご連絡ください。<b>確認のうえ、速やかに対応（取り下げ・修正）</b>します。
-          また、公式パートナーとしての掲載・監修のご相談も歓迎します。
-        </p>
-        <p className="about-contact">
-          お問い合わせ先：{" "}
-          {CONTACT_EMAIL ? (
-            <a className="about-mail" href={`mailto:${CONTACT_EMAIL}`}>
-              {CONTACT_EMAIL}
-            </a>
-          ) : (
-            <span className="about-todo">（準備中・本番公開時に設定します）</span>
-          )}
-        </p>
-      </section>
-
       <section className="about-sec">
         <h2 className="about-h">内容の正確さについて</h2>
         <p className="about-text">
           台本は初心者が教えやすいことを重視しています。ルールの誤りや分かりにくい点に
-          気づかれた場合は、各台本のコメントや上記の窓口からお知らせください。正しい遊び方は
+          気づかれた場合は、各台本のコメントからお知らせください。正しい遊び方は
           公式の説明書が基準です。
+        </p>
+      </section>
+
+      <section className="about-sec">
+        <h2 className="about-h">権利者・出版社の方へ</h2>
+        <p className="about-text">
+          自社タイトルの掲載停止・修正のご要望や、公式パートナーのご相談は、専用の窓口を
+          ご用意しています。
+          {" "}
+          <Link className="about-mail" to="/rights">
+            権利者・出版社の方へ →
+          </Link>
         </p>
       </section>
 

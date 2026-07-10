@@ -7,6 +7,7 @@ import Discover from "./pages/Discover.jsx";
 import GameIntro from "./pages/GameIntro.jsx";
 import Profile from "./pages/Profile.jsx";
 import About from "./pages/About.jsx";
+import Rights from "./pages/Rights.jsx";
 import AuthGate from "./pages/AuthGate.jsx";
 import { AuthContext } from "./social/AuthContext.js";
 import { getAccount, saveAccount, clearAccount } from "./social/auth.js";
@@ -103,6 +104,7 @@ export default function App() {
             <Route path="/discover" element={<Discover />} />
             <Route path="/game/:id" element={<GameIntro />} />
             <Route path="/about" element={<About />} />
+            <Route path="/rights" element={<Rights />} />
             <Route path="/u/:handle" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>
@@ -112,7 +114,7 @@ export default function App() {
           <nav className="footer-nav" aria-label="サイト情報">
             <Link to="/about">このサイトについて</Link>
             <span className="footer-dot" aria-hidden="true">·</span>
-            <Link to="/about?to=rights">権利者・出版社の方へ</Link>
+            <Link to="/rights">権利者・出版社の方へ</Link>
           </nav>
           <p className="footer-tag">
             ボードゲームを、日本の"ふつうの遊び"に。
