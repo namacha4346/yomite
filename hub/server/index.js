@@ -82,6 +82,73 @@ function sanitize(body) {
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
+// --- AIに質問（本物のAIで台本の内容に答える） ---
+// フロントの src/ai/ask.js がここを叩く。
+// ANTHROPIC_API_KEY が無い／SDK未導入なら 503 を返し、フロントは
+// 台本ベースの簡易回答（デモ回答）にフォールバックする。
+//   必要なもの: `npm install @anthropic-ai/sdk` と 環境変数 ANTHROPIC_API_KEY
+//   任意: ANTHROPIC_MODEL（既定は claude-opus-4-8）
+let anthropicClient;
+async function getAnthropic() {
+  if (anthropicClient !== undefined) return anthropicClient;
+  if (!process.env.ANTHROPIC_API_KEY) {
+    anthropicClient = null;
+    return null;
+  }
+  try {
+    const mod = await import("@anthropic-ai/sdk");
+    const Anthropic = mod.default;
+    anthropicClient = new Anthropic();
+  } catch {
+    anthropicClient = null; // SDK未導入
+  }
+  return anthropicClient;
+}
+
+const ASK_SYSTEM = [
+  "あなたはボードゲームのインストを手伝うアシスタントです。",
+  "利用者から渡された『ルール資料』だけを根拠に、日本語でやさしく短く答えてください。",
+  "資料に書かれていないことは推測で断言せず、『台本に記載がないため、公式の説明書をご確認ください』と伝えます。",
+  "初心者にも分かるように、必要なら具体例を1つ添えます。前置きや自己紹介は不要です。",
+].join("\n");
+
+app.post("/api/ask", async (req, res) => {
+  const client = await getAnthropic();
+  if (!client) return res.status(503).json({ error: "ai_unconfigured" });
+
+  const question = String(req.body?.question || "").trim().slice(0, 500);
+  const context = String(req.body?.context || "").trim().slice(0, 12000);
+  const gameTitle = String(req.body?.gameTitle || "").trim().slice(0, 80);
+  if (!question || !context) {
+    return res.status(400).json({ error: "質問と資料が必要です。" });
+  }
+
+  try {
+    const message = await client.messages.create({
+      model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
+      max_tokens: 1024,
+      thinking: { type: "adaptive" },
+      output_config: { effort: "low" },
+      system: ASK_SYSTEM,
+      messages: [
+        {
+          role: "user",
+          content: `【ゲーム】${gameTitle}\n\n【ルール資料】\n${context}\n\n【質問】${question}`,
+        },
+      ],
+    });
+    const answer = (message.content || [])
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("")
+      .trim();
+    res.json({ answer });
+  } catch (e) {
+    console.error("ask error:", e?.message || e);
+    res.status(502).json({ error: "ai_failed" });
+  }
+});
+
 // 一覧
 app.get("/api/scripts", async (_req, res) => {
   res.json(await db.list());

@@ -7,6 +7,7 @@ import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary, normalizeThemeOrder } from "./model.js";
 import { Icon } from "../ui/graphics.jsx";
 import { buyUrl } from "../ui/buy.js";
+import AskBox from "../ai/AskBox.jsx";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -112,6 +113,8 @@ export default function ScriptCard({
           )}
         </div>
       )}
+
+      <AskBox script={script} />
 
       {onFork && (
         <div className="fork-cta-row">

@@ -3204,3 +3204,120 @@ body::before {
 .gi-buy:hover {
   color: var(--brown-dark);
 }
+
+/* ---- AIに質問（台本カード内の質問箱） ---- */
+.askbox {
+  margin: 4px 20px 0;
+  padding: 14px 16px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.askbox-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.askbox-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--learn);
+}
+.askbox-badge .icn {
+  width: 15px;
+  height: 15px;
+}
+.askbox-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.askbox-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.askbox-chip {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 12.5px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, color 0.12s ease;
+}
+.askbox-chip:hover {
+  border-color: var(--learn);
+  color: var(--learn);
+}
+.askbox-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.askbox-input {
+  flex: 1;
+  min-width: 0;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
+.askbox-input:focus {
+  outline: none;
+  border-color: var(--learn);
+  box-shadow: 0 0 0 3px rgba(183, 99, 62, 0.16);
+}
+.askbox-send {
+  flex: 0 0 auto;
+  border: none;
+  background: var(--learn);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  border-radius: 10px;
+  padding: 0 16px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.askbox-send:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.askbox-answer {
+  margin-top: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.askbox-q {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--learn);
+}
+.askbox-a {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.askbox-a p {
+  margin: 0 0 2px;
+}
+.askbox-note {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--text-soft);
+  line-height: 1.6;
+}
