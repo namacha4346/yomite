@@ -397,7 +397,8 @@ a {
   outline-offset: 1px;
 }
 .textarea {
-  min-height: 72px;
+  min-height: 168px;
+  line-height: 1.8;
   resize: vertical;
 }
 .row {
