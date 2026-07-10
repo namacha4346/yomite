@@ -6,6 +6,7 @@ import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary, normalizeThemeOrder } from "./model.js";
 import { Icon } from "../ui/graphics.jsx";
+import { buyUrl } from "../ui/buy.js";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -136,6 +137,16 @@ export default function ScriptCard({
           onChange={onLikeChange}
         />
         <span className="foot-spacer" />
+        {official && (
+          <a
+            className="linkbtn"
+            href={buyUrl(gameTitle)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            このゲームを買う
+          </a>
+        )}
         {onPrint && (
           <button className="linkbtn linkbtn--icon" onClick={() => onPrint(summary)}>
             <Icon name="print" />

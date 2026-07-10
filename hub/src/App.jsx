@@ -6,6 +6,7 @@ import Place from "./pages/Place.jsx";
 import Discover from "./pages/Discover.jsx";
 import GameIntro from "./pages/GameIntro.jsx";
 import Profile from "./pages/Profile.jsx";
+import About from "./pages/About.jsx";
 import AuthGate from "./pages/AuthGate.jsx";
 import { AuthContext } from "./social/AuthContext.js";
 import { getAccount, saveAccount, clearAccount } from "./social/auth.js";
@@ -91,13 +92,24 @@ export default function App() {
             <Route path="/place" element={<Place />} />
             <Route path="/discover" element={<Discover />} />
             <Route path="/game/:id" element={<GameIntro />} />
+            <Route path="/about" element={<About />} />
             <Route path="/u/:handle" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </main>
 
         <footer className="footer">
-          ボードゲームを、日本の"ふつうの遊び"に。
+          <nav className="footer-nav" aria-label="サイト情報">
+            <Link to="/about">このサイトについて</Link>
+            <span className="footer-dot" aria-hidden="true">·</span>
+            <Link to="/about">権利者・出版社の方へ</Link>
+          </nav>
+          <p className="footer-tag">
+            ボードゲームを、日本の"ふつうの遊び"に。
+          </p>
+          <p className="footer-note">
+            非公式サービスです。ゲーム名・説明書等の権利は各権利者に帰属します。
+          </p>
         </footer>
       </div>
 

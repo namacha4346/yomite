@@ -2,6 +2,7 @@ import { Link, useParams } from "react-router-dom";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { INTRO, DIFFICULTY_LABEL } from "../discover/intro.js";
 import { GameArt, Icon } from "../ui/graphics.jsx";
+import { buyUrl } from "../ui/buy.js";
 
 // 初心者向けのゲーム紹介ページ。/game/:id
 // 「どんなゲームか」を、ルールを読む前に把握できる。
@@ -95,6 +96,14 @@ export default function GameIntro() {
           遊びたくなったら、ルールを見る（教わる）
           <Icon name="arrow" />
         </Link>
+        <a
+          className="gi-buy"
+          href={buyUrl(game.gameTitle)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          このゲームを買う・さがす（外部サイト）
+        </a>
         <Link to="/discover" className="gi-cta-sub">
           もう一度診断する
         </Link>
