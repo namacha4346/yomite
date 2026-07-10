@@ -144,13 +144,13 @@ export default function ScriptCard({
             target="_blank"
             rel="noopener noreferrer"
           >
-            このゲームを買う
+            買う
           </a>
         )}
         {onPrint && (
           <button className="linkbtn linkbtn--icon" onClick={() => onPrint(summary)}>
             <Icon name="print" />
-            早見表を印刷／PDF
+            印刷／PDF
           </button>
         )}
         {onDelete && (

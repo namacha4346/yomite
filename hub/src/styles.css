@@ -228,9 +228,11 @@ a {
 }
 .door-desc {
   display: block;
-  font-size: 13.5px;
+  font-size: 12px;
   color: var(--text-soft);
   margin-top: 3px;
+  white-space: nowrap;
+  letter-spacing: -0.012em;
 }
 .door-arrow {
   flex: 0 0 auto;
@@ -745,6 +747,7 @@ a {
   font-size: 13px;
   cursor: pointer;
   text-decoration: underline;
+  white-space: nowrap;
 }
 
 /* =========================================================
@@ -2339,6 +2342,12 @@ a {
     position: absolute;
     top: 20px;
     right: 20px;
+  }
+  /* 縦カードでは幅に余裕があるので説明文を通常サイズに戻す */
+  .door-desc {
+    font-size: 13.5px;
+    white-space: normal;
+    letter-spacing: normal;
   }
   .feat-grid {
     grid-template-columns: repeat(3, 1fr);
