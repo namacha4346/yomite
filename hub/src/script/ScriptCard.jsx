@@ -83,7 +83,7 @@ export default function ScriptCard({
           </span>
           <h3 className="scard-title">{gameTitle || "（無題の台本）"}</h3>
         </div>
-        {official && <span className="scard-official">公式</span>}
+        {official && <span className="scard-official">運営</span>}
       </header>
 
       <div className="face-switch" role="tablist" aria-label="台本のテーマ">
@@ -124,7 +124,7 @@ export default function ScriptCard({
             <span className="fork-cta-pro">PRO</span>
           </button>
           <span className="fork-cta-note">
-            公式のお勧めを下敷きに、自分のインスト用へ書き換えられます。
+            運営のお勧めを下敷きに、自分のインスト用へ書き換えられます。
           </span>
         </div>
       )}

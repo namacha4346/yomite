@@ -324,12 +324,12 @@ function Browse({
                     (s._group === "official" ? " is-official" : "")
                   }
                 >
-                  {s._group === "official" ? "公式" : "みんな"}
+                  {s._group === "official" ? "運営" : "みんな"}
                 </span>
                 <span className="variant-main">
                   <span className="variant-name">
                     {s._group === "official"
-                      ? "公式台本（運営）"
+                      ? "運営の台本"
                       : s.author
                       ? "@" + s.author + " の台本"
                       : "みんなの台本"}
@@ -528,7 +528,7 @@ function Paywall({ onTryDemo, seed }) {
       </h3>
       <p className="paywall-lead">
         {seed
-          ? `公式の「${seed.gameTitle}」はそのまま無料で使えます。中身を自分のインスト用に書き換えて「自分版」を持ちたくなったら、有料プランへ。`
+          ? `運営の「${seed.gameTitle}」はそのまま無料で使えます。中身を自分のインスト用に書き換えて「自分版」を持ちたくなったら、有料プランへ。`
           : "まずは運営の台本を無料で使えます。自分のゲームの台本を作りたくなったら、有料プランへ。"}
       </p>
       <ul className="paywall-list">

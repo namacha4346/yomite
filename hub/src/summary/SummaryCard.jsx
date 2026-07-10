@@ -101,7 +101,7 @@ export default function SummaryCard({ summary, onDelete, onPrint, embedded = fal
             <span className="scard-kicker">サマリー早見表</span>
             <h3 className="scard-title">{gameTitle || "（無題のサマリー）"}</h3>
           </div>
-          {official && <span className="scard-official">公式</span>}
+          {official && <span className="scard-official">運営</span>}
         </header>
       )}
 
