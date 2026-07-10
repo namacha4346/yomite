@@ -1,10 +1,21 @@
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 
 // 免責・商標表記＋権利者向けオプトアウト窓口。
 // ※お問い合わせ先は本番で設定してください（空なら「準備中」と表示）。
 const CONTACT_EMAIL = "";
 
 export default function About() {
+  const [searchParams] = useSearchParams();
+
+  // フッターの「権利者・出版社の方へ」から来たら、該当セクションへスクロール。
+  useEffect(() => {
+    if (searchParams.get("to") === "rights") {
+      const el = document.getElementById("rights");
+      if (el) requestAnimationFrame(() => el.scrollIntoView({ block: "start" }));
+    }
+  }, [searchParams]);
+
   return (
     <div className="page page--learn about">
       <span className="page-hurdle">このサイトについて</span>

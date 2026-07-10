@@ -112,7 +112,7 @@ export default function App() {
           <nav className="footer-nav" aria-label="サイト情報">
             <Link to="/about">このサイトについて</Link>
             <span className="footer-dot" aria-hidden="true">·</span>
-            <Link to="/about">権利者・出版社の方へ</Link>
+            <Link to="/about?to=rights">権利者・出版社の方へ</Link>
           </nav>
           <p className="footer-tag">
             ボードゲームを、日本の"ふつうの遊び"に。
