@@ -36,17 +36,21 @@
 4. **担当 → 秘書**：成果物と、判断に迷った点を返す。
 5. **秘書 → ユーザー**：結論から簡潔に報告する。
 
-## エージェントの実体
+## エージェントの実体とスキル
 
-各エージェントは Claude Code のサブエージェントとして
-`.claude/agents/` に定義しています（このファイルは人間向けの概要）。
+各エージェントは Claude Code のサブエージェントとして `.claude/agents/` に、
+各自の得意技（スキル）は `.claude/skills/` に定義しています
+（このファイルは人間向けの概要）。
 
-| エージェント | 定義ファイル |
-|-------------|-------------|
-| secretary | `.claude/agents/secretary.md` |
-| staff-1 | `.claude/agents/staff-1.md` |
-| staff-2 | `.claude/agents/staff-2.md` |
-| staff-3 | `.claude/agents/staff-3.md` |
+| エージェント | 定義ファイル | 割り当てスキル |
+|-------------|-------------|---------------|
+| secretary | `.claude/agents/secretary.md` | `progress-management`（段取り・進捗管理・報告） |
+| staff-1 | `.claude/agents/staff-1.md` | `proofreading`（校正・校閲） |
+| staff-2 | `.claude/agents/staff-2.md` | `boardgame-rule-check`（ルール検証） |
+| staff-3 | `.claude/agents/staff-3.md` | `promo-copy`（キャッチコピー・SNS運用） |
+
+> スキルは `.claude/skills/<名前>/SKILL.md` に置いた「その社員の手順書」。
+> 該当する仕事のときに自動で参照されます。
 
 ## これから
 
