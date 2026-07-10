@@ -3321,3 +3321,108 @@ body::before {
   color: var(--text-soft);
   line-height: 1.6;
 }
+
+/* ---- トップの「AIに質問」告知バナー ---- */
+.ai-teaser {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  background:
+    linear-gradient(150deg, color-mix(in srgb, var(--learn) 9%, transparent), transparent 62%),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: var(--e1);
+  text-decoration: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.ai-teaser:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lift);
+}
+.ai-teaser-badge {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--learn);
+  white-space: nowrap;
+}
+.ai-teaser-badge .icn {
+  width: 15px;
+  height: 15px;
+}
+.ai-teaser-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.5;
+}
+.ai-teaser-arrow {
+  flex: 0 0 auto;
+  color: var(--learn);
+  opacity: 0.6;
+}
+.ai-teaser-arrow .icn {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---- 診断結果のシェア導線 ---- */
+.share {
+  margin: 14px 0 4px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.share-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--text-soft);
+  margin-bottom: 10px;
+}
+.share-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-btn {
+  flex: 1 1 auto;
+  text-align: center;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 9px 12px;
+  cursor: pointer;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.1s ease, border-color 0.12s ease;
+}
+.share-btn:hover {
+  transform: translateY(-1px);
+}
+.share-btn--x {
+  background: #14171a;
+  border-color: #14171a;
+  color: #fff;
+}
+.share-btn--threads {
+  background: #101010;
+  border-color: #101010;
+  color: #fff;
+}
+.share-btn--copy {
+  color: var(--learn);
+  border-color: var(--learn);
+}

@@ -45,14 +45,12 @@ export default function Rights() {
       <section className="about-sec">
         <h2 className="about-h">当サイトの位置づけ</h2>
         <p className="about-text">
-          ゲームの「ルール（遊び方）」そのものは著作権の保護対象ではないため、当サイトは
-          独自の文章・アイコンで解説しています。各ゲームの名称・ロゴ・説明書の文章・
-          イラスト等の権利は各権利者に帰属します。当サイトは各メーカー・出版社とは
-          提携・公式の関係にありません。くわしくは
+          著作権・商標の扱い（ルール解説は独自の文章・アイコンで作成、名称・ロゴ等は
+          各権利者に帰属、各社との提携・公式関係なし）は
           <Link className="about-mail" to="/about">
             このサイトについて
           </Link>
-          をご覧ください。
+          にまとめています。
         </p>
       </section>
 

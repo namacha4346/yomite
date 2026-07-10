@@ -116,6 +116,7 @@ function Results({ answers, onRestart }) {
     <div className="results">
       <p className="results-lead">あなたにぴったりなのは…</p>
       <GameOverview item={top} pct={pct} big />
+      <ShareRow game={top.game} pct={pct} />
 
       {rest.length > 0 && (
         <>
@@ -129,6 +130,60 @@ function Results({ answers, onRestart }) {
       <button type="button" className="savebtn results-again" onClick={onRestart}>
         もう一度診断する
       </button>
+    </div>
+  );
+}
+
+// 診断結果のシェア導線（X／Threads／コピー）。バズの入口。
+function ShareRow({ game, pct }) {
+  const [copied, setCopied] = useState(false);
+  const text = `ぴったり診断で、わたしに合うボードゲームは「${game.gameTitle}」でした（ぴったり度${pct}%）✨`;
+  const tag = "ボードゲームひろば";
+  const url = typeof window !== "undefined" ? window.location.href : "";
+  const full = `${text} #${tag} ${url}`.trim();
+  const xHref =
+    "https://twitter.com/intent/tweet?text=" +
+    encodeURIComponent(text) +
+    "&hashtags=" +
+    encodeURIComponent(tag) +
+    (url ? "&url=" + encodeURIComponent(url) : "");
+  const threadsHref =
+    "https://www.threads.net/intent/post?text=" + encodeURIComponent(full);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(full);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    } catch {
+      /* クリップボード不可の環境では何もしない */
+    }
+  };
+
+  return (
+    <div className="share">
+      <span className="share-label">結果をシェア</span>
+      <div className="share-btns">
+        <a
+          className="share-btn share-btn--x"
+          href={xHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Xでシェア
+        </a>
+        <a
+          className="share-btn share-btn--threads"
+          href={threadsHref}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Threads
+        </a>
+        <button type="button" className="share-btn share-btn--copy" onClick={copy}>
+          {copied ? "コピーしました" : "テキストをコピー"}
+        </button>
+      </div>
     </div>
   );
 }

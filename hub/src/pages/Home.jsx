@@ -8,24 +8,24 @@ const DOORS = [
   {
     to: "/learn",
     label: "教わる／教える",
-    hurdle: "インストのハードル",
-    desc: "ルール説明を、初心者でもできるように。",
+    hurdle: "インストがラクに",
+    desc: "名作の教え方が、ぜんぶ台本に。",
     key: "learn",
     icon: "book",
   },
   {
     to: "/discover",
     label: "出会う",
-    hurdle: "認知のハードル",
-    desc: "自分に合う一作と出会う、はじめの一歩。",
+    hurdle: "はじめの一作に出会う",
+    desc: "3つの質問で、ぴったりの1本へ。",
     key: "discover",
     icon: "compass",
   },
   {
     to: "/place",
     label: "集まる",
-    hurdle: "場所のハードル",
-    desc: "近くの卓・お店を見つけて、遊ぶ場所へ。",
+    hurdle: "遊ぶ場所を見つける",
+    desc: "近くの卓・お店で、遊ぶ場所へ。",
     key: "place",
     icon: "pin",
     soon: true,
@@ -44,7 +44,8 @@ export default function Home() {
           遊べるに変える。
         </h1>
         <p className="hero-sub">
-          ボードゲームの「教える・集まる・出会う」を、少しずつやさしく。
+          宝石の煌めき・ドミニオン・カルカソンヌ…名作の“教え方”がそろってる。
+          登録なしで、今すぐ読める。
         </p>
         <div className="hero-cta">
           <Link to="/discover" className="btn btn--primary hero-cta-btn">
@@ -78,6 +79,19 @@ export default function Home() {
           </Link>
         ))}
       </nav>
+
+      <Link to="/learn?script=splendor" className="ai-teaser">
+        <span className="ai-teaser-badge">
+          <Icon name="search" />
+          AIに質問
+        </span>
+        <span className="ai-teaser-text">
+          ルールでモメたら、その場でAIに聞ける。台本を開いて質問できます。
+        </span>
+        <span className="ai-teaser-arrow" aria-hidden="true">
+          <Icon name="arrow" />
+        </span>
+      </Link>
 
       <section className="feat">
         <div className="feat-head">

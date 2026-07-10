@@ -18,7 +18,7 @@ export const DIAGNOSIS = {
   // ワカプレの中量級。この中では一番しっかり。妨害は場所取り程度で穏やか。
   "stone-age": { moods: ["strategy"], weight: 3, scenes: ["adult", "family"], conflict: "peace" },
   // 路線をつなぐ定番。軽くてワイワイ。路線の取り合い＝軽い妨害あり。
-  "ticket-to-ride": { moods: ["strategy", "party"], weight: 1, scenes: ["family", "adult"], conflict: "attack" },
+  "ticket-to-ride": { moods: ["strategy", "party"], weight: 1, scenes: ["family", "adult"], conflict: "peace" },
   // 記憶＆早取りのパーティ。子ども〜お酒の席まで。攻撃なし。
   nanjamonja: { moods: ["party"], weight: 1, scenes: ["family", "drink"], conflict: "peace" },
   // 唯一の協力ゲー。会話で盛り上がる。大人数・非攻撃。
