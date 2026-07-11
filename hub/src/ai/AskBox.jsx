@@ -2,6 +2,11 @@ import { useState } from "react";
 import { ask } from "./ask.js";
 import { Icon } from "../ui/graphics.jsx";
 
+// 共有デモ（単体HTML）は端末内で簡易回答＝外部送信なし。
+// 本番のAIモードのみ、入力を外部AIサービスへ送信する。
+const DEMO =
+  import.meta.env.VITE_DEMO === "1" || import.meta.env.VITE_DEMO === true;
+
 // よくある質問（クリックでそのまま質問できる）
 const SUGGESTIONS = [
   "どうやって勝つの？",
@@ -85,6 +90,13 @@ export default function AskBox({ script }) {
         </button>
       </form>
 
+      {!DEMO && (
+        <p className="askbox-privacy">
+          入力した質問は、回答生成のため外部のAIサービスに送信されます。個人情報や
+          公開したくない内容は入力しないでください。
+        </p>
+      )}
+
       {answer && (
         <div className="askbox-answer">
           <p className="askbox-q">Q. {answer.question}</p>
@@ -94,10 +106,14 @@ export default function AskBox({ script }) {
             ))}
           </div>
           {answer.mode === "demo" && (
-            <p className="askbox-note">
-              ※ これは台本をもとにしたデモ回答です。本番では本物のAIが、もっと自然に答えます。
+            <p className="askbox-demo">
+              （デモ回答：台本データをもとに端末内で作成。本番では本物のAIが答えます）
             </p>
           )}
+          <p className="askbox-note">
+            ※ AIの回答は台本をもとにした参考情報です。正確でない場合があります。
+            最終的なルールは、各ゲームの公式説明書をご確認ください。
+          </p>
         </div>
       )}
     </section>

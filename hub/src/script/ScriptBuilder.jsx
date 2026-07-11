@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import IconPicker from "../summary/IconPicker.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { MECHANICS } from "./mechanics.js";
@@ -14,6 +15,7 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
   const [pickerRow, setPickerRow] = useState(null);
   const [theme, setTheme] = useState(0); // 表示中のテーマ（並び順のインデックス）
   const [editOrder, setEditOrder] = useState(false);
+  const [agreed, setAgreed] = useState(false); // 投稿規約への同意（法務対応）
 
   const set = (key, value) => setForm((f) => ({ ...f, [key]: value }));
 
@@ -84,7 +86,7 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
   const canSave = isComplete(form);
 
   const handleSave = () => {
-    if (!canSave) return;
+    if (!canSave || !agreed) return;
     const pmin = parseInt(form.playersMin, 10);
     const pmax = parseInt(form.playersMax, 10);
     const players =
@@ -112,6 +114,7 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
     setForm(emptyScript());
     setPickerRow(null);
     setTheme(0);
+    setAgreed(false);
   };
 
   // 1セクションの入力欄を描画
@@ -377,13 +380,35 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
         </button>
       </div>
 
-      <button className="savebtn" onClick={handleSave} disabled={!canSave}>
+      <label className="agree">
+        <input
+          type="checkbox"
+          checked={agreed}
+          onChange={(e) => setAgreed(e.target.checked)}
+        />
+        <span className="agree-text">
+          この台本は<b>自分の言葉で書いたオリジナル</b>で、公式説明書などの文章・図・
+          画像を転載していません。第三者の権利を侵害しないこと、運営がこの投稿を掲載・
+          表示できることに同意します（
+          <Link to="/terms">利用規約</Link>）。
+        </span>
+      </label>
+
+      <button
+        className="savebtn"
+        onClick={handleSave}
+        disabled={!canSave || !agreed}
+      >
         この台本を保存
       </button>
-      {!canSave && (
+      {!canSave ? (
         <p className="hint">
           全ての項目に入力してください（未入力のタブに印がつきます・一言でもOK）。
         </p>
+      ) : (
+        !agreed && (
+          <p className="hint">保存するには、上のチェックにご同意ください。</p>
+        )
       )}
     </div>
   );

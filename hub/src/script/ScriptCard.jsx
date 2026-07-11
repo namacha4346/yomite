@@ -161,6 +161,11 @@ export default function ScriptCard({
             削除
           </button>
         )}
+        {!official && (
+          <Link className="linkbtn scard-report" to="/rights" title="権利侵害の報告">
+            権利侵害を報告
+          </Link>
+        )}
       </footer>
 
       {showComments && (

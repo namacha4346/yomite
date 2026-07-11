@@ -86,7 +86,7 @@ export default function Home() {
           AIに質問
         </span>
         <span className="ai-teaser-text">
-          ルールでモメたら、その場でAIに聞ける。台本を開いて質問できます。
+          ルールで迷ったら、台本をもとにAIに聞ける（回答は参考情報。最終判断は公式説明書で）。
         </span>
         <span className="ai-teaser-arrow" aria-hidden="true">
           <Icon name="arrow" />
