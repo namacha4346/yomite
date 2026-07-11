@@ -84,7 +84,7 @@ export default function Learn() {
       <span className="page-hurdle">インストのハードル</span>
       <h1 className="page-title">教わる／教える</h1>
       <p className="page-lead">
-        運営がつくったインスト台本を、そのまま使える。台本には遊ぶとき用の早見表（サマリー）も付いてくる。
+        運営がつくったインスト台本を、登録なしでそのまま使える。台本には遊ぶとき用の早見表（サマリー）も付いてくる。
       </p>
 
       <div className="tabs">
