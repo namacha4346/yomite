@@ -2264,6 +2264,7 @@ a {
 .hero-cta-btn {
   display: inline-block;
   background: var(--learn);
+  text-wrap: balance;
 }
 
 /* --- 注目のゲーム帯 --- */
@@ -2820,9 +2821,20 @@ body::before {
 .header {
   border-bottom: 1px solid var(--border);
 }
+/* キーボード操作時のフォーカスを必ず見えるように（アクセシビリティ） */
+:focus-visible {
+  outline: 2px solid var(--learn);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+/* 折り返し時に途中で割れてほしくない語句を束ねる小道具 */
+.nowrap {
+  white-space: nowrap;
+}
 .logo-text {
   font-weight: 800;
   letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 .logo-pill {
   font-size: 10px;
@@ -2837,6 +2849,8 @@ body::before {
 .acct-login {
   padding: 6px 14px;
   font-size: 12.5px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 /* ---- 9. 詳細タブ（早見表など）を軽い下線タブに ---- */
@@ -2849,6 +2863,9 @@ body::before {
   overscroll-behavior: contain;
   scrollbar-width: none;
   border-bottom: 1px solid var(--border);
+  /* 右端をうっすらフェード＝「まだ横にタブがある」ことを示す手掛かり */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
 }
 .face-switch::-webkit-scrollbar {
   display: none;
@@ -3691,7 +3708,7 @@ body::before {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   padding: 8px 10px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -3708,9 +3725,10 @@ body::before {
   font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
-  padding: 6px 10px;
+  padding: 8px 12px;
   cursor: pointer;
-  min-width: 34px;
+  min-width: 40px;
+  min-height: 44px; /* 指で押しやすいタップ領域（誤タップ防止） */
 }
 .lt-btn.is-on {
   background: var(--learn);
@@ -3765,7 +3783,6 @@ body::before {
   resize: vertical;
 }
 .lt-text:focus {
-  outline: none;
   border-color: var(--learn);
 }
 
@@ -3800,6 +3817,7 @@ body::before {
   box-shadow: var(--e1);
   overflow: hidden;
   touch-action: none; /* ドラッグでスクロールしないように */
+  container-type: inline-size; /* 中の文字サイズを cqw で幅に比例させる（スマホでも崩れない） */
 }
 .lbox {
   position: absolute;
@@ -3833,6 +3851,13 @@ body::before {
   border: 2px solid #fff;
   border-radius: 50%;
   cursor: ew-resize;
+  touch-action: none;
+}
+/* 見た目は小さいまま、指の当たり判定だけ広げる（掴みやすく） */
+.lbox-resize::before {
+  content: "";
+  position: absolute;
+  inset: -15px;
 }
 
 /* プレビュー（編集UIを隠した仕上がり表示） */

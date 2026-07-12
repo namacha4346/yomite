@@ -94,6 +94,7 @@ export default function ScriptCard({
   const [tab, setTab] = useState(order[0]);
   const [focusTerm, setFocusTerm] = useState(null); // 専門用語タブで注目する語
   const termsRef = useRef(null);
+  const tablistRef = useRef(null); // 横スクロールするタブ列
   const { gameTitle, official, players, time } = script;
   const summary = deriveSummary(script);
   const activeTheme = THEMES.find((t) => t.id === tab);
@@ -103,6 +104,12 @@ export default function ScriptCard({
     setTab("terms");
     setFocusTerm(id);
   };
+
+  // 選択中のタブが画面外（横スクロールの先）なら、見える位置へ寄せる
+  useEffect(() => {
+    const el = tablistRef.current?.querySelector('[aria-selected="true"]');
+    el?.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }, [tab]);
 
   // 専門用語タブに切り替わったら、対象の語までスクロール＆ハイライト
   useEffect(() => {
@@ -142,7 +149,7 @@ export default function ScriptCard({
         {official && <span className="scard-official">運営</span>}
       </header>
 
-      <div className="face-switch" role="tablist" aria-label="台本のテーマ">
+      <div className="face-switch" role="tablist" aria-label="台本のテーマ" ref={tablistRef}>
         {tabs.map((t) => (
           <button
             key={t.id}

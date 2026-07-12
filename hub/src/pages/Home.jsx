@@ -49,7 +49,9 @@ export default function Home() {
         </p>
         <div className="hero-cta">
           <Link to="/discover" className="btn btn--primary hero-cta-btn">
-            はじめての人は「ぴったり診断」から
+            {/* 折り返しても「ぴったり診断」の途中で割れないように束ねる */}
+            <span className="nowrap">はじめての人は</span>
+            <span className="nowrap">「ぴったり診断」から</span>
             <Icon name="arrow" />
           </Link>
         </div>

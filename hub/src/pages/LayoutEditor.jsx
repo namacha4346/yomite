@@ -25,6 +25,10 @@ function estHeightPct(text, wPercent, size) {
   return (px / CANVAS_H) * 100;
 }
 
+// 設計幅(560px)基準のpxを、キャンバス幅に比例する cqw に変換する。
+// これでスマホ幅でも文字が幅に応じて縮み、折り返し行数＝重なりが変わらない。
+const cqw = (px) => (px / CANVAS_W) * 100 + "cqw";
+
 // 表面：タイトル＋手番でできること＋終了条件
 function frontBoxes(s) {
   const boxes = [];
@@ -216,7 +220,7 @@ export default function LayoutEditor() {
                 left: b.x + "%",
                 top: b.y + "%",
                 width: b.w + "%",
-                fontSize: b.size + "px",
+                fontSize: cqw(b.size),
                 fontWeight: b.bold ? 800 : 400,
                 textAlign: b.align,
               }}
@@ -225,8 +229,8 @@ export default function LayoutEditor() {
               <div
                 className="lbox-text"
                 style={{
-                  paddingLeft: (b.indent || 0) + (b.hang || 0) + "px",
-                  textIndent: -(b.hang || 0) + "px",
+                  paddingLeft: cqw((b.indent || 0) + (b.hang || 0)),
+                  textIndent: cqw(-(b.hang || 0)),
                 }}
               >
                 {b.text || "　"}
