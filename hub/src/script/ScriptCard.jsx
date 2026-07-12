@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import SummaryCard from "../summary/SummaryCard.jsx";
 import LikeButton from "../social/LikeButton.jsx";
@@ -26,8 +26,8 @@ function AuthorLabel({ script }) {
   return <>インスト台本・作者 みんな</>;
 }
 
-// 台本の1セクションを描画
-function renderSection(sec, script) {
+// 台本の1セクションを描画（gameId・onGameTerm は用語リンク用）
+function renderSection(sec, script, gameId, onGameTerm) {
   return (
     <section className="sec-block" key={sec.key}>
       <h4 className="sec-label">{sec.label}</h4>
@@ -35,7 +35,7 @@ function renderSection(sec, script) {
         <ol className="sec-list">
           {(script.turn || []).filter(Boolean).map((t, i) => (
             <li key={i}>
-              <GlossaryText text={t} />
+              <GlossaryText text={t} gameId={gameId} onGameTerm={onGameTerm} />
             </li>
           ))}
         </ol>
@@ -52,7 +52,11 @@ function renderSection(sec, script) {
         </ul>
       ) : (
         <p className="sec-text">
-          <GlossaryText text={script[sec.key]} />
+          <GlossaryText
+            text={script[sec.key]}
+            gameId={gameId}
+            onGameTerm={onGameTerm}
+          />
         </p>
       )}
     </section>
@@ -74,12 +78,36 @@ export default function ScriptCard({
   // 台本に保存された「作者が決めた教える順番」で表示（無ければ公式順）
   const order = normalizeThemeOrder(script.themeOrder);
   const orderedThemes = order.map((id) => THEMES.find((t) => t.id === id));
-  const tabs = [...orderedThemes, { id: "summary", label: "早見表" }];
+  const terms = gameTerms(script.id); // このゲームだけの専用用語
+  const tabs = [
+    ...orderedThemes,
+    { id: "summary", label: "早見表" },
+    ...(terms.length > 0 ? [{ id: "terms", label: "専門用語" }] : []),
+  ];
 
   const [tab, setTab] = useState(order[0]);
+  const [focusTerm, setFocusTerm] = useState(null); // 専門用語タブで注目する語
+  const termsRef = useRef(null);
   const { gameTitle, official } = script;
   const summary = deriveSummary(script);
   const activeTheme = THEMES.find((t) => t.id === tab);
+
+  // 本文の専用用語リンクから「専門用語」タブへ飛ぶ
+  const goToTerm = (id) => {
+    setTab("terms");
+    setFocusTerm(id);
+  };
+
+  // 専門用語タブに切り替わったら、対象の語までスクロール＆ハイライト
+  useEffect(() => {
+    if (tab !== "terms" || !focusTerm || !termsRef.current) return;
+    const el = termsRef.current.querySelector(`[data-term="${focusTerm}"]`);
+    if (!el) return;
+    el.scrollIntoView({ block: "center" });
+    el.classList.add("term-hit");
+    const t = setTimeout(() => el.classList.remove("term-hit"), 1600);
+    return () => clearTimeout(t);
+  }, [tab, focusTerm]);
 
   return (
     <article className="scriptcard">
@@ -112,33 +140,35 @@ export default function ScriptCard({
           {/* 帯なしの埋め込み表示（印刷は下のフッターから） */}
           <SummaryCard summary={summary} embedded />
         </div>
+      ) : tab === "terms" ? (
+        <div className="script-body">
+          <div className="terms-tab" ref={termsRef}>
+            <p className="terms-tab-lead">
+              このゲームだけで使う言い回し・名詞です。本文中の色つきの語からも飛べます。
+            </p>
+            <dl className="game-terms-list">
+              {terms.map((t) => (
+                <div className="game-term" data-term={t.id} key={t.id}>
+                  <dt className="game-term-word">
+                    {t.term}
+                    {t.aliases && t.aliases.length > 0 && (
+                      <span className="game-term-alias">
+                        （{t.aliases.join("・")}）
+                      </span>
+                    )}
+                  </dt>
+                  <dd className="game-term-def">{t.def}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
       ) : (
         <div className="script-body">
           {SECTIONS.filter((s) => activeTheme.keys.includes(s.key)).map((sec) =>
-            renderSection(sec, script)
+            renderSection(sec, script, script.id, goToTerm)
           )}
         </div>
-      )}
-
-      {gameTerms(script.id).length > 0 && (
-        <section className="game-terms">
-          <h4 className="game-terms-h">このゲームの用語</h4>
-          <dl className="game-terms-list">
-            {gameTerms(script.id).map((t) => (
-              <div className="game-term" key={t.id}>
-                <dt className="game-term-word">
-                  {t.term}
-                  {t.aliases && t.aliases.length > 0 && (
-                    <span className="game-term-alias">
-                      （{t.aliases.join("・")}）
-                    </span>
-                  )}
-                </dt>
-                <dd className="game-term-def">{t.def}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
       )}
 
       <AskBox script={script} />

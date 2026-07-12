@@ -3591,3 +3591,27 @@ body::before {
   line-height: 1.7;
   color: var(--ink);
 }
+
+/* ---- 専門用語タブ／本文のゲーム専用用語リンク ---- */
+.term-link--game {
+  font: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.terms-tab-lead {
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+.game-term {
+  scroll-margin-top: 70px;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+}
+.game-term.term-hit {
+  background: color-mix(in srgb, var(--learn) 8%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--learn) 8%, transparent);
+}

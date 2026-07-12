@@ -200,16 +200,28 @@ export function gameTerms(gameId) {
   return GLOSSARY.filter((g) => g.game === gameId);
 }
 
-// 本文の自動リンク用マッチャー：一般用語のうち link: true のものだけ。
-// （ゲーム専用用語は台本の後ろで説明するので、本文リンクはしない）
+// 本文の自動リンク用マッチャー（一般用語のうち link: true のもの）。kind: "general"＝辞典へ。
 export const MATCHERS = GENERAL.filter((g) => g.link !== false)
-  .flatMap((g) => [g.term, ...(g.aliases || [])].map((t) => ({ id: g.id, t })))
+  .flatMap((g) =>
+    [g.term, ...(g.aliases || [])].map((t) => ({ id: g.id, t, kind: "general" }))
+  )
   .sort((a, b) => b.t.length - a.t.length);
 
-// テキストを { text } / { id, text } のセグメント配列にする。
+// あるゲームのマッチャー：一般用語（辞典へ）＋そのゲームの専用用語（kind:"game"＝専門用語タブへ）。
+// 長い語を優先してマッチさせる。
+function matchersFor(gameId) {
+  const game = gameTerms(gameId).flatMap((g) =>
+    [g.term, ...(g.aliases || [])].map((t) => ({ id: g.id, t, kind: "game" }))
+  );
+  return [...game, ...MATCHERS].sort((a, b) => b.t.length - a.t.length);
+}
+
+// テキストを { text } / { id, kind, text } のセグメント配列にする。
 // 各用語は、その文中で「初出の1回だけ」リンク対象にする（貼りすぎ防止）。
-export function linkify(text) {
+// gameId を渡すと、そのゲームの専用用語（kind:"game"）もリンク対象になる。
+export function linkify(text, gameId) {
   const s = String(text || "");
+  const matchers = gameId ? matchersFor(gameId) : MATCHERS;
   const used = new Set();
   const parts = [];
   const pushText = (ch) => {
@@ -220,7 +232,7 @@ export function linkify(text) {
   let i = 0;
   while (i < s.length) {
     let hit = null;
-    for (const m of MATCHERS) {
+    for (const m of matchers) {
       if (used.has(m.id)) continue;
       if (s.startsWith(m.t, i)) {
         hit = m;
@@ -228,7 +240,7 @@ export function linkify(text) {
       }
     }
     if (hit) {
-      parts.push({ id: hit.id, text: s.substr(i, hit.t.length) });
+      parts.push({ id: hit.id, kind: hit.kind, text: s.substr(i, hit.t.length) });
       used.add(hit.id);
       i += hit.t.length;
     } else {
