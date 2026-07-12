@@ -259,7 +259,7 @@ function Browse({
             className="linkbtn back-catalog"
             onClick={() => setOpenId(null)}
           >
-            {selectedGame ? "← 台本一覧にもどる" : "← ゲーム一覧にもどる"}
+            {selectedGame ? "← 台本一覧に戻る" : "← ゲーム一覧に戻る"}
           </button>
           <ScriptCard
             script={open}
@@ -294,7 +294,7 @@ function Browse({
             className="linkbtn back-catalog"
             onClick={() => setSelectedGame(null)}
           >
-            ← ゲーム一覧にもどる
+            ← ゲーム一覧に戻る
           </button>
 
           <div className="variants-head">

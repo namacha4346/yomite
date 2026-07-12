@@ -15,14 +15,14 @@ export default function GameIntro() {
     return (
       <div className="page page--discover">
         <h1 className="page-title">ゲームが見つかりません</h1>
-        <Link to="/discover" className="page-back">← 診断にもどる</Link>
+        <Link to="/discover" className="page-back">← 診断に戻る</Link>
       </div>
     );
   }
 
   return (
     <div className="page page--discover">
-      <Link to="/discover" className="page-back gi-back">← 診断にもどる</Link>
+      <Link to="/discover" className="page-back gi-back">← 診断に戻る</Link>
 
       {/* ヒーロー */}
       <div className="gi-hero">

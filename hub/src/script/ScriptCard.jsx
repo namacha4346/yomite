@@ -163,7 +163,7 @@ export default function ScriptCard({
           {official && (
             <div className="summary-tools">
               <Link className="linkbtn" to={`/layout?script=${script.id}`}>
-                ✎ 自由にレイアウトして印刷（試作・PRO）
+                ✎ 自分だけの早見表をつくって印刷（PRO）
               </Link>
             </div>
           )}

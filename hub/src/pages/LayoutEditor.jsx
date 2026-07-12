@@ -11,26 +11,38 @@ import { gameColor } from "../ui/gameColor.js";
 const uid = () => Math.random().toString(36).slice(2, 9);
 const KEY = (id) => `bgh:layout:${id || "default"}`;
 
+// 初期レイアウトを縦に積むとき、テキストの長さ・幅・文字サイズから
+// おおよその高さ（キャンバス比の％）を見積もる。折り返す長い項目が
+// 下のボックスと重ならないように、次のyをこのぶん進める。
+// （A4縦・幅560px相当を基準にした概算。あくまで初期配置用。）
+const CANVAS_W = 560;
+const CANVAS_H = CANVAS_W * 1.414;
+function estHeightPct(text, wPercent, size) {
+  const boxW = CANVAS_W * (wPercent / 100);
+  const perLine = Math.max(1, Math.floor(boxW / (size * 0.95))); // 1行に入る全角字数の概算
+  const lines = Math.max(1, Math.ceil((text || "").length / perLine));
+  const px = lines * size * 1.5; // line-height 1.5
+  return (px / CANVAS_H) * 100;
+}
+
 // 表面：タイトル＋手番でできること＋終了条件
 function frontBoxes(s) {
   const boxes = [];
   let y = 4;
-  const add = (x, w, size, bold, text, hang = 0) => {
+  // add したテキストの見積もり高さ＋余白ぶん、自動で次のyを進める（重なり防止）
+  const add = (x, w, size, bold, text, hang = 0, gap = 1.6) => {
     boxes.push({ id: uid(), x, y, w, size, bold, align: "left", indent: 0, hang, text });
+    y += estHeightPct(text, w, size) + gap;
   };
-  add(6, 88, 24, true, s.gameTitle || "（無題）");
-  y += 9;
-  add(6, 88, 16, true, "手番でできること");
-  y += 6;
+  add(6, 88, 24, true, s.gameTitle || "（無題）", 0, 3);
+  add(6, 88, 16, true, "手番でできること", 0, 1);
   // 番号つき項目は、折り返し行が本文の頭にそろうよう既定でぶら下げをつける
   (s.turn || []).filter(Boolean).forEach((t, i) => {
-    add(8, 84, 12, false, `${i + 1}. ${t}`, 20);
-    y += 11;
+    add(8, 84, 12, false, `${i + 1}. ${t}`, 20, 2.4);
   });
-  y += 2;
-  add(6, 88, 16, true, "終了条件");
-  y += 6;
-  add(8, 84, 12, false, s.end || "", 0);
+  y += 2; // 終了条件の前に余白
+  add(6, 88, 16, true, "終了条件", 0, 1);
+  add(8, 84, 12, false, s.end || "");
   return boxes;
 }
 
@@ -38,18 +50,16 @@ function frontBoxes(s) {
 function backBoxes(s) {
   const boxes = [];
   let y = 4;
-  const add = (x, w, size, bold, text, hang = 0) => {
+  const add = (x, w, size, bold, text, hang = 0, gap = 1.6) => {
     boxes.push({ id: uid(), x, y, w, size, bold, align: "left", indent: 0, hang, text });
+    y += estHeightPct(text, w, size) + gap;
   };
-  add(6, 88, 22, true, s.gameTitle || "（無題）");
-  y += 8;
+  add(6, 88, 22, true, s.gameTitle || "（無題）", 0, 3);
   const icons = (s.icons || []).filter((g) => g.icon || g.meaning);
   if (icons.length) {
-    add(6, 88, 16, true, "アイコン早見表");
-    y += 6;
+    add(6, 88, 16, true, "アイコン早見表", 0, 1);
     icons.forEach((g) => {
-      add(8, 84, 11, false, `${g.icon} ${g.meaning}`, 20);
-      y += 6;
+      add(8, 84, 11, false, `${g.icon} ${g.meaning}`, 20, 1.6);
     });
   } else {
     add(6, 88, 13, false, "（ここに裏面の内容を追加できます）");
@@ -242,7 +252,7 @@ export default function LayoutEditor() {
       {preview ? (
         <div className="layout-previewbar">
           <button className="lt-btn" onClick={() => setPreview(false)}>
-            ← 編集にもどる
+            ← 編集に戻る
           </button>
           <span className="layout-previewbar-label">仕上がりプレビュー（表・裏）</span>
           <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
@@ -251,10 +261,10 @@ export default function LayoutEditor() {
         <div className="layout-ui">
           <div className="layout-head">
             <Link to={`/learn?script=${id}`} className="page-back">
-              ← 台本にもどる
+              ← 台本に戻る
             </Link>
             <span className="layout-title">
-              レイアウト編集（試作・PRO）— {script.gameTitle}
+              早見表を自分好みに（PRO）— {script.gameTitle}
             </span>
           </div>
 
