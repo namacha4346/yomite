@@ -101,8 +101,16 @@ export default function LayoutEditor() {
   const [face, setFace] = useState("front"); // 編集中の面
   const [sel, setSel] = useState(null);
   const [preview, setPreview] = useState(false); // 編集UIを隠した仕上がり表示
+  const [undo, setUndo] = useState(null); // { faces, label } 破壊的操作の取り消し用
   const canvasRef = useRef(null);
   const drag = useRef(null);
+
+  // 取り消しバーは数秒で自動的に消す
+  useEffect(() => {
+    if (!undo) return;
+    const t = setTimeout(() => setUndo(null), 6000);
+    return () => clearTimeout(t);
+  }, [undo]);
 
   const boxes = faces[face];
   // 現在の面だけを更新する setBoxes 互換ラッパー
@@ -174,11 +182,19 @@ export default function LayoutEditor() {
     ]);
   const delBox = () => {
     if (!sel) return;
+    setUndo({ faces, label: "1個削除しました" }); // 直前の状態を控えておく
     setBoxes((bs) => bs.filter((b) => b.id !== sel));
     setSel(null);
   };
   const reset = () => {
+    setUndo({ faces, label: `${FACE_LABEL[face]}面を初期状態に戻しました` });
     setFaces((f) => ({ ...f, [face]: face === "front" ? frontBoxes(script) : backBoxes(script) }));
+    setSel(null);
+  };
+  const doUndo = () => {
+    if (!undo) return;
+    setFaces(undo.faces); // 控えておいた状態に丸ごと戻す
+    setUndo(null);
     setSel(null);
   };
   const doPrint = () => {
@@ -290,10 +306,10 @@ export default function LayoutEditor() {
             <button className="lt-btn" onClick={addBox}>＋テキスト</button>
             <button className="lt-btn lt-preview" onClick={openPreview}>プレビュー</button>
             <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
-            <button className="lt-btn" onClick={reset}>この面をリセット</button>
-            <span className="lt-sep" aria-hidden="true" />
+            <button className="lt-btn lt-weak" onClick={reset}>この面をリセット</button>
             {selBox ? (
               <>
+                <span className="lt-sep" aria-hidden="true" />
                 <button className="lt-btn" onClick={() => update(sel, { size: Math.max(9, selBox.size - 1) })}>A−</button>
                 <span className="lt-size">{selBox.size}px</span>
                 <button className="lt-btn" onClick={() => update(sel, { size: Math.min(48, selBox.size + 1) })}>A＋</button>
@@ -333,6 +349,13 @@ export default function LayoutEditor() {
       <div className="layout-stage">
         {["front", "back"].map((s) => renderCanvas(s))}
       </div>
+
+      {undo && !preview && (
+        <div className="lt-undo" role="status">
+          <span className="lt-undo-msg">{undo.label}</span>
+          <button className="lt-undo-btn" onClick={doUndo}>元に戻す</button>
+        </div>
+      )}
     </div>
   );
 }

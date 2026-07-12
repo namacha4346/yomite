@@ -8,7 +8,7 @@
   --surface: #fffdf8;     /* カードなどの面 */
   --ink: #2d2923;         /* メイン文字 */
   --text: #2d2923;        /* 文字 */
-  --text-soft: #7a7165;   /* サブ文字 */
+  --text-soft: #6b6256;   /* サブ文字（AA 4.5:1 を満たすよう一段濃く） */
   --border: #e2d6c3;      /* 線・区切り */
   --grid: rgba(67, 48, 33, 0.05); /* 盤面のうっすらグリッド */
 
@@ -2863,9 +2863,9 @@ body::before {
   overscroll-behavior: contain;
   scrollbar-width: none;
   border-bottom: 1px solid var(--border);
-  /* 右端をうっすらフェード＝「まだ横にタブがある」ことを示す手掛かり */
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
-  mask-image: linear-gradient(to right, #000 calc(100% - 22px), transparent);
+  /* 右端をフェード＝「まだ横にタブがある」ことを示す手掛かり */
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent);
 }
 .face-switch::-webkit-scrollbar {
   display: none;
@@ -3176,7 +3176,6 @@ body::before {
   margin: 6px 0 0;
   font-size: 11px;
   color: var(--text-soft);
-  opacity: 0.85;
 }
 
 /* ---- このサイトについて（免責・権利者向け） ---- */
@@ -3729,6 +3728,7 @@ body::before {
   cursor: pointer;
   min-width: 40px;
   min-height: 44px; /* 指で押しやすいタップ領域（誤タップ防止） */
+  white-space: nowrap;
 }
 .lt-btn.is-on {
   background: var(--learn);
@@ -3743,6 +3743,13 @@ body::before {
 .lt-btn.lt-del {
   color: #b0503f;
   border-color: #e0b7ae;
+}
+/* 破壊的操作（リセット）は主操作より弱い見た目にして誤タップを減らす */
+.lt-btn.lt-weak {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-soft);
+  font-weight: 600;
 }
 .lt-size {
   font-size: 12px;
@@ -3889,6 +3896,75 @@ body::before {
 .layout-canvas.is-preview .lbox {
   cursor: default;
   border-color: transparent;
+}
+
+/* 取り消しバー（リセット・削除のあとに数秒出る安全弁） */
+.lt-undo {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px 10px 16px;
+  background: var(--ink);
+  color: #fff;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lift);
+  z-index: 40;
+  max-width: calc(100vw - 24px);
+}
+.lt-undo-msg {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.lt-undo-btn {
+  flex: 0 0 auto;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 8px 14px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.lt-undo-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+/* スマホでは編集ツールバーを画面下（親指の届く位置）に固定する */
+@media (max-width: 640px) {
+  .layout-toolbar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 14px 14px 0 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    z-index: 30;
+    box-shadow: 0 -3px 14px rgba(60, 44, 20, 0.14);
+  }
+  .layout-toolbar::-webkit-scrollbar {
+    display: none;
+  }
+  /* 横スクロールの1列なので、子は縮ませない（文字が縦に割れないように） */
+  .layout-toolbar > * {
+    flex: 0 0 auto;
+  }
+  .layout-page:not(.is-preview) {
+    /* 固定ツールバーの高さぶん、ページ下に余白を確保（キャンバスが隠れないように） */
+    padding-bottom: 84px;
+  }
+  .lt-undo {
+    bottom: 84px; /* 下部固定ツールバーと重ならない位置に */
+  }
 }
 
 /* 印刷：両面を1ページずつ、紙いっぱいに出す（UI・選択枠は消す） */
