@@ -782,36 +782,59 @@ a {
     width: 100%;
   }
 
-  /* 紙の上でも装飾を活かす（色はプリンタに反映させる） */
+  /* 外側のカード枠・帯・切替UI・ボタンは使わず、各面を独立したカードにする */
   .print-sheet .scard {
-    border: 1px solid #999;
+    border: none;
     box-shadow: none;
+    background: transparent;
   }
-  .print-sheet .scard-title {
-    font-size: 21px;
+  .print-sheet .scard-band,
+  .print-sheet .face-switch,
+  .print-sheet .scard-foot {
+    display: none;
+  }
+  .print-sheet .scard-body {
+    padding: 0;
   }
   .print-sheet .step-text {
     font-size: 15px;
   }
-  /* 印刷では面の切替UIは出さず、両面とも印刷する */
-  .print-sheet .face-switch {
-    display: none;
-  }
+
+  /* 各面＝1枚の完結したカード（表・裏で対称）。ページごとにきれいに分ける */
+  .print-sheet .scard-face,
   .print-sheet .scard-face.is-hidden-screen {
     display: block;
+    border: 1px solid #d7cfc0;
+    border-radius: 14px;
+    overflow: hidden;
+    padding: 0 22px 22px;
+    break-inside: avoid;
   }
-  /* 裏面は新しいページに（両面印刷で表裏になる） */
   .print-sheet .scard-face + .scard-face {
     break-before: page;
-    border-top: none;
   }
-  /* 2枚目（裏面）だけ、面ラベルの横にゲーム名を出す（1枚目は帯にある） */
-  .print-sheet .scard-face + .scard-face .face-gametitle {
+
+  /* 面ごとのヘッダー＝ゲーム色の帯（ゲーム名＋表/裏）。両面に同じ体裁で出す */
+  .print-sheet .face-head {
+    margin: 0 -22px 18px;
+    padding: 13px 22px;
+    background: var(--ac);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .print-sheet .face-badge {
+    background: rgba(255, 255, 255, 0.24);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    color: #fff;
+    font-size: 12px;
+  }
+  .print-sheet .face-gametitle {
     display: inline;
-  }
-  /* 印刷では削除/印刷ボタンは出さない（そもそも onDelete/onPrint 無しで描画） */
-  .print-sheet .scard-foot {
-    display: none;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
   }
   .print-foot {
     margin-top: 10px;
