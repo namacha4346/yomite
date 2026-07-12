@@ -15,15 +15,16 @@ const KEY = (id) => `bgh:layout:${id || "default"}`;
 function initialBoxes(s) {
   const boxes = [];
   let y = 4;
-  const add = (x, w, size, bold, text) => {
-    boxes.push({ id: uid(), x, y, w, size, bold, align: "left", text });
+  const add = (x, w, size, bold, text, hang = 0) => {
+    boxes.push({ id: uid(), x, y, w, size, bold, align: "left", indent: 0, hang, text });
   };
   add(6, 88, 24, true, s.gameTitle || "（無題）");
   y += 9;
   add(6, 88, 16, true, "手番でできること");
   y += 6;
+  // 番号つき項目は、折り返し行が本文の頭にそろうよう既定でぶら下げをつける
   (s.turn || []).filter(Boolean).forEach((t, i) => {
-    add(8, 84, 12, false, `${i + 1}. ${t}`);
+    add(8, 84, 12, false, `${i + 1}. ${t}`, 20);
     y += 11;
   });
   y += 2;
@@ -163,6 +164,17 @@ export default function LayoutEditor() {
               <button className={"lt-btn" + (selBox.align === "left" ? " is-on" : "")} onClick={() => update(sel, { align: "left" })}>左</button>
               <button className={"lt-btn" + (selBox.align === "center" ? " is-on" : "")} onClick={() => update(sel, { align: "center" })}>中</button>
               <button className={"lt-btn" + (selBox.align === "right" ? " is-on" : "")} onClick={() => update(sel, { align: "right" })}>右</button>
+              <span className="lt-sep" aria-hidden="true" />
+              <span className="lt-grp">
+                <span className="lt-lbl">字下げ</span>
+                <button className="lt-btn" onClick={() => update(sel, { indent: Math.max(0, (selBox.indent || 0) - 6) })}>−</button>
+                <button className="lt-btn" onClick={() => update(sel, { indent: Math.min(140, (selBox.indent || 0) + 6) })}>＋</button>
+              </span>
+              <span className="lt-grp">
+                <span className="lt-lbl">ぶら下げ</span>
+                <button className="lt-btn" onClick={() => update(sel, { hang: Math.max(0, (selBox.hang || 0) - 6) })}>−</button>
+                <button className="lt-btn" onClick={() => update(sel, { hang: Math.min(140, (selBox.hang || 0) + 6) })}>＋</button>
+              </span>
               <button className="lt-btn lt-del" onClick={delBox}>削除</button>
             </>
           ) : (
@@ -204,7 +216,15 @@ export default function LayoutEditor() {
               }}
               onPointerDown={preview ? undefined : (e) => onDown(e, b, "drag")}
             >
-              <div className="lbox-text">{b.text || "　"}</div>
+              <div
+                className="lbox-text"
+                style={{
+                  paddingLeft: (b.indent || 0) + (b.hang || 0) + "px",
+                  textIndent: -(b.hang || 0) + "px",
+                }}
+              >
+                {b.text || "　"}
+              </div>
               {!preview && b.id === sel && (
                 <span
                   className="lbox-resize"
