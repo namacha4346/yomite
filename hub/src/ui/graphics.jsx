@@ -92,7 +92,9 @@ export function Icon({ name, className = "" }) {
 }
 
 // 共通アイコン集の1個を描画する。
-// value がライブラリの id で svg を持てば線画SVG、無ければ emoji／生の文字（絵文字台本の後方互換）。
+// ・svg を持てば線画SVG（currentColor）
+// ・color を持てば「フラット単色ディスク」（色トークン）
+// ・どちらも無ければ emoji／生の文字（絵文字台本の後方互換）
 export function LibIcon({ value, className = "" }) {
   const it = ICON_BY_ID[value];
   if (it && it.svg) {
@@ -108,6 +110,17 @@ export function LibIcon({ value, className = "" }) {
         aria-hidden="true"
         dangerouslySetInnerHTML={{ __html: it.svg }}
       />
+    );
+  }
+  if (it && it.color) {
+    return (
+      <svg
+        className={"lib-icon lib-token " + className}
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="8" fill={it.color} stroke="rgba(60,44,20,0.24)" strokeWidth="1" />
+      </svg>
     );
   }
   return (
