@@ -186,7 +186,7 @@ function Browse({
   const [players, setPlayers] = useState([]); // 選んだ人数バケツ（空＝すべて）
   const [genre, setGenre] = useState("all");
   const [sort, setSort] = useState("new"); // new | popular
-  const [view, setView] = useState("grid"); // grid（2列）| list（1列）
+  const [view, setView] = useState("grid"); // grid（タイル：スマホ2列/PC3列）| list（リスト：1列）
   const [selectedGame, setSelectedGame] = useState(null); // 選んだゲーム（キー）
   const [openId, setOpenId] = useState(initialOpenId || null); // 開いている台本
 
@@ -462,7 +462,7 @@ function Browse({
             onClick={() => setView("grid")}
             aria-pressed={view === "grid"}
           >
-            2列
+            タイル
           </button>
           <button
             type="button"
@@ -470,7 +470,7 @@ function Browse({
             onClick={() => setView("list")}
             aria-pressed={view === "list"}
           >
-            1列
+            リスト
           </button>
         </div>
       </div>

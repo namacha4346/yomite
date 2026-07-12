@@ -1183,7 +1183,8 @@ a {
 /* タイルのグリッド */
 .tiles {
   display: grid;
-  /* 「2列」ボタンは常にきっちり2列に（PCで勝手に3〜4列にならないように） */
+  /* タイル表示：スマホは2列（下の広い画面用ルールで3列に）。列数は固定して
+     画面幅で勝手に増えないようにする。 */
   grid-template-columns: repeat(2, 1fr);
   gap: 14px;
 }
@@ -2365,9 +2366,9 @@ a {
     max-width: 680px;
     margin-inline: auto;
   }
-  /* 広い画面でも「2列」は2列のまま（タイルが大きくなるだけ） */
+  /* 広い画面（PC・タブレット）は3列に。2列だとタイルが大きくなりすぎるため。 */
   .tiles {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
