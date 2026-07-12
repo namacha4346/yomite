@@ -2460,8 +2460,8 @@ body::before {
 .overview-cover,
 .gi-cover {
   box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.14),
-    inset 0 -22px 34px rgba(0, 0, 0, 0.12);
+    inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+    inset 0 -12px 22px rgba(0, 0, 0, 0.06);
 }
 .tile-emoji {
   font-size: 52px;
@@ -2540,13 +2540,11 @@ body::before {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* 色を全面に均一に。方向のある暗いオーバーレイは弱めて「右端が切れて見える」のを防ぐ */
   background:
-    radial-gradient(118% 100% at 22% 12%, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0) 58%),
-    linear-gradient(152deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.22)),
+    radial-gradient(135% 120% at 30% 20%, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 68%),
     var(--art, #8a7f6c);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1),
-    inset 0 -30px 48px rgba(0, 0, 0, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .art-emblem {
   display: flex;

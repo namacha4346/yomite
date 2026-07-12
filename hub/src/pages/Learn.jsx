@@ -6,6 +6,7 @@ import ScriptCard from "../script/ScriptCard.jsx";
 import GameTile from "../script/GameTile.jsx";
 import { sortMechanics } from "../script/mechanics.js";
 import { Icon } from "../ui/graphics.jsx";
+import { gameColor } from "../ui/gameColor.js";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { listScripts, createScript, removeScript } from "../script/store.js";
 import { likeCount } from "../social/likes.js";
@@ -299,7 +300,7 @@ function Browse({
           <div className="variants-head">
             <span
               className="variants-cover"
-              style={{ background: g.rep.color || "#8a7f6c" }}
+              style={{ background: gameColor(g.rep) }}
               aria-hidden="true"
             >
               {g.rep.coverEmoji || "🎲"}

@@ -1,6 +1,7 @@
 // 統一されたフラットアイコン群とゲームのアートサムネイル。
 // 絵文字を使わず、インラインSVG（線画）でトーンを揃える。
 // 追加ライブラリなし。色は currentColor / CSS 変数で受け渡す。
+import { gameColor } from "./gameColor.js";
 
 const svgProps = {
   viewBox: "0 0 24 24",
@@ -195,8 +196,9 @@ const EMBLEMS = {
 };
 
 // ゲームのアートサムネイル：色のグラデ地＋線画エンブレム。
+// 表紙の色はメカニクスから決める（gameColor）。
 export function GameArt({ game, className = "" }) {
-  const color = (game && game.color) || "#8a7f6c";
+  const color = gameColor(game);
   const emblem = (game && EMBLEMS[game.id]) || EMBLEMS._default;
   return (
     <span className={"art " + className} style={{ "--art": color }} aria-hidden="true">
