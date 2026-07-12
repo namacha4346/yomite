@@ -3772,11 +3772,27 @@ body::before {
 .layout-stage {
   margin-top: 14px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+.layout-sheet {
+  width: min(100%, 560px);
+}
+.layout-sheet-cap {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  text-align: center;
+}
+/* 編集中は選んでいる面だけを画面に出す（印刷では両面出す） */
+.layout-page:not(.is-preview) .layout-sheet.is-inactive {
+  display: none;
 }
 .layout-canvas {
   position: relative;
-  width: min(100%, 560px);
+  width: 100%;
   aspect-ratio: 1 / 1.414; /* A4縦 */
   background: #fff;
   border: 1px solid var(--border);
@@ -3850,26 +3866,48 @@ body::before {
   border-color: transparent;
 }
 
-/* 印刷：キャンバスだけを紙いっぱいに出す（UI・選択枠は消す） */
+/* 印刷：両面を1ページずつ、紙いっぱいに出す（UI・選択枠は消す） */
 @media print {
   .layout-page {
     max-width: none;
     padding: 0;
   }
-  .layout-ui {
+  .layout-ui,
+  .layout-previewbar {
     display: none !important;
   }
   body * {
     visibility: hidden;
   }
-  .layout-canvas,
-  .layout-canvas * {
+  .layout-stage,
+  .layout-stage * {
     visibility: visible;
   }
-  .layout-canvas {
+  .layout-stage {
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
+    margin: 0;
+    gap: 0;
+    display: block;
+  }
+  /* 編集中に隠していた面も印刷では出す */
+  .layout-sheet.is-inactive {
+    display: block !important;
+  }
+  .layout-sheet {
+    width: 100%;
+    break-after: page;
+  }
+  .layout-sheet:last-child {
+    break-after: auto;
+  }
+  .layout-sheet-cap {
+    display: none !important;
+  }
+  .layout-canvas {
+    position: relative;
     width: 100%;
     border: none;
     box-shadow: none;

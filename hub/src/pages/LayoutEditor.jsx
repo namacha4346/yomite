@@ -5,14 +5,14 @@ import { gameColor } from "../ui/gameColor.js";
 
 // 早見表の「自由レイアウト」編集の試作（PRO想定）。
 // パワポのように、テキストボックスをドラッグで移動・幅リサイズ・文字サイズ変更でき、
-// そのまま印刷／PDFにできる。まずは"表面のみ"のプロトタイプ。
+// そのまま印刷／PDFにできる。表・裏の2面を切り替えて編集できる。
 // レイアウトは端末内（localStorage）に自動保存する。
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 const KEY = (id) => `bgh:layout:${id || "default"}`;
 
-// 台本から初期レイアウト（縦に積んだ状態）をつくる
-function initialBoxes(s) {
+// 表面：タイトル＋手番でできること＋終了条件
+function frontBoxes(s) {
   const boxes = [];
   let y = 4;
   const add = (x, w, size, bold, text, hang = 0) => {
@@ -30,9 +30,38 @@ function initialBoxes(s) {
   y += 2;
   add(6, 88, 16, true, "終了条件");
   y += 6;
-  add(8, 84, 12, false, s.end || "");
+  add(8, 84, 12, false, s.end || "", 0);
   return boxes;
 }
+
+// 裏面：タイトル＋アイコン早見表（無ければ案内の1行だけ）
+function backBoxes(s) {
+  const boxes = [];
+  let y = 4;
+  const add = (x, w, size, bold, text, hang = 0) => {
+    boxes.push({ id: uid(), x, y, w, size, bold, align: "left", indent: 0, hang, text });
+  };
+  add(6, 88, 22, true, s.gameTitle || "（無題）");
+  y += 8;
+  const icons = (s.icons || []).filter((g) => g.icon || g.meaning);
+  if (icons.length) {
+    add(6, 88, 16, true, "アイコン早見表");
+    y += 6;
+    icons.forEach((g) => {
+      add(8, 84, 11, false, `${g.icon} ${g.meaning}`, 20);
+      y += 6;
+    });
+  } else {
+    add(6, 88, 13, false, "（ここに裏面の内容を追加できます）");
+  }
+  return boxes;
+}
+
+function initialFaces(s) {
+  return { front: frontBoxes(s), back: backBoxes(s) };
+}
+
+const FACE_LABEL = { front: "表", back: "裏" };
 
 export default function LayoutEditor() {
   const [params] = useSearchParams();
@@ -40,28 +69,43 @@ export default function LayoutEditor() {
   const script = SAMPLE_SCRIPTS.find((s) => s.id === id) || SAMPLE_SCRIPTS[0];
   const ac = gameColor(script);
 
-  const [boxes, setBoxes] = useState(() => {
+  // { front:[...], back:[...] } を端末内に保存。旧形式（配列）は表面として引き継ぐ。
+  const [faces, setFaces] = useState(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(KEY(id)));
-      if (Array.isArray(saved) && saved.length) return saved;
+      if (saved && Array.isArray(saved.front)) {
+        return { front: saved.front, back: Array.isArray(saved.back) ? saved.back : backBoxes(script) };
+      }
+      if (Array.isArray(saved) && saved.length) {
+        return { front: saved, back: backBoxes(script) };
+      }
     } catch {
       /* 壊れていたら初期化 */
     }
-    return initialBoxes(script);
+    return initialFaces(script);
   });
+  const [face, setFace] = useState("front"); // 編集中の面
   const [sel, setSel] = useState(null);
   const [preview, setPreview] = useState(false); // 編集UIを隠した仕上がり表示
   const canvasRef = useRef(null);
   const drag = useRef(null);
 
+  const boxes = faces[face];
+  // 現在の面だけを更新する setBoxes 互換ラッパー
+  const setBoxes = (updater) =>
+    setFaces((f) => ({
+      ...f,
+      [face]: typeof updater === "function" ? updater(f[face]) : updater,
+    }));
+
   // レイアウトを端末内に自動保存
   useEffect(() => {
     try {
-      localStorage.setItem(KEY(id), JSON.stringify(boxes));
+      localStorage.setItem(KEY(id), JSON.stringify(faces));
     } catch {
       /* 保存不可の環境では何もしない */
     }
-  }, [boxes, id]);
+  }, [faces, id]);
 
   const update = (bid, patch) =>
     setBoxes((bs) => bs.map((b) => (b.id === bid ? { ...b, ...patch } : b)));
@@ -105,10 +149,14 @@ export default function LayoutEditor() {
     window.addEventListener("pointerup", onUp);
   };
 
+  const switchFace = (s) => {
+    setSel(null);
+    setFace(s);
+  };
   const addBox = () =>
     setBoxes((bs) => [
       ...bs,
-      { id: uid(), x: 14, y: 12, w: 55, size: 14, bold: false, align: "left", text: "テキスト" },
+      { id: uid(), x: 14, y: 12, w: 55, size: 14, bold: false, align: "left", indent: 0, hang: 0, text: "テキスト" },
     ]);
   const delBox = () => {
     if (!sel) return;
@@ -116,7 +164,7 @@ export default function LayoutEditor() {
     setSel(null);
   };
   const reset = () => {
-    setBoxes(initialBoxes(script));
+    setFaces((f) => ({ ...f, [face]: face === "front" ? frontBoxes(script) : backBoxes(script) }));
     setSel(null);
   };
   const doPrint = () => {
@@ -128,84 +176,32 @@ export default function LayoutEditor() {
     setPreview(true);
   };
 
-  return (
-    <div className={"layout-page" + (preview ? " is-preview" : "")}>
-      {preview ? (
-        <div className="layout-previewbar">
-          <button className="lt-btn" onClick={() => setPreview(false)}>
-            ← 編集にもどる
-          </button>
-          <span className="layout-previewbar-label">仕上がりプレビュー</span>
-          <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
-        </div>
-      ) : (
-      <div className="layout-ui">
-        <div className="layout-head">
-          <Link to={`/learn?script=${id}`} className="page-back">
-            ← 台本にもどる
-          </Link>
-          <span className="layout-title">
-            レイアウト編集（試作・PRO）— {script.gameTitle}
-          </span>
-        </div>
-
-        <div className="layout-toolbar">
-          <button className="lt-btn" onClick={addBox}>＋テキスト</button>
-          <button className="lt-btn lt-preview" onClick={openPreview}>プレビュー</button>
-          <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
-          <button className="lt-btn" onClick={reset}>リセット</button>
-          <span className="lt-sep" aria-hidden="true" />
-          {selBox ? (
-            <>
-              <button className="lt-btn" onClick={() => update(sel, { size: Math.max(9, selBox.size - 1) })}>A−</button>
-              <span className="lt-size">{selBox.size}px</span>
-              <button className="lt-btn" onClick={() => update(sel, { size: Math.min(48, selBox.size + 1) })}>A＋</button>
-              <button className={"lt-btn" + (selBox.bold ? " is-on" : "")} onClick={() => update(sel, { bold: !selBox.bold })}>B</button>
-              <button className={"lt-btn" + (selBox.align === "left" ? " is-on" : "")} onClick={() => update(sel, { align: "left" })}>左</button>
-              <button className={"lt-btn" + (selBox.align === "center" ? " is-on" : "")} onClick={() => update(sel, { align: "center" })}>中</button>
-              <button className={"lt-btn" + (selBox.align === "right" ? " is-on" : "")} onClick={() => update(sel, { align: "right" })}>右</button>
-              <span className="lt-sep" aria-hidden="true" />
-              <span className="lt-grp">
-                <span className="lt-lbl">字下げ</span>
-                <button className="lt-btn" onClick={() => update(sel, { indent: Math.max(0, (selBox.indent || 0) - 6) })}>−</button>
-                <button className="lt-btn" onClick={() => update(sel, { indent: Math.min(140, (selBox.indent || 0) + 6) })}>＋</button>
-              </span>
-              <span className="lt-grp">
-                <span className="lt-lbl">ぶら下げ</span>
-                <button className="lt-btn" onClick={() => update(sel, { hang: Math.max(0, (selBox.hang || 0) - 6) })}>−</button>
-                <button className="lt-btn" onClick={() => update(sel, { hang: Math.min(140, (selBox.hang || 0) + 6) })}>＋</button>
-              </span>
-              <button className="lt-btn lt-del" onClick={delBox}>削除</button>
-            </>
-          ) : (
-            <span className="lt-hint">ボックスをタップで選択 → 移動・幅・文字サイズを変更</span>
-          )}
-        </div>
-
-        {selBox && (
-          <textarea
-            className="lt-text"
-            value={selBox.text}
-            onChange={(e) => update(sel, { text: e.target.value })}
-            placeholder="テキストを入力"
-          />
-        )}
-      </div>
-      )}
-
-      <div className="layout-stage">
+  // 1面のキャンバスを描画（editable のときだけ操作できる）
+  const renderCanvas = (side) => {
+    const editable = !preview && side === face;
+    const active = side === face;
+    return (
+      <div
+        className={"layout-sheet" + (active ? " is-active" : " is-inactive")}
+        key={side}
+      >
+        {preview && <div className="layout-sheet-cap">{FACE_LABEL[side]}面</div>}
         <div
           className={"layout-canvas" + (preview ? " is-preview" : "")}
-          ref={canvasRef}
+          ref={editable ? canvasRef : undefined}
           style={{ "--ac": ac }}
-          onPointerDown={(e) => {
-            if (!preview && e.target === canvasRef.current) setSel(null);
-          }}
+          onPointerDown={
+            editable
+              ? (e) => {
+                  if (e.target === e.currentTarget) setSel(null);
+                }
+              : undefined
+          }
         >
-          {boxes.map((b) => (
+          {faces[side].map((b) => (
             <div
               key={b.id}
-              className={"lbox" + (!preview && b.id === sel ? " is-sel" : "")}
+              className={"lbox" + (editable && b.id === sel ? " is-sel" : "")}
               style={{
                 left: b.x + "%",
                 top: b.y + "%",
@@ -214,7 +210,7 @@ export default function LayoutEditor() {
                 fontWeight: b.bold ? 800 : 400,
                 textAlign: b.align,
               }}
-              onPointerDown={preview ? undefined : (e) => onDown(e, b, "drag")}
+              onPointerDown={editable ? (e) => onDown(e, b, "drag") : undefined}
             >
               <div
                 className="lbox-text"
@@ -225,7 +221,7 @@ export default function LayoutEditor() {
               >
                 {b.text || "　"}
               </div>
-              {!preview && b.id === sel && (
+              {editable && b.id === sel && (
                 <span
                   className="lbox-resize"
                   onPointerDown={(e) => {
@@ -237,6 +233,91 @@ export default function LayoutEditor() {
             </div>
           ))}
         </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className={"layout-page" + (preview ? " is-preview" : "")}>
+      {preview ? (
+        <div className="layout-previewbar">
+          <button className="lt-btn" onClick={() => setPreview(false)}>
+            ← 編集にもどる
+          </button>
+          <span className="layout-previewbar-label">仕上がりプレビュー（表・裏）</span>
+          <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
+        </div>
+      ) : (
+        <div className="layout-ui">
+          <div className="layout-head">
+            <Link to={`/learn?script=${id}`} className="page-back">
+              ← 台本にもどる
+            </Link>
+            <span className="layout-title">
+              レイアウト編集（試作・PRO）— {script.gameTitle}
+            </span>
+          </div>
+
+          <div className="face-switch layout-faces" role="tablist" aria-label="表裏の切替">
+            {["front", "back"].map((s) => (
+              <button
+                key={s}
+                role="tab"
+                aria-selected={s === face}
+                className={"face-switch-btn" + (s === face ? " is-on" : "")}
+                onClick={() => switchFace(s)}
+              >
+                {FACE_LABEL[s]}面
+              </button>
+            ))}
+          </div>
+
+          <div className="layout-toolbar">
+            <button className="lt-btn" onClick={addBox}>＋テキスト</button>
+            <button className="lt-btn lt-preview" onClick={openPreview}>プレビュー</button>
+            <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
+            <button className="lt-btn" onClick={reset}>この面をリセット</button>
+            <span className="lt-sep" aria-hidden="true" />
+            {selBox ? (
+              <>
+                <button className="lt-btn" onClick={() => update(sel, { size: Math.max(9, selBox.size - 1) })}>A−</button>
+                <span className="lt-size">{selBox.size}px</span>
+                <button className="lt-btn" onClick={() => update(sel, { size: Math.min(48, selBox.size + 1) })}>A＋</button>
+                <button className={"lt-btn" + (selBox.bold ? " is-on" : "")} onClick={() => update(sel, { bold: !selBox.bold })}>B</button>
+                <button className={"lt-btn" + (selBox.align === "left" ? " is-on" : "")} onClick={() => update(sel, { align: "left" })}>左</button>
+                <button className={"lt-btn" + (selBox.align === "center" ? " is-on" : "")} onClick={() => update(sel, { align: "center" })}>中</button>
+                <button className={"lt-btn" + (selBox.align === "right" ? " is-on" : "")} onClick={() => update(sel, { align: "right" })}>右</button>
+                <span className="lt-sep" aria-hidden="true" />
+                <span className="lt-grp">
+                  <span className="lt-lbl">字下げ</span>
+                  <button className="lt-btn" onClick={() => update(sel, { indent: Math.max(0, (selBox.indent || 0) - 6) })}>−</button>
+                  <button className="lt-btn" onClick={() => update(sel, { indent: Math.min(140, (selBox.indent || 0) + 6) })}>＋</button>
+                </span>
+                <span className="lt-grp">
+                  <span className="lt-lbl">ぶら下げ</span>
+                  <button className="lt-btn" onClick={() => update(sel, { hang: Math.max(0, (selBox.hang || 0) - 6) })}>−</button>
+                  <button className="lt-btn" onClick={() => update(sel, { hang: Math.min(140, (selBox.hang || 0) + 6) })}>＋</button>
+                </span>
+                <button className="lt-btn lt-del" onClick={delBox}>削除</button>
+              </>
+            ) : (
+              <span className="lt-hint">ボックスをタップで選択 → 移動・幅・文字サイズを変更</span>
+            )}
+          </div>
+
+          {selBox && (
+            <textarea
+              className="lt-text"
+              value={selBox.text}
+              onChange={(e) => update(sel, { text: e.target.value })}
+              placeholder="テキストを入力"
+            />
+          )}
+        </div>
+      )}
+
+      <div className="layout-stage">
+        {["front", "back"].map((s) => renderCanvas(s))}
       </div>
     </div>
   );
