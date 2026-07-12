@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { withSides } from "./model.js";
 import { gameColor } from "../ui/gameColor.js";
+import { LibIcon } from "../ui/graphics.jsx";
 
 // 1つのセクション見出し
 function SecHead({ children }) {
@@ -36,7 +37,7 @@ function renderSection(key, s) {
         <ul className="scard-icons">
           {glossary.map((g, i) => (
             <li key={i} className="gitem">
-              <span className="gitem-ic">{g.icon}</span>
+              <span className="gitem-ic"><LibIcon value={g.icon} /></span>
               <span className="gitem-mean">{g.meaning}</span>
             </li>
           ))}

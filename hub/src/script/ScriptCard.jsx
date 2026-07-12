@@ -5,7 +5,7 @@ import LikeButton from "../social/LikeButton.jsx";
 import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary, normalizeThemeOrder } from "./model.js";
-import { Icon } from "../ui/graphics.jsx";
+import { Icon, LibIcon } from "../ui/graphics.jsx";
 import { gameColor } from "../ui/gameColor.js";
 import { buyUrl } from "../ui/buy.js";
 import AskBox from "../ai/AskBox.jsx";
@@ -55,7 +55,7 @@ function renderSection(sec, script, gameId, onGameTerm) {
             .filter((g) => g.icon || g.meaning)
             .map((g, i) => (
               <li key={i}>
-                <span className="sec-ic">{g.icon}</span>
+                <span className="sec-ic"><LibIcon value={g.icon} /></span>
                 <span>{g.meaning}</span>
               </li>
             ))}

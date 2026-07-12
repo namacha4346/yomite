@@ -723,6 +723,13 @@ a {
   font-size: 15px;
   line-height: 1.45;
 }
+/* 共通アイコン集の線画SVG。周りの font-size に合わせて（絵文字と同じ大きさで）出る */
+.lib-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: middle;
+}
 
 /* ③ 終了条件：ゴール枠 */
 .scard-end {

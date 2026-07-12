@@ -2,6 +2,7 @@
 // 絵文字を使わず、インラインSVG（線画）でトーンを揃える。
 // 追加ライブラリなし。色は currentColor / CSS 変数で受け渡す。
 import { gameColor } from "./gameColor.js";
+import { ICON_BY_ID } from "../summary/icons.js";
 
 const svgProps = {
   viewBox: "0 0 24 24",
@@ -86,6 +87,32 @@ export function Icon({ name, className = "" }) {
   return (
     <span className={"icn " + className} aria-hidden="true">
       {g}
+    </span>
+  );
+}
+
+// 共通アイコン集の1個を描画する。
+// value がライブラリの id で svg を持てば線画SVG、無ければ emoji／生の文字（絵文字台本の後方互換）。
+export function LibIcon({ value, className = "" }) {
+  const it = ICON_BY_ID[value];
+  if (it && it.svg) {
+    return (
+      <svg
+        className={"lib-icon " + className}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+        dangerouslySetInnerHTML={{ __html: it.svg }}
+      />
+    );
+  }
+  return (
+    <span className={"lib-emoji " + className} aria-hidden="true">
+      {(it && it.emoji) || value}
     </span>
   );
 }
