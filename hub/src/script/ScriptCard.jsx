@@ -6,6 +6,7 @@ import Comments from "../social/Comments.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { deriveSummary, normalizeThemeOrder } from "./model.js";
 import { Icon } from "../ui/graphics.jsx";
+import { gameColor } from "../ui/gameColor.js";
 import { buyUrl } from "../ui/buy.js";
 import AskBox from "../ai/AskBox.jsx";
 import GlossaryText from "./GlossaryText.jsx";
@@ -115,7 +116,7 @@ export default function ScriptCard({
   }, [tab, focusTerm]);
 
   return (
-    <article className="scriptcard">
+    <article className="scriptcard" style={{ "--ac": gameColor(script) }}>
       <header className="scard-band">
         <div className="scard-band-main">
           <span className="scard-kicker">
