@@ -71,6 +71,8 @@ export function deriveSummary(s) {
     id: s.id,
     official: s.official,
     gameTitle: s.gameTitle,
+    mechanics: s.mechanics, // 表紙色（gameColor）を計算するために持たせる
+    color: s.color,
     turnActions: (s.turn || []).filter(Boolean),
     endCondition: s.end || "",
     icons: (s.icons || []).filter((g) => g.icon || g.meaning),

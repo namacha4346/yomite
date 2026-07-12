@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { withSides } from "./model.js";
+import { gameColor } from "../ui/gameColor.js";
 
 // 1つのセクション見出し
 function SecHead({ children }) {
@@ -93,7 +94,10 @@ export default function SummaryCard({ summary, onDelete, onPrint, embedded = fal
   const activeSide = faces.some((f) => f.side === active) ? active : faces[0]?.side;
 
   return (
-    <article className={"scard" + (embedded ? " scard--bare" : "")}>
+    <article
+      className={"scard" + (embedded ? " scard--bare" : "")}
+      style={{ "--ac": gameColor(s) }}
+    >
       {/* ヘッダー帯（埋め込み時は出さない＝台本カードの帯と重複しない） */}
       {!embedded && (
         <header className="scard-band">
