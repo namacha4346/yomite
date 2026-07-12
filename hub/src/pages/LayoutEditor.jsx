@@ -49,6 +49,7 @@ export default function LayoutEditor() {
     return initialBoxes(script);
   });
   const [sel, setSel] = useState(null);
+  const [preview, setPreview] = useState(false); // 編集UIを隠した仕上がり表示
   const canvasRef = useRef(null);
   const drag = useRef(null);
 
@@ -121,9 +122,22 @@ export default function LayoutEditor() {
     setSel(null);
     setTimeout(() => window.print(), 60);
   };
+  const openPreview = () => {
+    setSel(null);
+    setPreview(true);
+  };
 
   return (
-    <div className="layout-page">
+    <div className={"layout-page" + (preview ? " is-preview" : "")}>
+      {preview ? (
+        <div className="layout-previewbar">
+          <button className="lt-btn" onClick={() => setPreview(false)}>
+            ← 編集にもどる
+          </button>
+          <span className="layout-previewbar-label">仕上がりプレビュー</span>
+          <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
+        </div>
+      ) : (
       <div className="layout-ui">
         <div className="layout-head">
           <Link to={`/learn?script=${id}`} className="page-back">
@@ -136,6 +150,7 @@ export default function LayoutEditor() {
 
         <div className="layout-toolbar">
           <button className="lt-btn" onClick={addBox}>＋テキスト</button>
+          <button className="lt-btn lt-preview" onClick={openPreview}>プレビュー</button>
           <button className="lt-btn lt-print" onClick={doPrint}>印刷／PDF</button>
           <button className="lt-btn" onClick={reset}>リセット</button>
           <span className="lt-sep" aria-hidden="true" />
@@ -164,20 +179,21 @@ export default function LayoutEditor() {
           />
         )}
       </div>
+      )}
 
       <div className="layout-stage">
         <div
-          className="layout-canvas"
+          className={"layout-canvas" + (preview ? " is-preview" : "")}
           ref={canvasRef}
           style={{ "--ac": ac }}
           onPointerDown={(e) => {
-            if (e.target === canvasRef.current) setSel(null);
+            if (!preview && e.target === canvasRef.current) setSel(null);
           }}
         >
           {boxes.map((b) => (
             <div
               key={b.id}
-              className={"lbox" + (b.id === sel ? " is-sel" : "")}
+              className={"lbox" + (!preview && b.id === sel ? " is-sel" : "")}
               style={{
                 left: b.x + "%",
                 top: b.y + "%",
@@ -186,10 +202,10 @@ export default function LayoutEditor() {
                 fontWeight: b.bold ? 800 : 400,
                 textAlign: b.align,
               }}
-              onPointerDown={(e) => onDown(e, b, "drag")}
+              onPointerDown={preview ? undefined : (e) => onDown(e, b, "drag")}
             >
               <div className="lbox-text">{b.text || "　"}</div>
-              {b.id === sel && (
+              {!preview && b.id === sel && (
                 <span
                   className="lbox-resize"
                   onPointerDown={(e) => {
