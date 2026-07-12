@@ -10,6 +10,7 @@ import About from "./pages/About.jsx";
 import Rights from "./pages/Rights.jsx";
 import Terms from "./pages/Terms.jsx";
 import Privacy from "./pages/Privacy.jsx";
+import Glossary from "./pages/Glossary.jsx";
 import AuthGate from "./pages/AuthGate.jsx";
 import { AuthContext } from "./social/AuthContext.js";
 import { getAccount, saveAccount, clearAccount } from "./social/auth.js";
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/rights" element={<Rights />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/glossary" element={<Glossary />} />
             <Route path="/u/:handle" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>
@@ -117,6 +119,8 @@ export default function App() {
         <footer className="footer">
           <nav className="footer-nav" aria-label="サイト情報">
             <Link to="/about">このサイトについて</Link>
+            <span className="footer-dot" aria-hidden="true">·</span>
+            <Link to="/glossary">用語辞典</Link>
             <span className="footer-dot" aria-hidden="true">·</span>
             <Link to="/terms">利用規約</Link>
             <span className="footer-dot" aria-hidden="true">·</span>

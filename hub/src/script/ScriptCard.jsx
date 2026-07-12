@@ -8,6 +8,7 @@ import { deriveSummary, normalizeThemeOrder } from "./model.js";
 import { Icon } from "../ui/graphics.jsx";
 import { buyUrl } from "../ui/buy.js";
 import AskBox from "../ai/AskBox.jsx";
+import GlossaryText from "./GlossaryText.jsx";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -32,7 +33,9 @@ function renderSection(sec, script) {
       {sec.type === "list" ? (
         <ol className="sec-list">
           {(script.turn || []).filter(Boolean).map((t, i) => (
-            <li key={i}>{t}</li>
+            <li key={i}>
+              <GlossaryText text={t} />
+            </li>
           ))}
         </ol>
       ) : sec.type === "icons" ? (
@@ -47,7 +50,9 @@ function renderSection(sec, script) {
             ))}
         </ul>
       ) : (
-        <p className="sec-text">{script[sec.key]}</p>
+        <p className="sec-text">
+          <GlossaryText text={script[sec.key]} />
+        </p>
       )}
     </section>
   );
