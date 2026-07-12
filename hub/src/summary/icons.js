@@ -1,11 +1,11 @@
 // 運営が用意する「共通アイコン集」。
 // 方針（社長決定）：アイコンは無料/PROで“同じもの”を使う。無料は使える量を限定、PROで全解禁。
-//   → 1つの統一トーンの自作SVGアイコン集を基盤にする（staff-6 デザイン）。
+//   → 1つの統一トーンの自作SVGアイコン集を基盤にする（staff-6 デザイン・第1〜2弾）。
 // スタイル（graphics.jsx の UI と同じ）：viewBox 0 0 24 24・線1色・stroke1.8・角丸・塗りは意味ドットのみ。
 //   svg プロパティ = <svg> の“中身”だけ（親が stroke 等を付ける。塗りドットのみ fill/stroke を明示）。
-// 一部（色トークン等・まだSVG化していない概念）は emoji で暫定運用（色が意味の核なので）。
+// 色トークンだけは「色が意味の核」なので emoji のまま（1色線では色を表せない。丸で統一）。
 //   → 描画は graphics.jsx の <LibIcon value>（svg があれば線画、無ければ emoji/生文字）。
-// id：SVGは英字id、絵文字エントリは絵文字そのものをid（既存の絵文字台本と後方互換）。
+// id：SVGは英字id、絵文字エントリは絵文字そのものをid（既存の絵文字台本と後方互換／自動でSVGに昇格）。
 // pro:false=無料で使える（必須サブセット）、pro:true=PROで解禁。
 //   セットで意味を持つもの（色6色・公開/隠す・得る/支払う）は片方だけ有料にしない。
 
@@ -24,9 +24,12 @@ export const ICON_LIBRARY = [
     svg: `<rect x="6" y="4" width="12" height="16" rx="1.8"/><rect x="8.3" y="6.3" width="7.4" height="11.4" rx="1"/>${d(12,12,1.4)}` },
   { id: "eye", name: "公開／見る", cat: "基本", pro: false,
     svg: `<path d="M3.5 12 C6 7.7 9.3 6 12 6 C14.7 6 18 7.7 20.5 12 C18 16.3 14.7 18 12 18 C9.3 18 6 16.3 3.5 12 Z"/><circle cx="12" cy="12" r="2.6"/>${d(12,12,1)}` },
-  { id: "number", name: "数字／数値", cat: "基本", pro: true, emoji: "🔢" },
-  { id: "topic", name: "お題／テーマ", cat: "基本", pro: true, emoji: "📋" },
-  { id: "random", name: "ランダム／伏せ引き", cat: "基本", pro: true, emoji: "❓" },
+  { id: "number", name: "数字／数値", cat: "基本", pro: true,
+    svg: `<path d="M9.5 5 L7.5 19"/><path d="M16.5 5 L14.5 19"/><path d="M5.5 10 H18.5"/><path d="M5 14 H18"/>` },
+  { id: "topic", name: "お題／テーマ", cat: "基本", pro: true,
+    svg: `<rect x="5.5" y="5" width="13" height="15" rx="2"/><rect x="9" y="3.5" width="6" height="3" rx="1"/><path d="M8.5 11 H15.5"/><path d="M8.5 14.5 H13.5"/>` },
+  { id: "random", name: "ランダム／伏せ引き", cat: "基本", pro: true,
+    svg: `<path d="M8.8 8.8 C8.8 6.4 10.6 5 12.3 5 C14.2 5 15.6 6.3 15.6 8 C15.6 10.6 12 10.6 12 13.2"/>${d(12,17.6,1.3)}` },
 
   // ============ リソース ============
   { id: "cube", name: "資源キューブ", cat: "リソース", pro: false,
@@ -42,10 +45,14 @@ export const ICON_LIBRARY = [
   { id: "⚫", name: "黒トークン", cat: "リソース", pro: false, emoji: "⚫" },
   { id: "barrel", name: "樽／物資", cat: "リソース", pro: true,
     svg: `<path d="M7 5.5 C4.3 9 4.3 15 7 18.5"/><path d="M17 5.5 C19.7 9 19.7 15 17 18.5"/><path d="M7 5.5 H17"/><path d="M7 18.5 H17"/><path d="M5.2 9.5 H18.8"/><path d="M5.2 14.5 H18.8"/>` },
-  { id: "🌾", name: "麦／穀物", cat: "リソース", pro: true, emoji: "🌾" },
-  { id: "🍖", name: "食料（肉）", cat: "リソース", pro: true, emoji: "🍖" },
-  { id: "🌲", name: "木／森", cat: "リソース", pro: true, emoji: "🌲" },
-  { id: "🪨", name: "石／鉱石", cat: "リソース", pro: true, emoji: "🪨" },
+  { id: "🌾", name: "麦／穀物", cat: "リソース", pro: true,
+    svg: `<path d="M12 20 V8.5"/><path d="M12 12 Q15 11.2 16.3 8.3"/><path d="M12 12 Q9 11.2 7.7 8.3"/><path d="M12 9 Q15 8.2 16.3 5.3"/><path d="M12 9 Q9 8.2 7.7 5.3"/><path d="M12 15 Q15 14.2 16.3 11.3"/><path d="M12 15 Q9 14.2 7.7 11.3"/>` },
+  { id: "🍖", name: "食料／食事", cat: "リソース", pro: true,
+    svg: `<path d="M6.5 4 V8.3 C6.5 9.8 8.5 10 8.5 10 C8.5 10 10.5 9.8 10.5 8.3 V4"/><path d="M8.5 10 V20"/><path d="M16.5 4 C17.9 6 17.9 10.5 16.5 12.5 Z"/><path d="M16.5 12.5 V20"/>` },
+  { id: "🌲", name: "木／森", cat: "リソース", pro: true,
+    svg: `<path d="M12 4 L7.5 11 H9.8 L6.5 16.5 H17.5 L14.2 11 H16.5 Z"/><path d="M12 16.5 V20"/>` },
+  { id: "🪨", name: "石／鉱石", cat: "リソース", pro: true,
+    svg: `<path d="M4.5 15.5 L8 8 L14 6 L19.5 12 L17 17.5 Z"/><path d="M8 8 L12 12 L19.5 12"/><path d="M12 12 L11 17.5"/>` },
   { id: "🟫", name: "茶／粘土", cat: "リソース", pro: true, emoji: "🟫" },
   { id: "🟣", name: "紫トークン", cat: "リソース", pro: true, emoji: "🟣" },
   { id: "🟠", name: "橙トークン", cat: "リソース", pro: true, emoji: "🟠" },
@@ -59,9 +66,12 @@ export const ICON_LIBRARY = [
     svg: `<path d="M6.5 4 V20.5"/><path d="M6.5 5 H17 L14 8.2 L17 11.4 H6.5"/>` },
   { id: "track", name: "スコアトラック／進む", cat: "コマ・進行", pro: true,
     svg: `<rect x="3" y="10" width="18" height="4" rx="2"/><path d="M7.5 10 V14"/><path d="M12 10 V14"/><path d="M16.5 10 V14"/><rect x="13" y="7.5" width="5" height="9" rx="1.2"/>` },
-  { id: "🚂", name: "列車／乗り物", cat: "コマ・進行", pro: true, emoji: "🚂" },
-  { id: "🗺️", name: "ボード／マップ", cat: "コマ・進行", pro: true, emoji: "🗺️" },
-  { id: "🚩", name: "陣地／自分の場所", cat: "コマ・進行", pro: true, emoji: "🚩" },
+  { id: "🚂", name: "列車／乗り物", cat: "コマ・進行", pro: true,
+    svg: `<path d="M4 16 V8 H11 V11 H18.5 V16 Z"/><path d="M14.5 11 V7 H17.5 V11"/><rect x="6" y="10" width="3.4" height="3.4" rx="0.6"/><circle cx="8" cy="18" r="1.7"/><circle cx="16" cy="18" r="1.7"/>` },
+  { id: "🗺️", name: "ボード／マップ", cat: "コマ・進行", pro: true,
+    svg: `<path d="M4 6.5 L9.5 8.5 L14.5 6.5 L20 8.5 V17.5 L14.5 15.5 L9.5 17.5 L4 15.5 Z"/><path d="M9.5 8.5 V17.5"/><path d="M14.5 6.5 V15.5"/>` },
+  { id: "🚩", name: "陣地／自分の場所", cat: "コマ・進行", pro: true,
+    svg: `<path d="M7.5 20 V4"/><path d="M7.5 5 H17 V11 H7.5"/><path d="M5 20 H10"/>` },
 
   // ============ アクション ============
   { id: "get", name: "得る／増える", cat: "アクション", pro: false,
@@ -74,10 +84,13 @@ export const ICON_LIBRARY = [
     svg: `<circle cx="12" cy="12" r="4.6"/><circle cx="12" cy="12" r="1.9"/><path d="M12 4.4 V6.7 M12 17.3 V19.6 M4.4 12 H6.7 M17.3 12 H19.6"/><path d="M6.6 6.6 L8.2 8.2 M17.4 6.6 L15.8 8.2 M6.6 17.4 L8.2 15.8 M17.4 17.4 L15.8 15.8"/>` },
   { id: "gavel", name: "競り／入札", cat: "アクション", pro: true,
     svg: `<path d="M17.9 9.85 L15.35 12.4 L11.1 8.15 L13.65 5.6 Z"/><path d="M13.2 10.3 L7.5 16"/><path d="M4.5 19.5 H11.5"/>` },
-  { id: "⚔️", name: "戦闘／攻撃", cat: "アクション", pro: true, emoji: "⚔️" },
-  { id: "🛡️", name: "防御", cat: "アクション", pro: true, emoji: "🛡️" },
+  { id: "⚔️", name: "戦闘／攻撃", cat: "アクション", pro: true,
+    svg: `<path d="M5.5 18.5 L15 9"/><path d="M18.5 18.5 L9 9"/><path d="M13.6 7.6 L16.4 10.4"/><path d="M10.4 7.6 L7.6 10.4"/><path d="M5.5 18.5 L4.3 19.7"/><path d="M18.5 18.5 L19.7 19.7"/>` },
+  { id: "🛡️", name: "防御", cat: "アクション", pro: true,
+    svg: `<path d="M12 4 L19 6.5 V12 C19 16.6 15.8 19.2 12 20.5 C8.2 19.2 5 16.6 5 12 V6.5 Z"/>` },
+  { id: "🎯", name: "指定／狙う", cat: "アクション", pro: true,
+    svg: `<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4.3"/>${d(12,12,1.6)}` },
   { id: "🤝", name: "交渉／取引", cat: "アクション", pro: true, emoji: "🤝" },
-  { id: "🎯", name: "指定／狙う", cat: "アクション", pro: true, emoji: "🎯" },
 
   // ============ 得点・特殊 ============
   { id: "vp", name: "勝利点（宝石星）", cat: "得点・特殊", pro: false,
@@ -92,9 +105,12 @@ export const ICON_LIBRARY = [
     svg: `<rect x="3.5" y="7" width="17" height="10" rx="1.8"/><path d="M9.2 12 H14.8"/>${d(8,12,1.6)}${d(16,12,1.6)}` },
   { id: "clock", name: "時間／ラウンド", cat: "得点・特殊", pro: true,
     svg: `<circle cx="12" cy="12" r="8"/><path d="M12 7.5 V12 L15.3 13.8"/>` },
-  { id: "🔮", name: "特殊効果", cat: "得点・特殊", pro: true, emoji: "🔮" },
-  { id: "👑", name: "リーダー／親", cat: "得点・特殊", pro: true, emoji: "👑" },
-  { id: "💥", name: "脱落／破壊", cat: "得点・特殊", pro: true, emoji: "💥" },
+  { id: "🔮", name: "特殊効果", cat: "得点・特殊", pro: true,
+    svg: `<path d="M12 3.5 L13.6 10.4 L20.5 12 L13.6 13.6 L12 20.5 L10.4 13.6 L3.5 12 L10.4 10.4 Z"/>${d(18.6,6,1)}${d(5.6,17,1)}` },
+  { id: "👑", name: "リーダー／親", cat: "得点・特殊", pro: true,
+    svg: `<path d="M5 17 L6.4 8.5 L10 13 L12 6.8 L14 13 L17.6 8.5 L19 17 Z"/><path d="M5 17 H19"/>` },
+  { id: "💥", name: "脱落／破壊", cat: "得点・特殊", pro: true,
+    svg: `<path d="M12 3.2 L14 9 L19.8 7.2 L15.6 11.6 L20.8 14.2 L14.6 14.6 L16 20.8 L12 16 L8 20.8 L9.4 14.6 L3.2 14.2 L8.4 11.6 L4.2 7.2 L10 9 Z"/>` },
 ];
 
 // id → エントリ の索引（描画・後方互換に使う）
