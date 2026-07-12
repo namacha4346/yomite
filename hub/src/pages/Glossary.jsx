@@ -1,9 +1,9 @@
 import { useEffect, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { GLOSSARY } from "../script/glossary.js";
+import { GENERAL } from "../script/glossary.js";
 
-// カテゴリの表示順
-const CATS = ["基本の言葉", "メカニクス（仕組み）", "ゲーム独特の名詞"];
+// カテゴリの表示順（ここに載るのはボードゲーム全般で使う一般用語）
+const CATS = ["基本の言葉", "メカニクス（仕組み）", "よく出てくる名詞"];
 
 // ボードゲーム用語辞典。台本中の用語リンク（/glossary?t=<id>）から飛んでくる。
 export default function Glossary() {
@@ -25,7 +25,7 @@ export default function Glossary() {
 
   const grouped = CATS.map((cat) => ({
     cat,
-    items: GLOSSARY.filter((g) => g.cat === cat),
+    items: GENERAL.filter((g) => g.cat === cat),
   }));
 
   return (
@@ -33,8 +33,9 @@ export default function Glossary() {
       <span className="page-hurdle">用語辞典</span>
       <h1 className="page-title">ボードゲーム用語辞典</h1>
       <p className="page-lead">
-        台本に出てくる、ボードゲームならではの言い回しや名詞をまとめました。
-        台本の本文で色のついた語をタップすると、ここへ来られます。
+        ボードゲーム全般で使う言い回しや名詞をまとめました。台本の本文で色のついた語を
+        タップすると、ここへ来られます。なお、そのゲームだけの用語（例：宝石の煌めきの
+        「威信ポイント」）は、各台本の一番後ろ「このゲームの用語」にまとめています。
       </p>
 
       {grouped.map((group) => (

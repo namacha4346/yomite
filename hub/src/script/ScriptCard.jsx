@@ -9,6 +9,7 @@ import { Icon } from "../ui/graphics.jsx";
 import { buyUrl } from "../ui/buy.js";
 import AskBox from "../ai/AskBox.jsx";
 import GlossaryText from "./GlossaryText.jsx";
+import { gameTerms } from "./glossary.js";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
 function AuthorLabel({ script }) {
@@ -117,6 +118,27 @@ export default function ScriptCard({
             renderSection(sec, script)
           )}
         </div>
+      )}
+
+      {gameTerms(script.id).length > 0 && (
+        <section className="game-terms">
+          <h4 className="game-terms-h">このゲームの用語</h4>
+          <dl className="game-terms-list">
+            {gameTerms(script.id).map((t) => (
+              <div className="game-term" key={t.id}>
+                <dt className="game-term-word">
+                  {t.term}
+                  {t.aliases && t.aliases.length > 0 && (
+                    <span className="game-term-alias">
+                      （{t.aliases.join("・")}）
+                    </span>
+                  )}
+                </dt>
+                <dd className="game-term-def">{t.def}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
       )}
 
       <AskBox script={script} />
