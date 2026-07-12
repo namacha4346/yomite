@@ -160,6 +160,13 @@ export default function ScriptCard({
         <div className="script-summary">
           {/* 帯なしの埋め込み表示（印刷は下のフッターから） */}
           <SummaryCard summary={summary} embedded />
+          {official && (
+            <div className="summary-tools">
+              <Link className="linkbtn" to={`/layout?script=${script.id}`}>
+                ✎ 自由にレイアウトして印刷（試作・PRO）
+              </Link>
+            </div>
+          )}
         </div>
       ) : tab === "terms" ? (
         <div className="script-body">

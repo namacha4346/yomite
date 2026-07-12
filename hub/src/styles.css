@@ -3664,3 +3664,180 @@ body::before {
   width: 13px;
   height: 13px;
 }
+
+/* ===== 早見表の自由レイアウト編集（試作） ===== */
+.layout-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 16px 40px;
+}
+.summary-tools {
+  margin-top: 12px;
+  text-align: right;
+}
+.layout-head {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.layout-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.layout-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  position: sticky;
+  top: 8px;
+  z-index: 5;
+}
+.lt-btn {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  min-width: 34px;
+}
+.lt-btn.is-on {
+  background: var(--learn);
+  border-color: var(--learn);
+  color: #fff;
+}
+.lt-btn.lt-print {
+  background: var(--learn);
+  border-color: var(--learn);
+  color: #fff;
+}
+.lt-btn.lt-del {
+  color: #b0503f;
+  border-color: #e0b7ae;
+}
+.lt-size {
+  font-size: 12px;
+  color: var(--text-soft);
+  min-width: 34px;
+  text-align: center;
+}
+.lt-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 2px 4px;
+}
+.lt-hint {
+  font-size: 12px;
+  color: var(--text-soft);
+}
+.lt-text {
+  width: 100%;
+  margin-top: 8px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 14px;
+  min-height: 60px;
+  resize: vertical;
+}
+.lt-text:focus {
+  outline: none;
+  border-color: var(--learn);
+}
+
+.layout-stage {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+}
+.layout-canvas {
+  position: relative;
+  width: min(100%, 560px);
+  aspect-ratio: 1 / 1.414; /* A4縦 */
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  box-shadow: var(--e1);
+  overflow: hidden;
+  touch-action: none; /* ドラッグでスクロールしないように */
+}
+.lbox {
+  position: absolute;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--ink);
+  padding: 2px 3px;
+  cursor: grab;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+}
+.lbox:hover {
+  border-color: color-mix(in srgb, var(--ac) 40%, transparent);
+}
+.lbox.is-sel {
+  border: 1px solid var(--ac);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 22%, transparent);
+  cursor: move;
+}
+.lbox-text {
+  pointer-events: none; /* ドラッグを親で受ける */
+}
+.lbox-resize {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  background: var(--ac);
+  border: 2px solid #fff;
+  border-radius: 50%;
+  cursor: ew-resize;
+}
+
+/* 印刷：キャンバスだけを紙いっぱいに出す（UI・選択枠は消す） */
+@media print {
+  .layout-page {
+    max-width: none;
+    padding: 0;
+  }
+  .layout-ui {
+    display: none !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .layout-canvas,
+  .layout-canvas * {
+    visibility: visible;
+  }
+  .layout-canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .lbox {
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+  .lbox-resize {
+    display: none !important;
+  }
+}

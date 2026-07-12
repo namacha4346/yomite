@@ -11,6 +11,7 @@ import Rights from "./pages/Rights.jsx";
 import Terms from "./pages/Terms.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Glossary from "./pages/Glossary.jsx";
+import LayoutEditor from "./pages/LayoutEditor.jsx";
 import AuthGate from "./pages/AuthGate.jsx";
 import { AuthContext } from "./social/AuthContext.js";
 import { getAccount, saveAccount, clearAccount } from "./social/auth.js";
@@ -111,6 +112,7 @@ export default function App() {
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/glossary" element={<Glossary />} />
+            <Route path="/layout" element={<LayoutEditor />} />
             <Route path="/u/:handle" element={<Profile />} />
             <Route path="*" element={<Home />} />
           </Routes>
