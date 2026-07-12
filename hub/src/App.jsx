@@ -62,11 +62,11 @@ export default function App() {
             <NavLink to="/learn" className="mainnav-link mainnav-link--learn">
               教わる
             </NavLink>
-            <NavLink to="/place" className="mainnav-link mainnav-link--place">
-              集まる
-            </NavLink>
             <NavLink to="/discover" className="mainnav-link mainnav-link--discover">
               出会う
+            </NavLink>
+            <NavLink to="/place" className="mainnav-link mainnav-link--place">
+              集まる
             </NavLink>
           </nav>
 
