@@ -3544,3 +3544,50 @@ body::before {
   border-color: var(--learn);
   box-shadow: 0 0 0 3px rgba(183, 99, 62, 0.18);
 }
+
+
+/* ---- 台本の一番後ろ「このゲームの用語」 ---- */
+.game-terms {
+  margin: 4px 20px 0;
+  padding: 14px 16px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.game-terms-h {
+  margin: 0 0 10px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--learn);
+}
+.game-terms-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.game-term {
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.game-term:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.game-term-word {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink);
+}
+.game-term-alias {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  margin-left: 2px;
+}
+.game-term-def {
+  margin: 4px 0 0;
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink);
+}
