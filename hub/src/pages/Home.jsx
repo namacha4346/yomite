@@ -17,7 +17,7 @@ const DOORS = [
     to: "/discover",
     label: "出会う",
     hurdle: "はじめの一作に出会う",
-    desc: "3つの質問で、ぴったりの1本へ。",
+    desc: "簡単な質問で、ぴったりの1本へ。",
     key: "discover",
     icon: "compass",
   },
