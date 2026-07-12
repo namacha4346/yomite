@@ -113,10 +113,12 @@ const EMBLEMS = {
       <path d="M24 10 L28 20 L24 40" />
     </svg>
   ),
+  // デッキ構築＝「束（デッキ）を育てる」を、少しずつずらして重ねた3枚で表す
   dominion: (
     <svg {...emblemProps}>
-      <rect x="17" y="12" width="16" height="22" rx="2.5" transform="rotate(9 25 23)" />
-      <rect x="14" y="13" width="16" height="22" rx="2.5" transform="rotate(-7 22 24)" />
+      <rect x="12" y="17" width="15" height="20" rx="2.5" />
+      <rect x="15.5" y="14" width="15" height="20" rx="2.5" />
+      <rect x="19" y="11" width="15" height="20" rx="2.5" />
     </svg>
   ),
   carcassonne: (
@@ -125,18 +127,22 @@ const EMBLEMS = {
       <path d="M21 38v-6h6v6" />
     </svg>
   ),
+  // 石斧＝石器時代の道具。斜めの柄＋刃先が湾曲した幅広の石刃＋接合部の結束線。
   "stone-age": (
     <svg {...emblemProps}>
-      <path d="M15 36 L29 20" />
-      <path d="M27 11 L37 20 L28 24 Q23 17 27 11 Z" />
+      <path d="M16 35 L27 16" />
+      <path d="M23 11 L32 15 Q35 19 31 23 L25 19.5 Z" />
+      <path d="M24.5 15 L28.5 17.4" />
     </svg>
   ),
+  // 列車ゲームの一意な記号＝機関車。運転席＋ボイラー＋煙突＋車輪。
   "ticket-to-ride": (
     <svg {...emblemProps}>
-      {dot(13, 30, 2.4)}
-      {dot(35, 18, 2.4)}
-      <path d="M13 30 C 20 30, 22 18, 30 18" />
-      <path d="M30 18 h5" />
+      <path d="M13 28 V16 H23 V21 H34 V28 Z" />
+      <path d="M28 21 V15 H32 V21" />
+      <rect x="15.5" y="19" width="5" height="4.6" rx="0.9" />
+      <circle cx="17.5" cy="31" r="2.6" />
+      <circle cx="29" cy="31" r="2.6" />
     </svg>
   ),
   nanjamonja: (
@@ -147,11 +153,13 @@ const EMBLEMS = {
       <path d="M20 34v3M28 34v3" />
     </svg>
   ),
+  // 核＝「小さい順に並べる」。昇順に上がる点列＋上向きの矢じり（糸で結ぶ含意も）。
   ito: (
     <svg {...emblemProps}>
-      {dot(12, 32, 2.2)}
-      {dot(36, 20, 2.2)}
-      <path d="M12 32 C 20 32, 18 18, 26 18 S 32 28, 36 20" />
+      <path d="M13 33 L22 27 L31 21" />
+      <path d="M28.8 25.5 L31 21 L26 20.6" />
+      {dot(13, 33, 2.2)}
+      {dot(22, 27, 2.2)}
     </svg>
   ),
   "love-letter": (
@@ -169,10 +177,11 @@ const EMBLEMS = {
       <path d="M21 17l-2-4M27 17l2-4" />
     </svg>
   ),
+  // ハゲタカ＝獲物の上を旋回する猛禽。翼を広げた上からのシルエット＋尾。
   vulture: (
     <svg {...emblemProps}>
-      <path d="M11 19 Q 24 10 37 19 Q 30 21 25 19 Q 22 30 18 30 Q 20 23 11 19 Z" />
-      {dot(15, 18, 1.2)}
+      <path d="M24 20 C20 24 15 24.5 9 28 C16 26.5 20 27.5 24 25 C28 27.5 32 26.5 39 28 C33 24.5 28 24 24 20 Z" />
+      <path d="M22 29 L24 34 L26 29" />
     </svg>
   ),
   "sample-script-1": (
