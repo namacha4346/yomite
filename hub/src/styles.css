@@ -3615,3 +3615,29 @@ body::before {
   background: color-mix(in srgb, var(--learn) 8%, transparent);
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--learn) 8%, transparent);
 }
+
+/* ---- 台本ヘッダー：タイトル下の人数・時間チップ ---- */
+.scard-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+.scard-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  padding: 3px 10px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.scard-chip .icn {
+  width: 13px;
+  height: 13px;
+}

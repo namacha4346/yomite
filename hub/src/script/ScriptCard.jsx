@@ -26,8 +26,17 @@ function AuthorLabel({ script }) {
   return <>インスト台本・作者 みんな</>;
 }
 
+// 概要文の末尾にある「2〜4人・約30分」などのメタ表記を取り除く
+// （人数・時間はタイトル下のチップで別に見せるので、本文では重複させない）。
+function stripMeta(about) {
+  return String(about || "")
+    .replace(/[0-9０-９]+[〜～][0-9０-９]+人[^。]*。?\s*$/, "")
+    .trim();
+}
+
 // 台本の1セクションを描画（gameId・onGameTerm は用語リンク用）
 function renderSection(sec, script, gameId, onGameTerm) {
+  const text = sec.key === "about" ? stripMeta(script[sec.key]) : script[sec.key];
   return (
     <section className="sec-block" key={sec.key}>
       <h4 className="sec-label">{sec.label}</h4>
@@ -52,11 +61,7 @@ function renderSection(sec, script, gameId, onGameTerm) {
         </ul>
       ) : (
         <p className="sec-text">
-          <GlossaryText
-            text={script[sec.key]}
-            gameId={gameId}
-            onGameTerm={onGameTerm}
-          />
+          <GlossaryText text={text} gameId={gameId} onGameTerm={onGameTerm} />
         </p>
       )}
     </section>
@@ -88,7 +93,7 @@ export default function ScriptCard({
   const [tab, setTab] = useState(order[0]);
   const [focusTerm, setFocusTerm] = useState(null); // 専門用語タブで注目する語
   const termsRef = useRef(null);
-  const { gameTitle, official } = script;
+  const { gameTitle, official, players, time } = script;
   const summary = deriveSummary(script);
   const activeTheme = THEMES.find((t) => t.id === tab);
 
@@ -117,6 +122,21 @@ export default function ScriptCard({
             <AuthorLabel script={script} />
           </span>
           <h3 className="scard-title">{gameTitle || "（無題の台本）"}</h3>
+          {(players || time) && (
+            <div className="scard-meta">
+              {players && (
+                <span className="scard-chip">
+                  <Icon name="users" />
+                  {players.min}–{players.max}人
+                </span>
+              )}
+              {time && (
+                <span className="scard-chip">
+                  <Icon name="clock" />約{time}分
+                </span>
+              )}
+            </div>
+          )}
         </div>
         {official && <span className="scard-official">運営</span>}
       </header>
