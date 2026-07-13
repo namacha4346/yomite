@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import IconPicker from "../summary/IconPicker.jsx";
+import { LibIcon } from "../ui/graphics.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { MECHANICS } from "./mechanics.js";
 import { emptyScript, isComplete, scriptToForm, DEFAULT_THEME_ORDER } from "./model.js";
@@ -163,7 +164,7 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
                   onClick={() => setPickerRow(pickerRow === i ? null : i)}
                   title="アイコンを選ぶ"
                 >
-                  {g.icon || "＋"}
+                  {g.icon ? <LibIcon value={g.icon} /> : "＋"}
                 </button>
                 <input
                   className="input"
