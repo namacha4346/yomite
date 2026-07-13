@@ -13,7 +13,8 @@ import { likeCount } from "../social/likes.js";
 import { useAuth } from "../social/AuthContext.js";
 
 // 「教わる／教える」。
-// ベースは【運営の台本を使う】（無料）。【台本を作る】は有料プランの機能。
+// 【運営の台本を使う】も【台本を作る】もアカウントがあれば無料。
+// PRO＝デザイン系の高機能（アイコン全解禁・早見表の自由レイアウト編集 など）。
 export default function Learn() {
   const [tab, setTab] = useState("browse"); // browse | build
   const [shared, setShared] = useState([]);
@@ -66,7 +67,7 @@ export default function Learn() {
     }
   };
 
-  // 公式（や誰かの）台本を下敷きに「自分版」を編集する（PRO機能）。
+  // 公式（や誰かの）台本を下敷きに「自分版」を編集する（アカウントがあれば無料）。
   // ログイン／PRO のゲートは「台本をつくる」タブ側で出す。
   const startFork = (script) => {
     setForkSeed(script);
@@ -103,7 +104,6 @@ export default function Learn() {
           }}
         >
           台本をつくる
-          <span className="tab-pro">PRO</span>
         </button>
       </div>
 
@@ -116,16 +116,21 @@ export default function Learn() {
       {tab === "build" ? (
         !user ? (
           <LoginPrompt onLogin={requireLogin} seed={forkSeed} />
-        ) : isPro ? (
-          <ScriptBuilder
-            key={forkSeed ? "fork-" + forkSeed.id : "new"}
-            onSave={handleSave}
-            isPro={isPro}
-            initial={forkSeed}
-            onNewBlank={() => setForkSeed(null)}
-          />
         ) : (
-          <Paywall onTryDemo={() => setIsPro(true)} seed={forkSeed} />
+          <>
+            {isPro ? (
+              <ProActiveBar onOff={() => setIsPro(false)} />
+            ) : (
+              <ProUpsell onTryDemo={() => setIsPro(true)} />
+            )}
+            <ScriptBuilder
+              key={forkSeed ? "fork-" + forkSeed.id : "new"}
+              onSave={handleSave}
+              isPro={isPro}
+              initial={forkSeed}
+              onNewBlank={() => setForkSeed(null)}
+            />
+          </>
         )
       ) : (
         <Browse
@@ -519,29 +524,41 @@ function LoginPrompt({ onLogin, seed }) {
   );
 }
 
-// 台本づくり（自分版づくり含む）は有料プランの機能。無料の人にはこの案内を出す。
-function Paywall({ onTryDemo, seed }) {
+// 台本づくりはアカウントがあれば無料。PRO はデザイン系の高機能。
+// 無料の人には「PROで何が増えるか」を上部バナーで案内（作成そのものは止めない）。
+function ProUpsell({ onTryDemo }) {
   return (
-    <div className="paywall">
-      <span className="paywall-badge">PRO プラン</span>
-      <h3 className="paywall-title">
-        {seed ? "自分版づくりは有料プランの機能です" : "台本づくりは有料プランの機能です"}
-      </h3>
-      <p className="paywall-lead">
-        {seed
-          ? `運営の「${seed.gameTitle}」はそのまま無料で使えます。中身を自分のインスト用に書き換えて「自分版」を持ちたくなったら、有料プランへ。`
-          : "まずは運営の台本を無料で使えます。自分のゲームの台本を作りたくなったら、有料プランへ。"}
-      </p>
-      <ul className="paywall-list">
-        <li>自分のゲームの台本を作成・共有できる</li>
-        <li>台本から早見表（サマリー）を自動生成・印刷</li>
-        <li>PRO アイコンが解禁される</li>
-      </ul>
-      <button className="savebtn" type="button">
-        有料プランについて
+    <div className="proup">
+      <div className="proup-main">
+        <span className="proup-badge">PRO</span>
+        <div>
+          <p className="proup-title">台本づくりは、このまま無料で使えます。</p>
+          <p className="proup-lead">
+            PRO にすると
+            <b>すべてのアイコン</b>と、早見表を
+            <b>自由にレイアウトして印刷</b>できる編集機能など、デザイン系の高機能が解禁されます。
+          </p>
+        </div>
+      </div>
+      <button className="proup-demo" type="button" onClick={onTryDemo}>
+        （デモ）PRO機能を試す →
       </button>
-      <button className="paywall-demo" type="button" onClick={onTryDemo}>
-        （デモ）試しに使ってみる →
+    </div>
+  );
+}
+
+// デモで PRO を有効にしているときの表示（オフに戻せる）。
+function ProActiveBar({ onOff }) {
+  return (
+    <div className="proup proup--on">
+      <div className="proup-main">
+        <span className="proup-badge proup-badge--on">PRO 有効（デモ）</span>
+        <p className="proup-lead">
+          すべてのアイコンと自由レイアウト編集が使えます。
+        </p>
+      </div>
+      <button className="proup-demo" type="button" onClick={onOff}>
+        無料表示に戻す
       </button>
     </div>
   );

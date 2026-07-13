@@ -216,7 +216,6 @@ export default function ScriptCard({
             onClick={() => onFork(script)}
           >
             この台本をもとに自分版をつくる
-            <span className="fork-cta-pro">PRO</span>
           </button>
           <span className="fork-cta-note">
             運営のお勧めを下敷きに、自分のインスト用へ書き換えられます。

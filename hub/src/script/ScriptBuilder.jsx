@@ -203,7 +203,7 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
       {initial ? (
         <div className="fork-note">
           <div className="fork-note-main">
-            <span className="fork-badge">自分版（PRO）</span>
+            <span className="fork-badge">自分版</span>
             <p className="fork-note-text">
               <b>「{initial.gameTitle}」</b>の運営のお勧めを下敷きに編集中。各項目を
               あなたのインスト用に書き換えて、自分の台本として保存できます（元の運営の台本はそのまま）。
