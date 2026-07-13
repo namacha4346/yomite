@@ -730,6 +730,14 @@ a {
   display: inline-block;
   vertical-align: middle;
 }
+/* 文中に入るインラインアイコンは、日本語の字の中心に合わせて縦位置を調整
+   （middle だと字より低く見えて行がガタつくため、少し持ち上げてバランスを取る）。 */
+.lib-icon.inline-ic {
+  width: 1.1em;
+  height: 1.1em;
+  vertical-align: -0.14em;
+  margin: 0 0.06em;
+}
 
 /* ③ 終了条件：ゴール枠 */
 .scard-end {
