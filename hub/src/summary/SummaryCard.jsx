@@ -2,6 +2,7 @@ import { useState } from "react";
 import { withSides } from "./model.js";
 import { gameColor } from "../ui/gameColor.js";
 import { LibIcon } from "../ui/graphics.jsx";
+import Iconize from "../script/iconize.jsx";
 
 // 1つのセクション見出し
 function SecHead({ children }) {
@@ -22,7 +23,7 @@ function renderSection(key, s) {
           {actions.map((a, i) => (
             <li key={i} className="step">
               <span className="step-no">{i + 1}</span>
-              <span className="step-text">{a}</span>
+              <span className="step-text"><Iconize text={a} /></span>
             </li>
           ))}
         </ol>
@@ -38,7 +39,7 @@ function renderSection(key, s) {
           {glossary.map((g, i) => (
             <li key={i} className="gitem">
               <span className="gitem-ic"><LibIcon value={g.icon} /></span>
-              <span className="gitem-mean">{g.meaning}</span>
+              <span className="gitem-mean"><Iconize text={g.meaning} /></span>
             </li>
           ))}
         </ul>
@@ -51,8 +52,8 @@ function renderSection(key, s) {
       <section className="scard-sec" key="end">
         <SecHead>終了条件</SecHead>
         <div className="scard-end">
-          <span className="scard-end-flag" aria-hidden="true">🏁</span>
-          <p className="scard-end-text">{s.endCondition}</p>
+          <span className="scard-end-flag" aria-hidden="true"><LibIcon value="flag" /></span>
+          <p className="scard-end-text"><Iconize text={s.endCondition} /></p>
         </div>
       </section>
     );

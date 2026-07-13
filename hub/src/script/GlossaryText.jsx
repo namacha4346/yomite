@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { linkify } from "./glossary.js";
+import Iconize from "./iconize.jsx";
 
 // 台本本文を描画しつつ、用語を初出だけリンクする。
 // ・一般用語 → 用語辞典（/glossary）へ
@@ -10,7 +11,7 @@ export default function GlossaryText({ text, gameId, onGameTerm }) {
   return (
     <>
       {parts.map((p, i) => {
-        if (!p.id) return p.text;
+        if (!p.id) return <Iconize key={i} text={p.text} />;
         if (p.kind === "game") {
           return (
             <button

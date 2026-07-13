@@ -258,8 +258,15 @@ export const ICON_LIBRARY = [
     svg: `<path d="M6 20 V11 A6 6 0 0 1 18 11 V20"/><path d="M6 20 H18"/>${d(14.5,13,1.1)}` },
 ];
 
-// id → エントリ の索引（描画・後方互換に使う）
-export const ICON_BY_ID = Object.fromEntries(ICON_LIBRARY.map((i) => [i.id, i]));
+// id → エントリ の索引（描画・後方互換に使う）。
+// 絵文字idはバリエーションセレクタ(U+FE0F)有無の差で取りこぼしやすいので、
+// FE0Fを外したキーも別名として登録しておく（例："🛡️" と "🛡" の両方で引ける）。
+export const ICON_BY_ID = Object.fromEntries(
+  ICON_LIBRARY.flatMap((i) => {
+    const bare = i.id.replace(/️/g, "");
+    return bare !== i.id ? [[i.id, i], [bare, i]] : [[i.id, i]];
+  })
+);
 
 // 無料で使えるアイコンだけを返す
 export function freeIcons() {

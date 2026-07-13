@@ -96,7 +96,7 @@ export function Icon({ name, className = "" }) {
 // ・color を持てば「フラット単色ディスク」（色トークン）
 // ・どちらも無ければ emoji／生の文字（絵文字台本の後方互換）
 export function LibIcon({ value, className = "" }) {
-  const it = ICON_BY_ID[value];
+  const it = ICON_BY_ID[value] || ICON_BY_ID[String(value).replace(/️/g, "")];
   if (it && it.svg) {
     return (
       <svg

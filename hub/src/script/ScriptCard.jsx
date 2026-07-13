@@ -10,6 +10,7 @@ import { gameColor } from "../ui/gameColor.js";
 import { buyUrl } from "../ui/buy.js";
 import AskBox from "../ai/AskBox.jsx";
 import GlossaryText from "./GlossaryText.jsx";
+import Iconize from "./iconize.jsx";
 import { gameTerms } from "./glossary.js";
 
 // 作者の表示（公式は運営、投稿は @handle をプロフィールへリンク）
@@ -56,7 +57,7 @@ function renderSection(sec, script, gameId, onGameTerm) {
             .map((g, i) => (
               <li key={i}>
                 <span className="sec-ic"><LibIcon value={g.icon} /></span>
-                <span>{g.meaning}</span>
+                <span><Iconize text={g.meaning} /></span>
               </li>
             ))}
         </ul>
@@ -192,7 +193,7 @@ export default function ScriptCard({
                       </span>
                     )}
                   </dt>
-                  <dd className="game-term-def">{t.def}</dd>
+                  <dd className="game-term-def"><Iconize text={t.def} /></dd>
                 </div>
               ))}
             </dl>

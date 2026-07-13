@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { SAMPLE_SCRIPTS } from "../script/samples.js";
 import { gameColor } from "../ui/gameColor.js";
+import { stripEmoji } from "../script/iconize.jsx";
 
 // 早見表の「自由レイアウト」編集の試作（PRO想定）。
 // パワポのように、テキストボックスをドラッグで移動・幅リサイズ・文字サイズ変更でき、
@@ -41,12 +42,13 @@ function frontBoxes(s) {
   add(6, 88, 24, true, s.gameTitle || "（無題）", 0, 3);
   add(6, 88, 16, true, "手番でできること", 0, 1);
   // 番号つき項目は、折り返し行が本文の頭にそろうよう既定でぶら下げをつける
+  // 本文の絵文字は自作アイコンに寄せているが、ここは自由編集の素テキストなので取り除く
   (s.turn || []).filter(Boolean).forEach((t, i) => {
-    add(8, 84, 12, false, `${i + 1}. ${t}`, 20, 2.4);
+    add(8, 84, 12, false, `${i + 1}. ${stripEmoji(t)}`, 20, 2.4);
   });
   y += 2; // 終了条件の前に余白
   add(6, 88, 16, true, "終了条件", 0, 1);
-  add(8, 84, 12, false, s.end || "");
+  add(8, 84, 12, false, stripEmoji(s.end || ""));
   return boxes;
 }
 
@@ -62,8 +64,9 @@ function backBoxes(s) {
   const icons = (s.icons || []).filter((g) => g.icon || g.meaning);
   if (icons.length) {
     add(6, 88, 16, true, "アイコン早見表", 0, 1);
+    // アイコンは自作SVGで文中に置けないので、裏面の素テキストは「・意味」で並べる
     icons.forEach((g) => {
-      add(8, 84, 11, false, `${g.icon} ${g.meaning}`, 20, 1.6);
+      add(8, 84, 11, false, `・${stripEmoji(g.meaning)}`, 12, 1.6);
     });
   } else {
     add(6, 88, 13, false, "（ここに裏面の内容を追加できます）");
