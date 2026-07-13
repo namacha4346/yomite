@@ -3250,6 +3250,39 @@ body::before {
   line-height: 1.7;
   color: var(--text);
 }
+/* 「自分版」をやめて、まっさらな新規台本に戻すボタン。
+   下敷きが「消せない」と感じさせないよう、はっきりしたボタンにする。 */
+.fork-note-clear {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  color: var(--learn);
+  border: 1px solid var(--learn);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.fork-note-clear:hover {
+  background: var(--learn);
+  color: #fff;
+}
+.fork-note-clear-x {
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 800;
+}
+/* スマホでは折り返して横いっぱいに。見落としを防ぐ。 */
+@media (max-width: 560px) {
+  .fork-note-clear {
+    width: 100%;
+    justify-content: center;
+  }
+}
 
 /* ---- フッター（サイト情報・免責） ---- */
 .footer-nav {

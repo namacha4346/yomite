@@ -211,8 +211,9 @@ export default function ScriptBuilder({ onSave, isPro = false, initial = null, o
             </p>
           </div>
           {onNewBlank && (
-            <button type="button" className="linkbtn" onClick={onNewBlank}>
-              最初から新規で作る
+            <button type="button" className="fork-note-clear" onClick={onNewBlank}>
+              <span className="fork-note-clear-x" aria-hidden="true">×</span>
+              下敷きをやめて、まっさらから作る
             </button>
           )}
         </div>
