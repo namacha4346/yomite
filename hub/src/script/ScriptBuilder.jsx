@@ -5,13 +5,34 @@ import { LibIcon } from "../ui/graphics.jsx";
 import { SECTIONS, THEMES } from "./sections.js";
 import { MECHANICS } from "./mechanics.js";
 import { emptyScript, isComplete, scriptToForm, DEFAULT_THEME_ORDER } from "./model.js";
+import { stripEmoji } from "./iconize.jsx";
+
+// フォーク（自分版の下敷き）の本文に混ざっている生の絵文字を取り除く。
+// アイコン早見表の icon は id（gem 等）なのでそのまま。meaning と本文だけ整える。
+function cleanFork(form) {
+  const t = (v) => stripEmoji(v);
+  return {
+    ...form,
+    gameTitle: t(form.gameTitle),
+    about: t(form.about),
+    win: t(form.win),
+    setup: t(form.setup),
+    flow: t(form.flow),
+    turn: form.turn.map(t),
+    scoring: t(form.scoring),
+    end: t(form.end),
+    special: t(form.special),
+    pitfalls: t(form.pitfalls),
+    icons: form.icons.map((g) => ({ ...g, meaning: t(g.meaning) })),
+  };
+}
 
 // 台本エディタ。10セクションを「テーマごとのタブ」に分けて入力する。
 // 手番=箇条書き、アイコン早見表=アイコン選択、他=長文。全項目必須（一言可）。
 // initial を渡すと、その台本（公式のお勧め）を下敷きに「自分版」を編集できる（フォーク）。
 export default function ScriptBuilder({ onSave, isPro = false, initial = null, onNewBlank }) {
   const [form, setForm] = useState(() =>
-    initial ? scriptToForm(initial) : emptyScript()
+    initial ? cleanFork(scriptToForm(initial)) : emptyScript()
   );
   const [pickerRow, setPickerRow] = useState(null);
   const [theme, setTheme] = useState(0); // 表示中のテーマ（並び順のインデックス）
