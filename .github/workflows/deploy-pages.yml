@@ -22,12 +22,18 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm ci
-      - run: npm run build
+      # 実体は hub/ の「ボードゲームひろば（仮）」。
+      # VITE_DEMO=1 で HashRouter + localStorage + singlefile の
+      # サーバー不要な1枚完結デモをビルドする（静的ホスティング向き）。
+      - name: Build hub demo
+        working-directory: hub
+        run: |
+          npm ci
+          VITE_DEMO=1 npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: hub/dist
 
   deploy:
     needs: build
